@@ -1,0 +1,2241 @@
+<!DOCTYPE html>
+<html>
+<head>
+<base target="_top">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --navy: #0f2238; --bg: #f4efe5; --accent: #1d3654;
+    --green: #16a34a; --yellow: #d97706; --red: #dc2626;
+    --purple: #6d28d9; --blue: #1d4ed8; --border: #d8cfbf;
+    --ink: #1f2937; --muted: #6b7280;
+  }
+  body {
+    font-family: 'Manrope', 'IBM Plex Sans', sans-serif;
+    background:
+      radial-gradient(980px 380px at 2% -8%, #e8dbc2 0%, rgba(232,219,194,0) 72%),
+      radial-gradient(860px 360px at 100% -12%, #dce4d5 0%, rgba(220,228,213,0) 72%),
+      var(--bg);
+    color: var(--ink);
+  }
+  .top-bar {
+    background: linear-gradient(135deg, #0d1f33 0%, #163a60 100%);
+    color: white; padding: 16px 28px;
+    display: flex; justify-content: space-between; align-items: center;
+    position: sticky; top: 0; z-index: 100;
+    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.28);
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+  }
+  .top-bar .actions { display: inline-flex; gap: 8px; align-items: center; }
+  .top-bar h1 { font-size: 19px; font-weight: 800; letter-spacing: .2px; }
+  .top-bar .meta { font-size: 12px; color: #bfccde; margin-top: 3px; font-weight: 600; }
+  .top-bar a {
+    color: #fff; text-decoration: none; font-size: 12px; font-weight: 800;
+    letter-spacing: .3px; text-transform: uppercase;
+    border: 1px solid rgba(250,204,21,.55); padding: 8px 14px; border-radius: 999px;
+    background: rgba(250,204,21,.15);
+    transition: all .15s ease;
+  }
+  .top-bar a:hover { background: rgba(250,204,21,.3); color: #fff; transform: translateY(-1px); }
+  .guide-btn {
+    color: #fff; font-size: 12px; font-weight: 800; letter-spacing: .3px; text-transform: uppercase;
+    border: 1px solid rgba(34,197,94,.65); padding: 8px 14px; border-radius: 999px;
+    background: rgba(34,197,94,.2); cursor: pointer; font-family: inherit;
+    transition: all .15s ease;
+  }
+  .guide-btn:hover { background: rgba(34,197,94,.34); transform: translateY(-1px); }
+  .page { max-width: 980px; margin: 0 auto; padding: 24px 20px 34px; }
+
+  /* Stats row */
+  .stats-row {
+    display: grid; grid-template-columns: repeat(4, 1fr);
+    gap: 14px; margin-bottom: 20px;
+  }
+  @media (max-width: 768px) { .stats-row { grid-template-columns: repeat(2, 1fr); } }
+  .stat-card {
+    background: linear-gradient(180deg, #fffdf8 0%, #f8f4eb 100%);
+    border-radius: 12px; padding: 16px;
+    text-align: center; border: 1px solid var(--border);
+    box-shadow: 0 10px 22px rgba(15, 23, 42, .07);
+  }
+  .stat-icon { font-size: 18px; margin-bottom: 2px; }
+  .stat-value { font-size: 22px; font-weight: 800; margin: 2px 0; }
+  .stat-label { font-size: 10px; color: #6b7280; text-transform: uppercase; letter-spacing: .5px; }
+  .stat-sub { font-size: 10px; color: #9ca3af; margin-top: 2px; }
+
+  /* SF / QBR banners */
+  .banner {
+    background: linear-gradient(180deg, #fffefb 0%, #f8f3ea 100%);
+    border-radius: 12px; padding: 16px 20px;
+    margin-bottom: 16px; border: 1px solid var(--border);
+    box-shadow: 0 10px 22px rgba(15, 23, 42, .07);
+  }
+  .banner-title {
+    font-size: 12px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: .5px; margin-bottom: 10px; padding-bottom: 6px;
+    border-bottom: 2px solid #f0f0f0;
+  }
+  .banner-row { display: flex; gap: 20px; flex-wrap: wrap; }
+  .banner-item { text-align: center; }
+  .banner-label { font-size: 10px; font-weight: 600; color: #6b7280; text-transform: uppercase; }
+  .banner-val { font-size: 18px; font-weight: 700; }
+
+  /* NBM warnings */
+  .nbm-block {
+    background: #fee2e2; border: 1px solid #fca5a5; color: #991b1b;
+    padding: 10px 14px; border-radius: 8px; font-size: 12px; margin-bottom: 8px;
+  }
+  .nbm-warning {
+    background: #fef3c7; border: 1px solid #fde68a; color: #92400e;
+    padding: 10px 14px; border-radius: 8px; font-size: 12px; margin-bottom: 8px;
+  }
+
+  /* Section card */
+  .section {
+    background: linear-gradient(180deg, #fffefb 0%, #faf6ef 100%);
+    border-radius: 12px; padding: 22px;
+    margin-bottom: 18px; border: 1px solid var(--border);
+    box-shadow: 0 12px 24px rgba(15, 23, 42, .07);
+  }
+  .section h2 {
+    font-size: 13px; color: var(--accent); text-transform: uppercase;
+    letter-spacing: .6px; font-weight: 700; margin-bottom: 14px;
+    padding-bottom: 8px; border-bottom: 2px solid #f0f0f0;
+  }
+
+  /* Form elements */
+  label { display: block; font-size: 12px; font-weight: 700; color: #374151; margin-bottom: 4px; }
+  input[type="text"], input[type="number"], input[type="date"], textarea, select {
+    width: 100%; padding: 10px 12px; font-size: 14px;
+    border: 1px solid var(--border); border-radius: 9px;
+    font-family: 'IBM Plex Sans', sans-serif; background: #f9f5ee;
+    transition: border-color .15s, background .15s, box-shadow .15s;
+  }
+  input:focus, textarea:focus, select:focus {
+    outline: none; border-color: #1d4ed8; background: white;
+    box-shadow: 0 0 0 3px rgba(29, 78, 216, 0.14);
+  }
+  textarea { resize: vertical; min-height: 60px; }
+  .form-row { margin-bottom: 14px; }
+  .form-grid { display: grid; gap: 12px; }
+  .form-grid-2 { grid-template-columns: 1fr 1fr; }
+  .form-grid-3 { grid-template-columns: 1fr 1fr 1fr; }
+  .form-grid-4 { grid-template-columns: 1fr 1fr 1fr 1fr; }
+  @media (max-width: 600px) {
+    .form-grid-2, .form-grid-3, .form-grid-4 { grid-template-columns: 1fr; }
+  }
+
+  /* Pulse slider */
+  .pulse-wrap { display: flex; align-items: center; gap: 16px; }
+  .pulse-slider { flex: 1; }
+  .pulse-slider input[type="range"] {
+    width: 100%; height: 8px; -webkit-appearance: none; appearance: none;
+    background: linear-gradient(to right, var(--red), var(--yellow), var(--green));
+    border-radius: 4px; outline: none; padding: 0;
+  }
+  .pulse-slider input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none; width: 22px; height: 22px;
+    border-radius: 50%; background: white; border: 3px solid var(--blue);
+    cursor: pointer; box-shadow: 0 1px 4px rgba(0,0,0,.2);
+  }
+  .pulse-val {
+    font-size: 28px; font-weight: 800; min-width: 40px; text-align: center;
+  }
+
+  /* Account card */
+  .acct-card {
+    background: linear-gradient(180deg, #fffefb 0%, #f7f1e7 100%);
+    border: 1px solid #ded4c5; border-radius: 10px;
+    padding: 14px; margin-bottom: 12px;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.75);
+  }
+  .acct-card.acct-top {
+    background: linear-gradient(180deg, #f0fdf4 0%, #dcfce7 100%);
+    border-color: #86efac;
+  }
+  .acct-card.acct-bottom {
+    background: linear-gradient(180deg, #eff6ff 0%, #dbeafe 100%);
+    border-color: #93c5fd;
+  }
+  .acct-card .acct-header {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 10px;
+  }
+  .acct-mode {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+    padding: 8px 10px;
+    border: 1px dashed #cbd5e1;
+    border-radius: 8px;
+    background: rgba(255,255,255,.68);
+  }
+  .acct-mode .mode-label {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: #475569;
+    letter-spacing: .4px;
+  }
+  .acct-mode .mode-opts { display: flex; gap: 12px; align-items: center; }
+  .acct-mode .mode-opts label {
+    margin: 0;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #334155;
+    cursor: pointer;
+  }
+  .acct-card.nochange-on {
+    border-style: solid;
+    box-shadow: inset 0 0 0 1px rgba(100,116,139,.25);
+  }
+  .acct-card.nochange-on input[type="text"] {
+    background: #f8fafc;
+    color: #64748b;
+  }
+  .acct-card .acct-num {
+    font-size: 12px; font-weight: 700; color: var(--accent);
+    text-transform: uppercase; letter-spacing: .5px;
+  }
+  .acct-card .acct-prev {
+    font-size: 11px; color: #9ca3af; font-style: italic;
+  }
+
+  /* Engage radio group */
+  .engage-group { display: flex; gap: 0; }
+  .engage-group label {
+    flex: 1; text-align: center; padding: 8px 4px; font-size: 12px;
+    font-weight: 600; cursor: pointer; border: 1px solid var(--border);
+    background: white; margin: 0; transition: all .15s;
+  }
+  .engage-group label.selected { color: #fff; border-color: transparent; }
+  .engage-group label.selected.eg-green { background: #16a34a; }
+  .engage-group label.selected.eg-yellow { background: #d97706; }
+  .engage-group label.selected.eg-red { background: #dc2626; }
+  .engage-group label:first-child { border-radius: 6px 0 0 6px; }
+  .engage-group label:last-child { border-radius: 0 6px 6px 0; }
+  .engage-group input[type="radio"] { display: none; }
+  .engage-group label.disabled {
+    opacity: .5;
+    cursor: not-allowed;
+  }
+
+  /* Forecast */
+  .forecast-grid {
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px;
+  }
+  @media (max-width: 600px) { .forecast-grid { grid-template-columns: 1fr 1fr; } }
+  .forecast-item { text-align: center; }
+  .forecast-item label { text-align: center; }
+  .forecast-item.nq-highlight {
+    border: 2px solid #16a34a;
+    border-radius: 11px;
+    padding: 8px;
+    background: linear-gradient(180deg, #ecfdf5 0%, #dcfce7 100%);
+    box-shadow: 0 10px 18px rgba(22, 163, 74, 0.12);
+  }
+  .forecast-compare {
+    font-size: 11px; color: #6b7280; margin-top: 4px; text-align: center;
+  }
+  .forecast-compare .fc-sf { color: var(--blue); font-weight: 600; }
+  .forecast-compare .fc-qbr { color: var(--purple); font-weight: 600; }
+  .sf-accuracy-inline {
+    margin-top: 14px;
+    padding: 10px 12px;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    background: #f8fafc;
+  }
+  .sf-accuracy-inline .lbl {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--ink2);
+    margin-bottom: 6px;
+  }
+  .sf-accuracy-inline .opts {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+  .sf-accuracy-inline .note {
+    margin-top: 6px;
+    font-size: 12px;
+    color: #64748b;
+  }
+  .forecast-lock {
+    background: #eef2ff !important;
+    border-color: #c7d2fe !important;
+    color: #1e1b4b !important;
+  }
+
+  /* Submit */
+  .submit-wrap { text-align: center; padding: 20px 0; }
+  .save-banner {
+    display: none; margin-top: 12px; padding: 10px 12px; border-radius: 8px;
+    border: 1px solid #86efac; background: #f0fdf4; color: #166534;
+    font-size: 13px; font-weight: 700;
+  }
+  .save-banner.show { display: block; }
+  .save-meta { margin-top: 10px; font-size: 12px; color: #16a34a; font-weight: 600; }
+  .field-error { border-color: #dc2626 !important; background: #fef2f2 !important; }
+  .submit-btn {
+    background: linear-gradient(135deg, #16a34a 0%, #0f8f3f 100%);
+    color: white; border: none;
+    padding: 14px 48px; font-size: 16px; font-weight: 700;
+    border-radius: 10px; cursor: pointer; transition: all .15s;
+    box-shadow: 0 10px 20px rgba(22,163,74,.28);
+  }
+  .submit-btn:hover { filter: brightness(1.03); transform: translateY(-1px); }
+  .submit-btn:disabled { background: #9ca3af; cursor: not-allowed; transform: none; box-shadow: none; }
+
+  /* Toast */
+  .toast {
+    position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%);
+    background: var(--navy); color: white; padding: 14px 28px;
+    border-radius: 10px; font-weight: 600; font-size: 14px;
+    box-shadow: 0 4px 20px rgba(0,0,0,.3); z-index: 9999;
+    opacity: 0; transition: opacity .3s;
+  }
+  .toast.show { opacity: 1; }
+  .fatal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.72);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    z-index: 12000;
+  }
+  .fatal-card {
+    width: min(760px, 100%);
+    background: #fff;
+    border: 1px solid #ef4444;
+    border-radius: 12px;
+    box-shadow: 0 20px 48px rgba(0,0,0,.35);
+    padding: 16px;
+  }
+  .fatal-title {
+    font-size: 16px;
+    font-weight: 800;
+    color: #991b1b;
+    margin-bottom: 8px;
+  }
+  .fatal-msg {
+    font-size: 13px;
+    color: #1f2937;
+    margin-bottom: 10px;
+  }
+  .fatal-pre {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    white-space: pre-wrap;
+    word-break: break-word;
+    background: #f8fafc;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 10px;
+    max-height: 280px;
+    overflow: auto;
+    font-size: 12px;
+    color: #111827;
+  }
+  .success-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.62);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    z-index: 11000;
+  }
+  .success-card {
+    width: min(520px, 100%);
+    background: #ffffff;
+    border: 1px solid #86efac;
+    border-radius: 12px;
+    box-shadow: 0 20px 48px rgba(0,0,0,.35);
+    padding: 18px;
+    text-align: center;
+  }
+  .success-title {
+    color: #166534;
+    font-size: 22px;
+    font-weight: 800;
+    margin-bottom: 6px;
+  }
+  .success-body {
+    color: #1f2937;
+    font-size: 14px;
+    margin-bottom: 10px;
+  }
+  .success-time {
+    font-size: 12px;
+    color: #374151;
+    margin-bottom: 12px;
+    font-weight: 700;
+  }
+  .success-btn {
+    border: 1px solid #16a34a;
+    background: #16a34a;
+    color: #fff;
+    border-radius: 8px;
+    padding: 8px 14px;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+
+  /* Admin preview bar */
+  .admin-bar {
+    background: linear-gradient(180deg, #f6f0ff 0%, #f3e8ff 100%);
+    border: 1px solid #d8c9ff; border-radius: 10px;
+    padding: 12px 18px; margin-bottom: 18px;
+    display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+    box-shadow: 0 8px 18px rgba(124,58,237,.12);
+  }
+  .admin-bar label { margin: 0; font-size: 12px; color: var(--purple); font-weight: 700; }
+  .admin-bar select {
+    width: auto; padding: 6px 10px; font-size: 13px;
+    border-color: #ddd6fe; background: white;
+  }
+  .qa-btn {
+    border: 1px solid #cbd5e1;
+    background: #fff;
+    color: #0f172a;
+    border-radius: 8px;
+    padding: 7px 10px;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+  .qa-btn.primary {
+    border-color: #1d4ed8;
+    background: #1d4ed8;
+    color: #fff;
+  }
+  .qa-pill {
+    font-size: 11px;
+    font-weight: 700;
+    color: #475569;
+    background: #f8fafc;
+    border: 1px solid #cbd5e1;
+    border-radius: 999px;
+    padding: 5px 10px;
+  }
+  .qa-status {
+    margin-bottom: 14px;
+    padding: 10px 12px;
+    border-radius: 10px;
+    border: 1px solid #cbd5e1;
+    background: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
+    color: #334155;
+    font-size: 12px;
+    font-weight: 600;
+    display: none;
+  }
+  .qa-status.active {
+    display: block;
+    border-color: #93c5fd;
+    background: linear-gradient(180deg, #eff6ff 0%, #dbeafe 100%);
+    color: #1e3a8a;
+  }
+  .qa-status.pass {
+    border-color: #86efac;
+    background: linear-gradient(180deg, #f0fdf4 0%, #dcfce7 100%);
+    color: #166534;
+  }
+  .qa-status.warn {
+    border-color: #fcd34d;
+    background: linear-gradient(180deg, #fffbeb 0%, #fef3c7 100%);
+    color: #92400e;
+  }
+  .guided-active {
+    position: relative;
+    border-color: #22c55e !important;
+    box-shadow: 0 0 0 3px rgba(34,197,94,.2), 0 16px 28px rgba(15,23,42,.11) !important;
+  }
+  .guided-active h2::before {
+    content: "→ ";
+    color: #16a34a;
+    font-weight: 900;
+  }
+  .guide-overlay {
+    position: fixed;
+    right: 12px;
+    top: 110px;
+    z-index: 1190;
+    display: none;
+    pointer-events: none;
+  }
+  .guide-card {
+    width: min(420px, calc(100vw - 24px));
+    background: linear-gradient(180deg, #ffffff 0%, #f0fdf4 100%);
+    border: 1px solid #86efac; border-radius: 12px; padding: 12px 12px 10px;
+    box-shadow: 0 26px 56px rgba(15,23,42,.35);
+    pointer-events: auto;
+  }
+  .guide-launch {
+    display: flex;
+    margin-bottom: 14px;
+    background: linear-gradient(180deg, #ecfdf5 0%, #dcfce7 100%);
+    border: 1px solid #86efac;
+    border-radius: 10px;
+    padding: 10px 12px;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+  }
+  .guide-launch .msg {
+    font-size: 13px;
+    color: #166534;
+    font-weight: 700;
+  }
+  .guide-launch .msg strong { color: #14532d; }
+  .guide-card .g-step { font-size: 11px; text-transform: uppercase; letter-spacing: .5px; font-weight: 800; color: #166534; margin-bottom: 4px; }
+  .guide-card .g-title { font-size: 18px; font-weight: 800; color: #1f2937; margin-bottom: 4px; }
+  .guide-card .g-msg { font-size: 14px; color: #374151; line-height: 1.4; margin-bottom: 10px; }
+  .guide-actions { display: flex; gap: 8px; justify-content: flex-end; }
+  .guide-actions button {
+    border: 1px solid #cbd5e1; background: #fff; color: #1f2937;
+    border-radius: 8px; padding: 6px 10px; font-size: 12px; font-weight: 700; cursor: pointer;
+  }
+  .guide-actions button:disabled {
+    opacity: .45;
+    cursor: not-allowed;
+  }
+  .guide-actions button.primary {
+    border-color: #16a34a; background: #16a34a; color: #fff;
+  }
+  @media (max-width: 768px) {
+    .top-bar { padding: 12px 14px; }
+    .top-bar .actions { gap: 6px; }
+    .top-bar a { padding: 7px 10px; font-size: 11px; }
+    .guide-btn { padding: 7px 10px; font-size: 11px; }
+    .page { padding: 14px 12px 20px; }
+    .guide-overlay { right: 10px; top: 82px; }
+    .guide-card { width: min(360px, calc(100vw - 20px)); }
+  }
+
+  /* ===== SaaS Light Dashboard Override ===== */
+  body {
+    font-family: 'Inter', sans-serif !important;
+    background: #F0F2F5 !important;
+    color: #374151 !important;
+  }
+  .page {
+    max-width: 1200px !important;
+    margin: 0 auto !important;
+    padding: 20px !important;
+  }
+  .top-bar {
+    background: #1E2A3A !important;
+    color: #fff !important;
+    border-bottom: 0 !important;
+    box-shadow: 0 2px 10px rgba(0,0,0,.12) !important;
+    padding: 1rem 2rem !important;
+  }
+  .top-bar h1 {
+    font-family: 'Inter', sans-serif !important;
+    font-size: 1.3rem !important;
+    font-weight: 700 !important;
+    letter-spacing: .01em !important;
+    color: #fff !important;
+  }
+  .top-bar .meta { color: rgba(255,255,255,.78) !important; font-family: 'Inter', sans-serif !important; }
+  .top-bar a {
+    font-family: 'Inter', sans-serif !important;
+    font-weight: 600 !important;
+    letter-spacing: 0 !important;
+    text-transform: none !important;
+    border-radius: 6px !important;
+  }
+  #pocLink {
+    border: 1px solid rgba(255,255,255,.45) !important;
+    background: transparent !important;
+    color: #fff !important;
+  }
+  #dashLink {
+    border: 1px solid #3B82F6 !important;
+    background: #3B82F6 !important;
+    color: #fff !important;
+  }
+
+  .section, .banner, .admin-bar, .sf-accuracy-inline, .acct-card, .guide-card, .guide-launch {
+    background: #FFFFFF !important;
+    border: 1px solid #E5E7EB !important;
+    border-radius: 10px !important;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.08) !important;
+  }
+  .section h2, .banner-title, .acct-card .acct-num {
+    font-family: 'Inter', sans-serif !important;
+    font-weight: 700 !important;
+    letter-spacing: .02em !important;
+    color: #1E2A3A !important;
+    font-size: 1.1rem !important;
+    text-transform: none !important;
+    border-bottom: 1px solid #EEF2F7 !important;
+  }
+  label, .mode-label, .stat-label, .stat-sub, .acct-card .acct-prev, .guide-card .g-step, .guide-card .g-msg {
+    font-family: 'Inter', sans-serif !important;
+    color: #9CA3AF !important;
+    font-weight: 500 !important;
+  }
+  .stat-value, .pulse-val, .banner-val, #weekOf, .forecast-compare, #rm_disco, #rm_nbm, #rm_opp, #rm_accts, .acct-mode .mode-opts label {
+    font-family: 'Space Mono', monospace !important;
+  }
+
+  .guide-launch {
+    background: #EFF6FF !important;
+    border: 1px solid #BFDBFE !important;
+  }
+  .guide-launch .msg { color: #1D4ED8 !important; font-family: 'Inter', sans-serif !important; }
+  .guide-btn {
+    background: #F97316 !important;
+    border: 1px solid #F97316 !important;
+    color: #fff !important;
+    border-radius: 6px !important;
+    font-family: 'Inter', sans-serif !important;
+    font-weight: 600 !important;
+    text-transform: none !important;
+    letter-spacing: 0 !important;
+  }
+  .admin-bar {
+    background: #F9FAFB !important;
+    border: 1px solid #E5E7EB !important;
+  }
+  .qa-btn, .qa-btn.primary {
+    border-radius: 6px !important;
+    font-family: 'Inter', sans-serif !important;
+    text-transform: none !important;
+    letter-spacing: 0 !important;
+  }
+  .qa-btn.primary { background: #3B82F6 !important; border-color: #3B82F6 !important; color: #fff !important; }
+
+  .stats-row {
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+    gap: 14px !important;
+    background: transparent !important;
+    border: 0 !important;
+  }
+  .stat-card {
+    background: #FFFFFF !important;
+    border: 1px solid #E5E7EB !important;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.08) !important;
+    border-radius: 10px !important;
+  }
+  .stat-value {
+    font-size: 2rem !important;
+    color: #1E2A3A !important;
+  }
+  .stat-sub { color: #9CA3AF !important; }
+
+  .banner-row {
+    display: grid !important;
+    grid-template-columns: repeat(6, minmax(0, 1fr)) !important;
+    gap: 0 !important;
+  }
+  .banner-item {
+    padding: 2px 10px !important;
+    border-right: 1px solid #EEF2F7;
+  }
+  .banner-item:last-child { border-right: 0; }
+  .banner-label {
+    color: #9CA3AF !important;
+    font-size: 10px !important;
+    text-transform: uppercase !important;
+    letter-spacing: .04em !important;
+  }
+  .banner-val { color: #1E2A3A !important; font-size: 1.1rem !important; }
+  .forecast-compare .fc-sf { color: #3B82F6 !important; }
+  .forecast-compare .fc-qbr { color: #6D28D9 !important; }
+
+  .nbm-block, .nbm-warning {
+    border-left: 3px solid #EF4444 !important;
+    border-top: 0 !important;
+    border-right: 0 !important;
+    border-bottom: 0 !important;
+    background: rgba(239,68,68,.08) !important;
+    border-radius: 6px !important;
+    color: #374151 !important;
+  }
+  .nbm-warning {
+    border-left-color: #F59E0B !important;
+    background: rgba(245,158,11,.08) !important;
+  }
+
+  input[type="text"], input[type="number"], input[type="date"], textarea, select {
+    font-family: 'Inter', sans-serif !important;
+    background: #fff !important;
+    color: #374151 !important;
+    border: 1px solid #E5E7EB !important;
+    border-radius: 6px !important;
+  }
+  input::placeholder, textarea::placeholder { color: #9CA3AF !important; }
+  input:focus, textarea:focus, select:focus {
+    border-color: #3B82F6 !important;
+    box-shadow: 0 0 0 3px rgba(59,130,246,.15) !important;
+  }
+  #weekOf {
+    font-family: 'Space Mono', monospace !important;
+    border: 1px solid #E5E7EB !important;
+    border-radius: 6px !important;
+    background: #fff !important;
+    text-align: left !important;
+  }
+
+  #secRainmaker .form-grid-4 {
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+    gap: 16px !important;
+  }
+  #secRainmaker input[type="number"], #secRainmaker input[type="text"] {
+    border: none !important;
+    border-bottom: 2px solid #E5E7EB !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+    font-family: 'Space Mono', monospace !important;
+    font-size: 1.35rem !important;
+    text-align: center !important;
+    padding-left: 2px !important;
+    padding-right: 2px !important;
+  }
+  #secRainmaker input[type="number"]:focus, #secRainmaker input[type="text"]:focus {
+    border-bottom-color: #3B82F6 !important;
+    box-shadow: none !important;
+  }
+
+  .pulse-slider input[type="range"] {
+    background: #E5E7EB !important;
+    border: none !important;
+    height: 8px !important;
+  }
+  .pulse-slider input[type="range"]::-webkit-slider-thumb {
+    background: #F97316 !important;
+    border: 2px solid #fff !important;
+    box-shadow: 0 1px 6px rgba(0,0,0,.22) !important;
+  }
+  .pulse-val { color: #3B82F6 !important; font-size: 2rem !important; }
+
+  #accountCards {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1.5rem !important;
+  }
+  .acct-card {
+    margin-bottom: 0 !important;
+    border-top: 3px solid #D1D5DB !important;
+    border-left: 1px solid #E5E7EB !important;
+    padding: 1.2rem !important;
+    background: #fff !important;
+  }
+  .acct-card.acct-top { border-top-color: #10B981 !important; }
+  .acct-card.acct-bottom { border-top-color: #3B82F6 !important; }
+  .acct-mode {
+    background: #F9FAFB !important;
+    border: 1px solid #E5E7EB !important;
+  }
+  .acct-mode .mode-opts label { color: #6B7280 !important; font-size: .7rem !important; }
+  .engage-group label {
+    border: 1px solid #E5E7EB !important;
+    background: #fff !important;
+    color: #6B7280 !important;
+    font-family: 'Inter', sans-serif !important;
+  }
+  .engage-group label.selected.eg-green { background: rgba(16,185,129,.12) !important; border-color: #10B981 !important; color: #10B981 !important; }
+  .engage-group label.selected.eg-yellow { background: rgba(245,158,11,.12) !important; border-color: #F59E0B !important; color: #B45309 !important; }
+  .engage-group label.selected.eg-red { background: rgba(239,68,68,.12) !important; border-color: #EF4444 !important; color: #B91C1C !important; }
+
+  .forecast-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+    gap: 12px !important;
+  }
+  .forecast-item.nq-highlight {
+    border: 2px solid #10B981 !important;
+    background: rgba(16,185,129,.08) !important;
+    border-radius: 8px !important;
+    box-shadow: none !important;
+  }
+  .sf-accuracy-inline { background: #F9FAFB !important; border: 1px solid #E5E7EB !important; }
+
+  .submit-wrap::before {
+    content: "Ready to Submit";
+    font-family: 'Inter', sans-serif !important;
+    color: #1E2A3A !important;
+    font-weight: 700 !important;
+    letter-spacing: 0 !important;
+    font-size: 1.1rem !important;
+  }
+  .submit-btn {
+    width: min(720px, 100%) !important;
+    border-radius: 6px !important;
+    background: #F97316 !important;
+    border: 1px solid #F97316 !important;
+    color: #fff !important;
+    font-family: 'Inter', sans-serif !important;
+    font-size: 1rem !important;
+    font-weight: 600 !important;
+    text-transform: none !important;
+    letter-spacing: 0 !important;
+  }
+  .submit-btn:hover {
+    transform: translateY(-2px) !important;
+    box-shadow: 0 4px 12px rgba(0,0,0,.12) !important;
+  }
+
+  @media (max-width: 980px) {
+    #accountCards { grid-template-columns: 1fr !important; }
+  }
+  @media (max-width: 860px) {
+    .banner-row { grid-template-columns: repeat(3, 1fr) !important; }
+    .forecast-grid { grid-template-columns: repeat(2, 1fr) !important; }
+    #secRainmaker .form-grid-4 { grid-template-columns: repeat(2, 1fr) !important; }
+    .stats-row { grid-template-columns: repeat(2, 1fr) !important; }
+  }
+</style>
+
+<script>
+  // --- Server-injected bootstrap data (single safe JSON blob) ---
+  var __BOOT = {};
+  try {
+    __BOOT = JSON.parse(<?= JSON.stringify(typeof bootstrapJson === 'undefined' ? '{}' : bootstrapJson) ?>) || {};
+  } catch (bootErr) {
+    console.error("bootstrap parse failed", bootErr);
+    __BOOT = {};
+  }
+  var SESSION_EMAIL  = __BOOT.sessionEmail || "";
+  var SCRIPT_URL     = __BOOT.scriptUrl || "";
+  var BENCHMARKS     = __BOOT.benchmarks || {};
+  var RAINMAKER_IMG  = __BOOT.rainmakerImage || "";
+  var LAST_DATA      = __BOOT.lastData || null;
+  var USER_STATS     = __BOOT.userStats || {};
+  var SF_DATA        = __BOOT.sfData || {};
+  var QBR_CALL       = __BOOT.qbrCall || {};
+  var ON_BEHALF      = __BOOT.onBehalf || "";
+  var IS_ADMIN       = !!__BOOT.isAdmin;
+  var APP_EXEC_URL   = "https://script.google.com/a/macros/glean.com/s/AKfycbxt9SVE3r4zf7PB0auoKaXODrnSWNm2p-Kh3ByoVWHw9YJzjkClEP8Shb2-embIfKJ5/exec";
+  var _submitInFlight = false;
+  var _submitWatchdog = null;
+  var GUIDE_PILOT_EMAIL = "";
+  var _guide = { active: false, step: 0 };
+  var GUIDE_STEPS = [
+    { id: "secTopReview", title: "Top Metrics Review", message: "", manualOnly: true, done: function() { return false; } },
+    { id: "secWeek", title: "Week Of", message: "Set the recap week date.", done: function() { return !!getVal("weekOf"); } },
+    { id: "secPulse", title: "Pulse Check", message: "Set pulse and add a Why reason.", done: function() { return getVal("pulseReason").trim().length > 0; } },
+    { id: "secRainmaker", title: "Rainmaker Metrics", message: "Review and confirm Rainmaker metrics. Update if needed, then click Next.", manualOnly: true, done: function() {
+      return (parseFloat(getVal("rm_disco")) > 0) || (parseFloat(getVal("rm_nbm")) > 0) || (parseMoneyishInput(getVal("rm_opp")) > 0) || (getVal("rm_accts").trim().length > 0);
+    } },
+    { id: "secAccounts", title: "Account Updates (2x4)", message: "", manualOnly: true, done: function() {
+      var complete = 0;
+      for (var i = 1; i <= 6; i++) {
+        var n = getVal("acct" + i + "_name").trim();
+        var s = getVal("acct" + i + "_stage").trim();
+        var e = document.querySelector('input[name="acct' + i + '_engage"]:checked');
+        if (n && s && e) complete++;
+      }
+      return complete >= 2;
+    } },
+    { id: "secForecast", title: "Forecast", message: "Enter Commit, Most Likely, Best Case, and NQ Commit.", done: function() {
+      return (normalizeMoneyThousandsInput(getVal("commit")) > 0) &&
+             (normalizeMoneyThousandsInput(getVal("likely")) > 0) &&
+             (normalizeMoneyThousandsInput(getVal("upside")) > 0) &&
+             (normalizeMoneyThousandsInput(getVal("nq_commit")) > 0);
+    } },
+    { id: "secGRA", title: "Goal / Risk / Ask", message: "Fill all three text areas.", done: function() {
+      return getVal("goal").trim().length > 0 && getVal("risk").trim().length > 0 && getVal("ask").trim().length > 0;
+    } },
+    { id: "secSubmit", title: "Submit", message: "Final step: click Submit Weekly Recap.", done: function() { return false; } }
+  ];
+
+  var ADMIN_EMAIL    = "billy.schuett@glean.com";
+  var NAME_MAP = {
+    "billy.schuett@glean.com":"Billy Schuett","niko.argaez@glean.com":"Niko Argaez",
+    "taylor.lundberg@glean.com":"Taylor Lundberg","james.demory@glean.com":"James DeMory",
+    "johnny.hatch@glean.com":"Johnny Hatch","melissa.richards@glean.com":"Melissa Richards",
+    "daniel.broderick@glean.com":"Daniel Broderick"
+  };
+  
+  function safeErrMessage(err) {
+    if (!err) return "Unknown error";
+    if (typeof err === "string") return err;
+    return String(err.message || err);
+  }
+
+  // helper to display a fatal error overlay if initialization fails
+  function showFatalError(err, context) {
+    var message = (context ? (context + ": ") : "") + safeErrMessage(err);
+    console.error("[FATAL]", message, err);
+    var overlay = document.getElementById("fatalOverlay");
+    var msgEl = document.getElementById("fatalMsg");
+    var stackEl = document.getElementById("fatalStack");
+    if (msgEl) msgEl.textContent = message;
+    if (stackEl) stackEl.textContent = String((err && err.stack) || err || "");
+    if (overlay) {
+      overlay.style.display = "flex";
+      return;
+    }
+    // Last-resort fallback if the overlay element itself is missing.
+    alert(message);
+  }
+  function fmtMoney(val) {
+    var n = parseMoneyishInput(val);
+    if (!n) return "$0";
+    return "$" + Math.round(n).toLocaleString("en-US");
+  }
+
+  function parseMoneyishInput(val) {
+    if (val === null || val === undefined || val === "") return "";
+    if (typeof val === "number") return val;
+    var s = String(val).toLowerCase().trim();
+    if (!s) return "";
+    var n = parseFloat(s.replace(/[^0-9.]/g, "")) || 0;
+    if (s.indexOf("m") !== -1) n = n * 1000000;
+    else if (s.indexOf("k") !== -1) n = n * 1000;
+    return n ? n : "";
+  }
+
+  function formatCurrencyInput(val) {
+    var n = parseMoneyishInput(val);
+    if (!n) return "";
+    return "$" + Math.round(n).toLocaleString("en-US");
+  }
+
+  function normalizeMoneyThousandsInput(rawVal) {
+    if (rawVal === null || rawVal === undefined || rawVal === "") return "";
+    var raw = String(rawVal).toLowerCase().trim();
+    if (!raw) return "";
+
+    var n = parseMoneyishInput(rawVal);
+    if (!(n > 0)) return "";
+
+    // Default plain shorthand to thousands (e.g. 144 -> 144,000).
+    if (!/[mk]/.test(raw) && n < 1000) n = n * 1000;
+
+    // Keep within 7-figure max.
+    n = Math.min(Math.round(n), 9999999);
+    return n;
+  }
+
+  function normalizeSelfForecastInput(rawSelf, sfVal, qbrVal) {
+    return normalizeMoneyThousandsInput(rawSelf);
+  }
+
+  function normalizeRainmakerOppInput(rawVal) {
+    return normalizeMoneyThousandsInput(rawVal);
+  }
+
+  function normalizeRainmakerOppInputDisplay() {
+    var norm = normalizeRainmakerOppInput(getVal('rm_opp'));
+    if (norm) setVal('rm_opp', formatCurrencyInput(norm));
+  }
+
+  function pulseColor(score) {
+    var n = parseFloat(score) || 0;
+    return n >= 8 ? "#16a34a" : n >= 5 ? "#d97706" : "#dc2626";
+  }
+
+  function getCurrentWeekOf() {
+    var fmt = new Intl.DateTimeFormat('en-US', {
+      timeZone: 'America/Chicago',
+      weekday: 'short',
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false
+    });
+    var parts = fmt.formatToParts(new Date());
+    var p = {};
+    for (var i = 0; i < parts.length; i++) p[parts[i].type] = parts[i].value;
+
+    var weekdayMap = { Mon: 0, Tue: 1, Wed: 2, Thu: 3, Fri: 4, Sat: 5, Sun: 6 };
+    var dow = weekdayMap[p.weekday] || 0;
+    var hour = parseInt(p.hour, 10) || 0;
+    var minute = parseInt(p.minute, 10) || 0;
+
+    // Use UTC date math to safely manipulate a Chicago-local calendar date.
+    var todayUtc = new Date(Date.UTC((parseInt(p.year, 10) || 1970), (parseInt(p.month, 10) || 1) - 1, parseInt(p.day, 10) || 1));
+    var mondayUtc = new Date(todayUtc);
+    mondayUtc.setUTCDate(todayUtc.getUTCDate() - dow);
+
+    // Default to current week only between Monday 4:00 AM CT and Friday 11:59 AM CT.
+    // Friday 12:00 PM CT onward defaults to next week.
+    if (dow === 0 && hour < 4) {
+      mondayUtc.setUTCDate(mondayUtc.getUTCDate() - 7);
+    } else if (dow > 4 || (dow === 4 && (hour > 12 || (hour === 12 && minute >= 0)))) {
+      mondayUtc.setUTCDate(mondayUtc.getUTCDate() + 7);
+    }
+
+    var yy = mondayUtc.getUTCFullYear();
+    var mm = mondayUtc.getUTCMonth() + 1;
+    var dd = mondayUtc.getUTCDate();
+    return yy + '-' + (mm < 10 ? '0' : '') + mm + '-' + (dd < 10 ? '0' : '') + dd;
+  }
+
+  // --- Global error handlers ---
+  window.addEventListener('error', function(evt) {
+    showFatalError(evt.error || evt.message, "window.error");
+  });
+  window.addEventListener('unhandledrejection', function(evt) {
+    showFatalError(evt.reason, "window.unhandledrejection");
+  });
+  
+  // --- Page Init ---
+  function initRecapPage() {
+    var signedInEmail = String(SESSION_EMAIL || "").trim().toLowerCase();
+    if (!signedInEmail && !ON_BEHALF) {
+      var repMeta = document.getElementById('repNameDisplay');
+      if (repMeta) repMeta.textContent = "Checking signed-in account...";
+      google.script.run
+        .withSuccessHandler(function(email) {
+          SESSION_EMAIL = String(email || "").trim().toLowerCase();
+          if (!SESSION_EMAIL) {
+            showToast('Please sign in with your @glean.com account, then refresh.', true);
+            if (repMeta) repMeta.textContent = "Unable to detect signed-in account";
+            return;
+          }
+          initRecapPage();
+        })
+        .withFailureHandler(function(err) {
+          showToast('Could not verify signed-in account. Refresh and try again.', true);
+          if (repMeta) repMeta.textContent = "Unable to detect signed-in account";
+        })
+        .getResolvedSessionEmail();
+      return;
+    }
+
+    var isAdmin = !!IS_ADMIN || (String(SESSION_EMAIL || "").trim().toLowerCase() === String(ADMIN_EMAIL || "").trim().toLowerCase());
+    IS_ADMIN = isAdmin;
+    var dashLink = document.getElementById('dashLink');
+    var pocLink = document.getElementById('pocLink');
+    if (pocLink) {
+      pocLink.href = APP_EXEC_URL + '?page=poc&v=' + Date.now();
+      pocLink.onclick = function(ev) {
+        ev.preventDefault();
+        window.top.location.href = APP_EXEC_URL + '?page=poc&v=' + Date.now();
+      };
+    }
+    if (dashLink) {
+      if (isAdmin) {
+        dashLink.href = APP_EXEC_URL + '?page=dashboard&v=' + Date.now();
+        dashLink.onclick = function(ev) {
+          ev.preventDefault();
+          window.top.location.href = APP_EXEC_URL + '?page=dashboard&v=' + Date.now();
+        };
+        dashLink.style.display = '';
+      } else {
+        dashLink.style.display = 'none';
+      }
+    }
+    refreshGuideAvailability();
+
+    // Admin preview bar
+    if (isAdmin) {
+      var bar = document.getElementById('adminBar');
+      if (bar) bar.style.display = 'flex';
+      // Pre-select the rep if coming from Edit Recap
+      if (ON_BEHALF) {
+        var sel = document.getElementById('previewEmail');
+      if (sel) sel.value = ON_BEHALF;
+      }
+      updateQaBanner();
+    }
+
+    // Set week
+    var weekOfEl = document.getElementById('weekOf');
+    if (weekOfEl) weekOfEl.value = getCurrentWeekOf();
+
+    var rmOppEl = document.getElementById('rm_opp');
+    if (rmOppEl) {
+      rmOppEl.addEventListener('blur', normalizeRainmakerOppInputDisplay);
+    }
+    ["commit","likely","upside","nq_commit"].forEach(function(id) {
+      var el = document.getElementById(id);
+      if (!el) return;
+      el.addEventListener('blur', function() {
+        if ((id === "commit" || id === "likely" || id === "upside") && getSfAccurateSelection() === "Yes") return;
+        var norm = normalizeMoneyThousandsInput(el.value);
+        if (norm) el.value = formatCurrencyInput(norm);
+      });
+    });
+    var sfRadios = document.querySelectorAll('input[name="sf_accurate"]');
+    for (var sr = 0; sr < sfRadios.length; sr++) {
+      sfRadios[sr].addEventListener("change", onSfAccuracyChange);
+    }
+    for (var i = 1; i <= 6; i++) {
+      (function(idx) {
+        var arrEl = document.getElementById('acct' + idx + '_arr');
+        if (!arrEl) return;
+        arrEl.addEventListener('blur', function() {
+          var norm = normalizeMoneyThousandsInput(arrEl.value);
+          if (norm) arrEl.value = formatCurrencyInput(norm);
+        });
+      })(i);
+    }
+
+    // User info
+    var repName = NAME_MAP[ON_BEHALF || SESSION_EMAIL] || ON_BEHALF || SESSION_EMAIL;
+    var repNameEl = document.getElementById('repNameDisplay');
+    if (repNameEl) repNameEl.textContent = repName;
+
+    // Stats cards
+    renderStats();
+
+    // SF / QBR banner
+    renderSFBanner();
+
+    // Pre-populate from last data
+    if (LAST_DATA) prefillFromLast(LAST_DATA);
+    // For admin on-behalf links, always load fresh rep data from server.
+    if (ON_BEHALF) {
+      adminLoadRep(ON_BEHALF);
+    } else {
+      loadLiveRepContext();
+    }
+
+    // Pulse slider init
+    updatePulseDisplay();
+    onSfAccuracyChange();
+    setupGuideListeners();
+    window.addEventListener("resize", positionGuideOverlay);
+  }
+
+  // wrap initialization in try/catch to surface errors instead of blank screen
+  function safeInit() {
+    try {
+      initRecapPage();
+    } catch (e) {
+      showFatalError(e);
+    }
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', safeInit);
+  } else {
+    safeInit();
+  }
+
+  function getActiveRepEmail() {
+    var isAdmin = !!IS_ADMIN;
+    if (isAdmin) {
+      var sel = document.getElementById("previewEmail");
+      if (sel && sel.value) return String(sel.value).trim().toLowerCase();
+    }
+    return String(ON_BEHALF || SESSION_EMAIL || "").trim().toLowerCase();
+  }
+
+  function isGuidePilotActiveUser() {
+    return true;
+  }
+
+  function refreshGuideAvailability() {
+    var launch = document.getElementById("guideLaunch");
+    var allowed = isGuidePilotActiveUser();
+    if (launch) launch.style.display = allowed ? "flex" : "none";
+    if (!allowed && _guide.active) stopGuidedMode();
+  }
+
+  function setupGuideListeners() {
+    document.addEventListener("input", function() { if (_guide.active) evaluateGuideProgress(); }, true);
+    document.addEventListener("change", function() { if (_guide.active) evaluateGuideProgress(); }, true);
+  }
+
+  function startGuidedMode() {
+    _guide.active = true;
+    _guide.step = 0;
+    renderGuideCard();
+    focusGuideStep();
+  }
+
+  function stopGuidedMode() {
+    _guide.active = false;
+    clearGuideHighlights();
+    var overlay = document.getElementById("guideOverlay");
+    if (overlay) overlay.style.display = "none";
+  }
+
+  function nextGuideStep() {
+    if (!_guide.active) return;
+    if (_guide.step < GUIDE_STEPS.length - 1) _guide.step++;
+    renderGuideCard();
+    focusGuideStep();
+  }
+
+  function prevGuideStep() {
+    if (!_guide.active) return;
+    if (_guide.step > 0) _guide.step--;
+    renderGuideCard();
+    focusGuideStep();
+  }
+
+  function evaluateGuideProgress() {
+    if (!_guide.active) return;
+    var st = GUIDE_STEPS[_guide.step];
+    if (!st) return;
+    if (st.manualOnly) return;
+    if (st.done && st.done() && _guide.step < GUIDE_STEPS.length - 1) {
+      _guide.step++;
+      renderGuideCard();
+      focusGuideStep();
+    }
+  }
+
+  function clearGuideHighlights() {
+    var ids = ["secTopReview","secWeek","secPulse","secRainmaker","secAccounts","secForecast","secGRA","secSubmit"];
+    for (var i = 0; i < ids.length; i++) {
+      var el = document.getElementById(ids[i]);
+      if (el) el.classList.remove("guided-active");
+    }
+  }
+
+  function focusGuideStep() {
+    clearGuideHighlights();
+    var st = GUIDE_STEPS[_guide.step];
+    if (!st) return;
+    var el = document.getElementById(st.id);
+    if (el) {
+      el.classList.add("guided-active");
+      el.scrollIntoView({ behavior: "auto", block: "center" });
+    }
+  }
+
+  function positionGuideOverlay() {
+    var overlay = document.getElementById("guideOverlay");
+    var card = document.getElementById("guideCard");
+    var page = document.querySelector(".page");
+    if (!overlay || !card || !page) return;
+
+    var cardW = card.offsetWidth || 420;
+    var pageRect = page.getBoundingClientRect();
+    var gutter = 14;
+
+    // Prefer docking to the right side of the centered form.
+    var desiredLeft = Math.round(pageRect.right + gutter);
+    var maxLeft = Math.max(8, window.innerWidth - cardW - 8);
+    var left = Math.max(8, Math.min(desiredLeft, maxLeft));
+
+    // Keep near top bar for visibility.
+    var top = window.innerWidth > 1200 ? 94 : 82;
+
+    overlay.style.left = left + "px";
+    overlay.style.right = "auto";
+    overlay.style.top = top + "px";
+  }
+
+  function renderGuideCard() {
+    var overlay = document.getElementById("guideOverlay");
+    if (!overlay) return;
+    if (!_guide.active) { overlay.style.display = "none"; return; }
+    var st = GUIDE_STEPS[_guide.step] || GUIDE_STEPS[0];
+    var isLast = _guide.step >= GUIDE_STEPS.length - 1;
+    var msg = st.message;
+    if (st.id === "secTopReview") msg = getTopReviewGuideMessage();
+    if (st.id === "secAccounts") msg = getAccountsGuideMessage();
+    if (st.id === "secForecast") msg = getForecastGuideMessage();
+    document.getElementById("guideStep").textContent = "Guided Mode • Step " + (_guide.step + 1) + " of " + GUIDE_STEPS.length;
+    document.getElementById("guideTitle").textContent = st.title;
+    document.getElementById("guideMsg").textContent = msg;
+    var prevBtn = document.getElementById("guidePrevBtn");
+    if (prevBtn) prevBtn.disabled = _guide.step === 0;
+    var nextBtn = document.getElementById("guideNextBtn");
+    if (nextBtn) nextBtn.textContent = isLast ? "Done" : "Next";
+    overlay.style.display = "flex";
+    positionGuideOverlay();
+  }
+
+  function getTopReviewGuideMessage() {
+    var base = "Does this top-row data look right? Review Disco, NBMs, Pipeline, Stage 4+, and SF/QBR values. If anything looks off, check your source data first.";
+    var sf = SF_DATA || {};
+    var blocks = sf.nbmBlocks || [];
+    if (!blocks.length) return base;
+    return base + " Also: you have commit deal(s) without an NBM. If this is not expected, fix it in SFDC.";
+  }
+
+  function getForecastGuideMessage() {
+    if (getSfAccurateSelection() === "No") {
+      return "OK, please manually enter Commit / Most Likely / Best Case and include one sentence in Forecast Notes on why they differ from SFDC.";
+    }
+    return "Forecast: if SFDC is up to date, select Yes to auto-fill Commit / Most Likely / Best Case. If not, select No and enter them manually.";
+  }
+
+  function getAccountsGuideMessage() {
+    return "Please take a minute to update your 2x4 accounts. If nothing changed for an account, select No changes. If it changed, keep Changed selected and update the fields.";
+  }
+
+  function renderStats() {
+    var s = USER_STATS || {};
+    var statsEl = document.getElementById('statsRow');
+    if (!statsEl) return;
+
+    var cards = [
+      { icon: "&#128269;", label: "Disco Mtgs", value: s.disco_amt || 0, sub: "Rank #" + (s.disco_rank || "-") },
+      { icon: "&#128197;", label: "NBMs", value: s.nbm_amt || 0, sub: s.nbm_rank === "dead_last" ? "No NBMs logged" : "Rank #" + (s.nbm_rank || "-") },
+      { icon: "&#128176;", label: "Pipeline", value: fmtMoney(s.pipe_amt), sub: "Rank #" + (s.pipe_rank || "-") },
+      { icon: "&#127942;", label: "Stage 4+", value: fmtMoney(s.stg4_amt), sub: "Rank #" + (s.stg4_rank || "-") }
+    ];
+
+    statsEl.innerHTML = cards.map(function(c) {
+      return '<div class="stat-card">' +
+        '<div class="stat-icon">' + c.icon + '</div>' +
+        '<div class="stat-value">' + c.value + '</div>' +
+        '<div class="stat-label">' + c.label + '</div>' +
+        '<div class="stat-sub">' + c.sub + '</div></div>';
+    }).join('');
+    // Auto-load rep data if opened via Edit Recap button (hash-based)
+    if (!!IS_ADMIN) {
+      var hash = window.location.hash || "";
+      try {
+        if (!hash && window.parent && window.parent !== window) {
+          hash = window.parent.location.hash || "";
+        }
+      } catch (eHash) {}
+      var hashMatch = hash.match(/[#&]rep=([^&]+)/);
+      if (hashMatch) {
+        var repEmailFromHash = decodeURIComponent(hashMatch[1]);
+        // Set the dropdown
+        var sel = document.getElementById("previewEmail");
+        if (sel) sel.value = repEmailFromHash;
+        // Load the rep data
+        adminLoadRep(repEmailFromHash);
+      }
+    }
+  }
+
+  function renderSFBanner() {
+    var sf = SF_DATA || {};
+    var qbr = QBR_CALL || {};
+    var el = document.getElementById('sfBanner');
+    if (!el) return;
+
+    var html = '';
+    html += '<div class="banner-title" style="color:var(--blue);">Salesforce Pipeline</div>';
+    html += '<div class="banner-row">';
+    html += '<div class="banner-item"><div class="banner-label">SF Commit</div><div class="banner-val" style="color:var(--blue);">' + fmtMoney(sf.commit) + '</div></div>';
+    html += '<div class="banner-item"><div class="banner-label">SF Most Likely</div><div class="banner-val" style="color:var(--blue);">' + fmtMoney(sf.mostLikely) + '</div></div>';
+    html += '<div class="banner-item"><div class="banner-label">SF Best Case</div><div class="banner-val" style="color:var(--blue);">' + fmtMoney(sf.bestCase) + '</div></div>';
+    html += '<div class="banner-item"><div class="banner-label">QBR Commit</div><div class="banner-val" style="color:var(--purple);">' + fmtMoney(qbr.commit) + '</div></div>';
+    html += '<div class="banner-item"><div class="banner-label">QBR Most Likely</div><div class="banner-val" style="color:var(--purple);">' + fmtMoney(qbr.mostLikely) + '</div></div>';
+    html += '<div class="banner-item"><div class="banner-label">QBR Best Case</div><div class="banner-val" style="color:var(--purple);">' + fmtMoney(qbr.bestCase) + '</div></div>';
+    html += '</div>';
+    el.innerHTML = html;
+
+    // NBM blockers / warnings
+    var nbmEl = document.getElementById('nbmAlerts');
+    if (!nbmEl) return;
+    var nbmHtml = '';
+    if (sf.nbmBlocks && sf.nbmBlocks.length > 0) {
+      sf.nbmBlocks.forEach(function(b) {
+        var accountName = String(b || "").split("—")[0].trim();
+        nbmHtml += '<div class="nbm-block">' + escHtml(b)
+          + ' <button type="button" style="margin-left:8px;padding:2px 8px;font-size:11px;border-radius:6px;border:1px solid #fca5a5;background:#fff;cursor:pointer;" onclick="jumpToAccountByName(\'' + escHtml(accountName).replace(/'/g, "\\'") + '\')">Jump to account</button></div>';
+      });
+    }
+    if (sf.nbmWarnings && sf.nbmWarnings.length > 0) {
+      sf.nbmWarnings.forEach(function(w) {
+        var accountName = String(w || "").split("—")[0].trim();
+        nbmHtml += '<div class="nbm-warning">' + escHtml(w)
+          + ' <button type="button" style="margin-left:8px;padding:2px 8px;font-size:11px;border-radius:6px;border:1px solid #fde68a;background:#fff;cursor:pointer;" onclick="jumpToAccountByName(\'' + escHtml(accountName).replace(/'/g, "\\'") + '\')">Jump to account</button></div>';
+      });
+    }
+    nbmEl.innerHTML = nbmHtml;
+  }
+
+  function prefillFromLast(d) {
+    setVal('pulseReason', d.pulseReason);
+    setVal('rm_disco', d.rm_disco);
+    setVal('rm_nbm', d.rm_nbm);
+    var rmOpp = normalizeRainmakerOppInput(d.rm_opp);
+    setVal('rm_opp', rmOpp ? formatCurrencyInput(rmOpp) : formatCurrencyInput(d.rm_opp));
+    setVal('rm_accts', d.rm_accts);
+    if (d.pulseScore) {
+      var slider = document.getElementById('pulseScore');
+      if (slider) { slider.value = d.pulseScore; updatePulseDisplay(); }
+    }
+    for (var i = 1; i <= 6; i++) {
+      setVal('acct' + i + '_name', d['acct' + i + '_name']);
+      setVal('acct' + i + '_stage', d['acct' + i + '_stage']);
+      var arrVal = normalizeMoneyThousandsInput(d['acct' + i + '_arr']);
+      // Display full dollar values (e.g. $260,000) for ARR
+      setVal('acct' + i + '_arr', arrVal !== "" ? formatCurrencyInput(arrVal) : formatCurrencyInput(d['acct' + i + '_arr']));
+      setVal('acct' + i + '_move', d['acct' + i + '_move']);
+      setVal('acct' + i + '_next', d['acct' + i + '_next']);
+      var eng = d['acct' + i + '_engage'] || '';
+      if (eng) {
+        var radio = document.querySelector('input[name="acct' + i + '_engage"][value="' + eng + '"]');
+        if (radio) {
+          radio.checked = true;
+          highlightEngageGroup(radio);
+        }
+      }
+    }
+    var c = normalizeSelfForecastInput(d.commit, SF_DATA && SF_DATA.commit, QBR_CALL && QBR_CALL.commit);
+    var l = normalizeSelfForecastInput(d.likely, SF_DATA && SF_DATA.mostLikely, QBR_CALL && QBR_CALL.mostLikely);
+    var u = normalizeSelfForecastInput(d.upside, SF_DATA && SF_DATA.bestCase, QBR_CALL && QBR_CALL.bestCase);
+    var nq = parseMoneyishInput(d.nq_commit);
+    // Ensure inputs display full dollar formatting (e.g. $260,000)
+    setVal('commit', c ? formatCurrencyInput(c) : formatCurrencyInput(d.commit));
+    setVal('likely', l ? formatCurrencyInput(l) : formatCurrencyInput(d.likely));
+    setVal('upside', u ? formatCurrencyInput(u) : formatCurrencyInput(d.upside));
+    setVal('nq_commit', nq ? formatCurrencyInput(nq) : formatCurrencyInput(d.nq_commit));
+    setVal('forecast_note', d.forecast_note);
+    setVal('goal', d.goal);
+    setVal('risk', d.risk);
+    setVal('ask', d.ask);
+    if (d.sf_accurate) {
+      var sfRadio = document.querySelector('input[name="sf_accurate"][value="' + d.sf_accurate + '"]');
+      if (sfRadio) sfRadio.checked = true;
+    }
+    onSfAccuracyChange();
+  }
+
+  function applyForecastFallback(latestForecast) {
+    var lf = latestForecast || {};
+    var commitNow = parseMoneyishInput(getVal('commit'));
+    var likelyNow = parseMoneyishInput(getVal('likely'));
+    var upsideNow = parseMoneyishInput(getVal('upside'));
+    var nqNow = parseMoneyishInput(getVal('nq_commit'));
+
+    if (!(commitNow > 0) && parseMoneyishInput(lf.commit) > 0) setVal('commit', formatCurrencyInput(lf.commit));
+    if (!(likelyNow > 0) && parseMoneyishInput(lf.likely) > 0) setVal('likely', formatCurrencyInput(lf.likely));
+    if (!(upsideNow > 0) && parseMoneyishInput(lf.upside) > 0) setVal('upside', formatCurrencyInput(lf.upside));
+    if (!(nqNow > 0) && parseMoneyishInput(lf.nq_commit) > 0) setVal('nq_commit', formatCurrencyInput(lf.nq_commit));
+  }
+
+  function normalizeForecastInputsUsingContext() {
+    var c = normalizeMoneyThousandsInput(getVal('commit'));
+    var l = normalizeMoneyThousandsInput(getVal('likely'));
+    var u = normalizeMoneyThousandsInput(getVal('upside'));
+    var nq = normalizeMoneyThousandsInput(getVal('nq_commit'));
+
+    if (c) setVal('commit', formatCurrencyInput(c));
+    if (l) setVal('likely', formatCurrencyInput(l));
+    if (u) setVal('upside', formatCurrencyInput(u));
+    if (nq) setVal('nq_commit', formatCurrencyInput(nq));
+  }
+
+  function setForecastEditable(editable) {
+    ["commit", "likely", "upside"].forEach(function(id) {
+      var el = document.getElementById(id);
+      if (!el) return;
+      el.readOnly = !editable;
+      if (editable) el.classList.remove("forecast-lock");
+      else el.classList.add("forecast-lock");
+    });
+  }
+
+  function fillForecastFromSf() {
+    var sf = SF_DATA || {};
+    var c = parseMoneyishInput(sf.commit);
+    var l = parseMoneyishInput(sf.mostLikely);
+    var u = parseMoneyishInput(sf.bestCase);
+    if (c > 0) setVal("commit", formatCurrencyInput(c));
+    if (l > 0) setVal("likely", formatCurrencyInput(l));
+    if (u > 0) setVal("upside", formatCurrencyInput(u));
+  }
+
+  function getSfAccurateSelection() {
+    var selected = document.querySelector('input[name="sf_accurate"]:checked');
+    return selected ? selected.value : "";
+  }
+
+  function onSfAccuracyChange() {
+    var val = getSfAccurateSelection();
+    var note = document.getElementById("sfAccurateNote");
+    if (val === "Yes") {
+      fillForecastFromSf();
+      normalizeForecastInputsUsingContext();
+      setForecastEditable(false);
+      if (note) note.textContent = "Using Salesforce values for Commit / Most Likely / Best Case.";
+    } else if (val === "No") {
+      setForecastEditable(true);
+      if (note) note.textContent = "Please manually enter values and include one sentence in Forecast Notes explaining the difference.";
+    } else {
+      setForecastEditable(true);
+      if (note) note.textContent = "";
+    }
+    if (_guide.active && GUIDE_STEPS[_guide.step] && GUIDE_STEPS[_guide.step].id === "secForecast") {
+      renderGuideCard();
+    }
+  }
+
+  function setVal(id, val) {
+    var el = document.getElementById(id);
+    if (!el) return;
+    if (val !== undefined && val !== null && val !== '') el.value = val;
+  }
+
+  function updatePulseDisplay() {
+    var slider = document.getElementById('pulseScore');
+    var display = document.getElementById('pulseDisplay');
+    if (!slider || !display) return;
+    var v = parseInt(slider.value) || 5;
+    display.textContent = v;
+    display.style.color = pulseColor(v);
+  }
+
+  function highlightEngageGroup(radio) {
+    var group = radio.closest('.engage-group');
+    if (!group) return;
+    var labels = group.querySelectorAll('label');
+    for (var i = 0; i < labels.length; i++) {
+      labels[i].classList.remove('selected');
+    }
+    var parentLabel = radio.closest('label');
+    if (!parentLabel) return;
+    parentLabel.classList.add('selected');
+  }
+
+  function onEngageChange(radio) {
+    if (radio && radio.disabled) return;
+    highlightEngageGroup(radio);
+  }
+  function onEngageLabelClick(label) {
+    var radio = label.querySelector('input[type="radio"]');
+    if (!radio) return;
+    if (radio.disabled) return;
+    radio.checked = true;
+    highlightEngageGroup(radio);
+  }
+
+  function onAccountChangeMode(idx, noChanges) {
+    var card = document.getElementById("acctCard" + idx);
+    var fields = ["name","stage","arr","move","next"].map(function(s) { return document.getElementById("acct" + idx + "_" + s); });
+    var radios = document.querySelectorAll('input[name="acct' + idx + '_engage"]');
+    var labels = [];
+    for (var r = 0; r < radios.length; r++) {
+      var pl = radios[r].closest("label");
+      if (pl) labels.push(pl);
+    }
+
+    if (noChanges) {
+      if (LAST_DATA) {
+        setVal("acct" + idx + "_name", LAST_DATA["acct" + idx + "_name"] || getVal("acct" + idx + "_name"));
+        setVal("acct" + idx + "_stage", LAST_DATA["acct" + idx + "_stage"] || getVal("acct" + idx + "_stage"));
+        var arrRaw = LAST_DATA["acct" + idx + "_arr"];
+        var arrNorm = normalizeMoneyThousandsInput(arrRaw);
+        if (arrNorm) setVal("acct" + idx + "_arr", formatCurrencyInput(arrNorm));
+        else setVal("acct" + idx + "_arr", formatCurrencyInput(arrRaw) || getVal("acct" + idx + "_arr"));
+        setVal("acct" + idx + "_move", LAST_DATA["acct" + idx + "_move"] || getVal("acct" + idx + "_move"));
+        setVal("acct" + idx + "_next", LAST_DATA["acct" + idx + "_next"] || getVal("acct" + idx + "_next"));
+        var eng = LAST_DATA["acct" + idx + "_engage"] || "";
+        if (eng) {
+          var radio = document.querySelector('input[name="acct' + idx + '_engage"][value="' + eng + '"]');
+          if (radio) {
+            radio.checked = true;
+            highlightEngageGroup(radio);
+          }
+        }
+      }
+    }
+
+    for (var i = 0; i < fields.length; i++) if (fields[i]) fields[i].disabled = !!noChanges;
+    for (var j = 0; j < radios.length; j++) radios[j].disabled = !!noChanges;
+    for (var k = 0; k < labels.length; k++) {
+      if (noChanges) labels[k].classList.add("disabled");
+      else labels[k].classList.remove("disabled");
+    }
+    if (card) {
+      if (noChanges) card.classList.add("nochange-on");
+      else card.classList.remove("nochange-on");
+    }
+  }
+
+  // --- Form submission ---
+  function submitForm(evt) {
+    if (evt && evt.preventDefault) evt.preventDefault();
+    if (evt && evt.stopPropagation) evt.stopPropagation();
+    if (_submitInFlight) return;
+    clearValidationErrors();
+    var validation = validateForm();
+    if (!validation.ok) {
+      showToast(validation.message, true);
+      return;
+    }
+
+    var btn = document.getElementById('submitBtn');
+    var saveBanner = document.getElementById('saveBanner');
+    btn.disabled = true;
+    btn.textContent = 'Submitting...';
+    _submitInFlight = true;
+    if (saveBanner) saveBanner.classList.remove('show');
+
+    if (_submitWatchdog) clearTimeout(_submitWatchdog);
+    _submitWatchdog = setTimeout(function() {
+      _submitInFlight = false;
+      btn.disabled = false;
+      btn.textContent = 'Submit Weekly Recap';
+      showToast('Submission timed out. Please retry once.', true);
+    }, 25000);
+
+    var formData = {
+      weekOf: document.getElementById('weekOf').value,
+      pulseScore: document.getElementById('pulseScore').value,
+      pulseReason: document.getElementById('pulseReason').value,
+      rm_disco: document.getElementById('rm_disco').value,
+      rm_nbm: document.getElementById('rm_nbm').value,
+      rm_opp: normalizeRainmakerOppInput(document.getElementById('rm_opp').value),
+      rm_accts: document.getElementById('rm_accts').value,
+      forecast_note: document.getElementById('forecast_note').value,
+      commit: normalizeMoneyThousandsInput(document.getElementById('commit').value),
+      likely: normalizeMoneyThousandsInput(document.getElementById('likely').value),
+      upside: normalizeMoneyThousandsInput(document.getElementById('upside').value),
+      nq_commit: normalizeMoneyThousandsInput(document.getElementById('nq_commit').value),
+      goal: document.getElementById('goal').value,
+      risk: document.getElementById('risk').value,
+      ask: document.getElementById('ask').value,
+      sf_accurate: document.querySelector('input[name="sf_accurate"]:checked')
+        ? document.querySelector('input[name="sf_accurate"]:checked').value : ''
+    };
+
+    for (var i = 1; i <= 6; i++) {
+      formData['acct' + i + '_name'] = getVal('acct' + i + '_name');
+      formData['acct' + i + '_stage'] = getVal('acct' + i + '_stage');
+      formData['acct' + i + '_arr'] = normalizeMoneyThousandsInput(getVal('acct' + i + '_arr'));
+      var engRadio = document.querySelector('input[name="acct' + i + '_engage"]:checked');
+      formData['acct' + i + '_engage'] = engRadio ? engRadio.value : '';
+      formData['acct' + i + '_move'] = getVal('acct' + i + '_move');
+      formData['acct' + i + '_next'] = getVal('acct' + i + '_next');
+      var ncRadio = document.querySelector('input[name="acct' + i + '_nochange"]:checked');
+      formData['acct' + i + '_nochange'] = ncRadio ? ncRadio.value : 'No';
+    }
+
+    // Admin preview
+    var previewSelect = document.getElementById('previewEmail');
+    if (previewSelect && previewSelect.value) {
+      formData.previewEmail = previewSelect.value;
+    }
+
+    google.script.run
+      .withSuccessHandler(function(result) {
+        try {
+          if (_submitWatchdog) clearTimeout(_submitWatchdog);
+          _submitInFlight = false;
+          btn.disabled = false;
+          btn.textContent = 'Submit Weekly Recap';
+          showToast((result && result.message) ? result.message : 'Saved!');
+          if (saveBanner) {
+            saveBanner.textContent = 'Saved successfully. You can close this page.';
+            saveBanner.classList.add('show');
+          }
+          var meta = document.getElementById('saveMeta');
+          if (meta) meta.textContent = "Last saved: " + new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', second: '2-digit' });
+          showSubmitSuccess((result && result.message) ? result.message : 'Submission received.');
+          stabilizeAfterSubmit_();
+        } catch (submitUiErr) {
+          showFatalError(submitUiErr, "submit success handler");
+        }
+      })
+      .withFailureHandler(function(err) {
+        if (_submitWatchdog) clearTimeout(_submitWatchdog);
+        _submitInFlight = false;
+        console.error('submit failed', err);
+        btn.disabled = false;
+        btn.textContent = 'Submit Weekly Recap';
+        showToast('Error: ' + (err.message || err), true);
+      })
+      .processForm(formData);
+    return false;
+  }
+
+  function stabilizeAfterSubmit_() {
+    // For admin QA submissions, hard-reload the same rep page using canonical URL.
+    var sel = document.getElementById("previewEmail");
+    var qaEmail = sel ? String(sel.value || "").trim().toLowerCase() : "";
+    if (IS_ADMIN && qaEmail) {
+      setTimeout(function() {
+        window.top.location.href = APP_EXEC_URL + "?page=rep&email=" + encodeURIComponent(qaEmail) + "&saved=1&v=" + Date.now();
+      }, 350);
+    }
+  }
+
+  function clearValidationErrors() {
+    var errs = document.querySelectorAll('.field-error');
+    for (var i = 0; i < errs.length; i++) errs[i].classList.remove('field-error');
+  }
+
+  function markFieldError(id) {
+    var el = document.getElementById(id);
+    if (el) el.classList.add('field-error');
+  }
+
+  function validateForm() {
+    var week = getVal('weekOf');
+    var reason = getVal('pulseReason').trim();
+    if (!week) { markFieldError('weekOf'); return { ok: false, message: 'Week Of is required.' }; }
+    if (!reason) { markFieldError('pulseReason'); return { ok: false, message: 'Pulse reason is required.' }; }
+
+    var complete = 0;
+    for (var i = 1; i <= 6; i++) {
+      var n = getVal('acct' + i + '_name').trim();
+      var s = getVal('acct' + i + '_stage').trim();
+      var e = document.querySelector('input[name="acct' + i + '_engage"]:checked');
+      if (n && s && e) complete++;
+    }
+    if (complete < 2) {
+      for (var j = 1; j <= 6; j++) {
+        markFieldError('acct' + j + '_name');
+        markFieldError('acct' + j + '_stage');
+      }
+      return { ok: false, message: 'At least 2 accounts must include name, stage, and engagement.' };
+    }
+    var sfAcc = getSfAccurateSelection();
+    if (!sfAcc) {
+      return { ok: false, message: 'Please answer whether Salesforce is up to date in the Forecast section.' };
+    }
+    var commit = normalizeMoneyThousandsInput(getVal('commit'));
+    var likely = normalizeMoneyThousandsInput(getVal('likely'));
+    var upside = normalizeMoneyThousandsInput(getVal('upside'));
+    if (!(commit > 0)) { markFieldError('commit'); return { ok: false, message: 'Commit must be greater than $0.' }; }
+    if (!(likely > 0)) { markFieldError('likely'); return { ok: false, message: 'Most Likely must be greater than $0.' }; }
+    if (!(upside > 0)) { markFieldError('upside'); return { ok: false, message: 'Best Case must be greater than $0.' }; }
+    var nq = normalizeMoneyThousandsInput(getVal('nq_commit'));
+    if (!(nq > 0)) {
+      markFieldError('nq_commit');
+      return { ok: false, message: 'Nobody commits $0.' };
+    }
+    if (sfAcc === "No") {
+      var note = getVal('forecast_note').trim();
+      if (note.length < 12 || note.indexOf(' ') < 0) {
+        markFieldError('forecast_note');
+        return { ok: false, message: 'If SFDC is not up to date, add one sentence in Forecast Notes on why the numbers differ.' };
+      }
+    }
+    return { ok: true };
+  }
+
+  function jumpToAccountByName(accountName) {
+    var target = String(accountName || '').trim().toLowerCase();
+    if (!target) return;
+    for (var i = 1; i <= 6; i++) {
+      var id = 'acct' + i + '_name';
+      var el = document.getElementById(id);
+      if (!el) continue;
+      if (String(el.value || '').trim().toLowerCase() === target) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        el.focus();
+        return;
+      }
+    }
+    showToast('Account not found in current 2x4 list.', true);
+  }
+
+  function getVal(id) {
+    var el = document.getElementById(id);
+    return el ? el.value : '';
+  }
+
+  function showToast(msg, isError) {
+    var toast = document.getElementById('toast');
+    if (!toast) {
+      return;
+    }
+    toast.textContent = msg;
+    toast.style.background = isError ? '#dc2626' : '#1a2533';
+    toast.classList.add('show');
+    setTimeout(function() { toast.classList.remove('show'); }, 4000);
+  }
+
+  function showSubmitSuccess(message) {
+    var overlay = document.getElementById("successOverlay");
+    var body = document.getElementById("successBody");
+    var timeEl = document.getElementById("successTime");
+    if (!overlay || !body || !timeEl) return;
+    body.textContent = message || "Your weekly recap was submitted successfully.";
+    timeEl.textContent = "Saved at " + new Date().toLocaleTimeString("en-US", {
+      hour: "numeric", minute: "2-digit", second: "2-digit"
+    });
+    overlay.style.display = "flex";
+  }
+
+  function hideSubmitSuccess() {
+    var overlay = document.getElementById("successOverlay");
+    if (overlay) overlay.style.display = "none";
+  }
+
+  function getSelectedQaEmail() {
+    var sel = document.getElementById("previewEmail");
+    return sel ? String(sel.value || "").trim().toLowerCase() : "";
+  }
+
+  function setQaStatus(message, mode) {
+    var el = document.getElementById("qaStatus");
+    if (!el) return;
+    el.className = "qa-status";
+    if (mode) el.classList.add(mode);
+    el.textContent = message || "";
+    if (message) el.classList.add("active");
+  }
+
+  function updateQaBanner() {
+    if (!IS_ADMIN) return;
+    var rep = getSelectedQaEmail();
+    var repName = rep ? (NAME_MAP[rep] || rep) : "Myself";
+    var submitHint = document.getElementById("qaSubmitHint");
+    if (submitHint) submitHint.textContent = rep ? ("Submitting as: " + repName) : "Submitting as: Myself";
+    setQaStatus(rep
+      ? ("QA mode active for " + repName + ". You are editing and submitting as this rep.")
+      : "QA mode idle. Select a rep to impersonate for testing.", rep ? "active" : "");
+  }
+
+  function adminLoadSelectedRep() {
+    var rep = getSelectedQaEmail();
+    if (!rep) {
+      showToast("Select a rep first.", true);
+      return;
+    }
+    adminLoadRep(rep);
+  }
+
+  function adminExitQaMode() {
+    var sel = document.getElementById("previewEmail");
+    if (sel) sel.value = "";
+    setQaStatus("Exiting QA mode and restoring your own view...", "active");
+    restoreMyAdminView_();
+  }
+
+  function adminRunSmokeTest() {
+    var rep = getSelectedQaEmail();
+    if (!rep) {
+      showToast("Select a rep first.", true);
+      return;
+    }
+    setQaStatus("Running smoke test for " + (NAME_MAP[rep] || rep) + "...", "active");
+    google.script.run
+      .withSuccessHandler(function(jsonStr) {
+        var d = (typeof jsonStr === "string") ? JSON.parse(jsonStr) : jsonStr;
+        if (!d) {
+          setQaStatus("Smoke test failed: no payload returned for selected rep.", "warn");
+          return;
+        }
+        var checks = [];
+        var passCount = 0;
+        function pushCheck(ok, msg) {
+          checks.push((ok ? "PASS" : "WARN") + " - " + msg);
+          if (ok) passCount++;
+        }
+        var ld = d.lastData || {};
+        var sf = d.sfData || {};
+        var qbr = d.qbrCall || {};
+        var stats = d.userStats || {};
+        var acctCount = 0;
+        for (var i = 1; i <= 6; i++) {
+          if (String(ld["acct" + i + "_name"] || "").trim()) acctCount++;
+        }
+        pushCheck(!!d.lastData, "Last recap payload exists");
+        pushCheck(!!ld.weekOf, "Week Of present");
+        pushCheck((String(ld.pulseReason || "").trim().length > 0), "Pulse reason present");
+        pushCheck(acctCount >= 2, "At least 2 account names present (" + acctCount + ")");
+        pushCheck((Number(sf.commit || 0) + Number(sf.mostLikely || 0) + Number(sf.bestCase || 0)) > 0, "SF data non-zero");
+        pushCheck((Number(qbr.commit || 0) + Number(qbr.mostLikely || 0) + Number(qbr.bestCase || 0)) > 0, "QBR data non-zero");
+        pushCheck(Object.keys(stats).length > 0, "User stats payload present");
+        var mode = (passCount === checks.length) ? "pass" : "warn";
+        setQaStatus("Smoke test for " + (NAME_MAP[rep] || rep) + ": " + checks.join(" | "), mode);
+      })
+      .withFailureHandler(function(err) {
+        setQaStatus("Smoke test error: " + (err && err.message ? err.message : err), "warn");
+      })
+      .getRepDataForAdmin(rep);
+  }
+
+  function escHtml(s) {
+    var div = document.createElement('div');
+    div.appendChild(document.createTextNode(String(s || '')));
+    return div.innerHTML;
+  }
+
+  // --- Admin: load a rep's data into the form ---
+  function adminLoadRep(email) {
+    email = String(email || '').replace(/^["']+|["']+$/g, '').trim().toLowerCase();
+    if (!email) {
+      restoreMyAdminView_();
+      return;
+    }
+    var nameEl = document.getElementById("repNameDisplay");
+    if (nameEl) nameEl.textContent = "Loading " + (NAME_MAP[email] || email) + "...";
+    setQaStatus("Loading " + (NAME_MAP[email] || email) + "...", "active");
+    google.script.run
+      .withSuccessHandler(function(jsonStr) {
+        var d = (typeof jsonStr === "string") ? JSON.parse(jsonStr) : jsonStr;
+        if (!d) {
+          showToast("Unable to load selected rep. Refresh and try again.", true);
+          if (nameEl) nameEl.textContent = "Editing: " + (NAME_MAP[email] || email);
+          setQaStatus("Could not load selected rep payload.", "warn");
+          refreshGuideAvailability();
+          return;
+        }
+        USER_STATS = d.userStats; SF_DATA = d.sfData; QBR_CALL = d.qbrCall;
+        clearForm();
+        if (d.lastData) prefillFromLast(d.lastData);
+        if (d.latestForecast) applyForecastFallback(d.latestForecast);
+        normalizeForecastInputsUsingContext();
+        onSfAccuracyChange();
+        renderStats(); renderSFBanner(); renderForecastCompare();
+        if (nameEl) nameEl.textContent = "Editing: " + (NAME_MAP[email] || email);
+        setQaStatus("Loaded " + (NAME_MAP[email] || email) + " for QA.", "pass");
+        refreshGuideAvailability();
+      })
+      .withFailureHandler(function(err) {
+        showToast("Error loading rep: " + (err.message || err), true);
+        if (nameEl) nameEl.textContent = NAME_MAP[SESSION_EMAIL] || SESSION_EMAIL;
+        setQaStatus("Failed loading selected rep: " + (err && err.message ? err.message : err), "warn");
+        refreshGuideAvailability();
+      })
+      .getRepDataForAdmin(email);
+  }
+
+  function restoreMyAdminView_() {
+    var myEmail = String(SESSION_EMAIL || "").trim().toLowerCase();
+    var nameEl = document.getElementById("repNameDisplay");
+    if (nameEl) nameEl.textContent = "Loading your recap...";
+    google.script.run
+      .withSuccessHandler(function(jsonStr) {
+        var d = (typeof jsonStr === "string") ? JSON.parse(jsonStr) : jsonStr;
+        if (!d) {
+          setQaStatus("Could not restore your recap payload.", "warn");
+          showToast("Unable to restore your view. Refresh and try again.", true);
+          return;
+        }
+        USER_STATS = d.userStats || {};
+        SF_DATA = d.sfData || {};
+        QBR_CALL = d.qbrCall || {};
+        clearForm();
+        if (d.lastData) prefillFromLast(d.lastData);
+        if (d.latestForecast) applyForecastFallback(d.latestForecast);
+        normalizeForecastInputsUsingContext();
+        onSfAccuracyChange();
+        renderStats();
+        renderSFBanner();
+        renderForecastCompare();
+        if (nameEl) nameEl.textContent = NAME_MAP[myEmail] || myEmail;
+        setQaStatus("QA mode exited. Restored your own view.", "pass");
+        refreshGuideAvailability();
+      })
+      .withFailureHandler(function(err) {
+        setQaStatus("Failed restoring your own view: " + (err && err.message ? err.message : err), "warn");
+        showToast("Failed restoring your view. Refresh once.", true);
+      })
+      .getRepDataForAdmin(myEmail);
+  }
+
+  function loadLiveRepContext() {
+    var email = String(ON_BEHALF || SESSION_EMAIL || "").trim().toLowerCase();
+    if (!email) return;
+    google.script.run
+      .withSuccessHandler(function(jsonStr) {
+        var d = (typeof jsonStr === "string") ? JSON.parse(jsonStr) : jsonStr;
+        if (!d) return;
+        USER_STATS = d.userStats || {};
+        SF_DATA = d.sfData || {};
+        QBR_CALL = d.qbrCall || {};
+        if (d.latestForecast) applyForecastFallback(d.latestForecast);
+        normalizeForecastInputsUsingContext();
+        onSfAccuracyChange();
+        renderStats();
+        renderSFBanner();
+        renderForecastCompare();
+      })
+      .withFailureHandler(function() {
+        // Keep page usable even if background enrichment fails.
+      })
+      .getRepDataForRecap(email);
+  }
+
+  function clearForm() {
+    var slider = document.getElementById("pulseScore");
+    if (slider) { slider.value = 5; updatePulseDisplay(); }
+    var why = document.getElementById("pulseReason");
+    if (why) why.value = "";
+    for (var i = 1; i <= 6; i++) {
+      ["_name","_stage","_arr","_move","_next"].forEach(function(s) { setVal("acct"+i+s, ""); });
+      var radios = document.querySelectorAll('input[name="acct'+i+'_engage"]');
+      for (var r = 0; r < radios.length; r++) { radios[r].checked = false; }
+      var grp = document.querySelectorAll('.engage-group label');
+      for (var g = 0; g < grp.length; g++) { grp[g].classList.remove('selected'); }
+      var noChangeNo = document.querySelector('input[name="acct' + i + '_nochange"][value="No"]');
+      if (noChangeNo) noChangeNo.checked = true;
+      onAccountChangeMode(i, false);
+    }
+    ["commit","likely","upside","nq_commit","goal","risk","ask"].forEach(function(id) { setVal(id, ""); });
+    var sfRadios = document.querySelectorAll('input[name="sf_accurate"]');
+    for (var s = 0; s < sfRadios.length; s++) sfRadios[s].checked = false;
+    var note = document.getElementById("sfAccurateNote");
+    if (note) note.textContent = "";
+    setForecastEditable(true);
+  }
+</script>
+</head>
+
+<body>
+<!-- TOP BAR -->
+<div class="top-bar">
+  <div>
+    <h1>Q4 Weekly Recap</h1>
+    <div class="meta" id="repNameDisplay">Loading...</div>
+  </div>
+  <div class="actions">
+    <a id="pocLink" href="#">POC Command Center</a>
+    <a id="dashLink" href="#" style="display:none;">Team Dashboard</a>
+  </div>
+</div>
+
+<div class="page">
+  <div id="guideLaunch" class="guide-launch" style="display:flex;">
+    <div class="msg"><strong>Guided Mode:</strong> Click to start the step-by-step recap guide.</div>
+    <button class="guide-btn" onclick="startGuidedMode()">Click Here to Start</button>
+  </div>
+
+  <!-- ADMIN PREVIEW BAR -->
+  <div class="admin-bar" id="adminBar" style="display:none;">
+    <label>Preview as rep:</label>
+    <select id="previewEmail" onchange="updateQaBanner()">
+      <option value="">-- Myself --</option>
+      <option value="niko.argaez@glean.com">Niko Argaez</option>
+      <option value="taylor.lundberg@glean.com">Taylor Lundberg</option>
+      <option value="james.demory@glean.com">James DeMory</option>
+      <option value="johnny.hatch@glean.com">Johnny Hatch</option>
+      <option value="melissa.richards@glean.com">Melissa Richards</option>
+      <option value="daniel.broderick@glean.com">Daniel Broderick</option>
+    </select>
+    <button type="button" class="qa-btn primary" onclick="adminLoadSelectedRep()">Load As Rep</button>
+    <button type="button" class="qa-btn" onclick="adminRunSmokeTest()">Run Smoke Test</button>
+    <button type="button" class="qa-btn" onclick="adminExitQaMode()">Exit QA Mode</button>
+    <span class="qa-pill" id="qaSubmitHint">Submitting as: Myself</span>
+  </div>
+  <div class="qa-status" id="qaStatus"></div>
+
+  <div id="secTopReview">
+    <!-- LEADERBOARD STATS -->
+    <div class="stats-row" id="statsRow"></div>
+
+    <!-- SF / QBR PIPELINE BANNER -->
+    <div class="banner" id="sfBanner"></div>
+    <div id="nbmAlerts"></div>
+  </div>
+
+  <!-- WEEK OF -->
+  <div class="section" id="secWeek">
+    <h2>Week Of</h2>
+    <div class="form-row">
+      <input type="date" id="weekOf">
+    </div>
+  </div>
+
+  <!-- PULSE CHECK -->
+  <div class="section" id="secPulse">
+    <h2>Pulse Check</h2>
+    <div class="form-row">
+      <label>How are you feeling this week? (1 = rough, 10 = crushing it)</label>
+      <div class="pulse-wrap">
+        <div class="pulse-slider">
+          <input type="range" id="pulseScore" min="1" max="10" value="5" oninput="updatePulseDisplay()">
+        </div>
+        <div class="pulse-val" id="pulseDisplay">5</div>
+      </div>
+    </div>
+    <div class="form-row">
+      <label for="pulseReason">Why?</label>
+      <textarea id="pulseReason" placeholder="What's driving your energy this week?"></textarea>
+    </div>
+  </div>
+
+  <!-- RAINMAKER METRICS -->
+  <div class="section" id="secRainmaker">
+    <h2>Rainmaker Metrics</h2>
+    <div class="form-grid form-grid-4">
+      <div class="form-row">
+        <label for="rm_disco">Discovery Meetings</label>
+        <input type="number" id="rm_disco" min="0" value="0">
+      </div>
+      <div class="form-row">
+        <label for="rm_nbm">NBMs</label>
+        <input type="number" id="rm_nbm" min="0" value="0">
+      </div>
+      <div class="form-row">
+        <label for="rm_opp">New Opp ARR ($)</label>
+        <input type="text" id="rm_opp" placeholder="e.g. 150k or 1.2M">
+      </div>
+      <div class="form-row">
+        <label for="rm_accts">Target Accounts</label>
+        <input type="text" id="rm_accts" placeholder="# of active accounts">
+      </div>
+    </div>
+  </div>
+
+  <!-- ACCOUNTS (6 slots) -->
+  <div class="section" id="secAccounts">
+    <h2>Account Updates (2x4)</h2>
+    <div id="accountCards"></div>
+  </div>
+  <script>
+    (function() {
+      var container = document.getElementById('accountCards');
+      var html = '';
+    for (var i = 1; i <= 6; i++) {
+      var prevName = (LAST_DATA && LAST_DATA['acct' + i + '_name']) || '';
+      var tierCls = i <= 2 ? 'acct-top' : 'acct-bottom';
+      html += '<div class="acct-card ' + tierCls + '" id="acctCard' + i + '">';
+      html += '<div class="acct-header"><div class="acct-num">Account ' + i + '</div>';
+      if (prevName) html += '<div class="acct-prev">Last: ' + escHtml(prevName) + '</div>';
+      html += '</div>';
+      html += '<div class="acct-mode">';
+      html += '<div class="mode-label">' + (i <= 2 ? 'Top 2 account' : 'Bottom 4 account') + '</div>';
+      html += '<div class="mode-opts">';
+      html += '<label><input type="radio" name="acct' + i + '_nochange" value="No" checked onchange="onAccountChangeMode(' + i + ', false)"> Changed</label>';
+      html += '<label><input type="radio" name="acct' + i + '_nochange" value="Yes" onchange="onAccountChangeMode(' + i + ', true)"> No changes</label>';
+      html += '</div></div>';
+
+      html += '<div class="form-grid form-grid-3">';
+        html += '<div class="form-row"><label>Account Name</label><input type="text" id="acct' + i + '_name" placeholder="Account name"></div>';
+        html += '<div class="form-row"><label>Stage</label><input type="text" id="acct' + i + '_stage" placeholder="e.g. S2, S4"></div>';
+        html += '<div class="form-row"><label>ARR ($)</label><input type="text" id="acct' + i + '_arr" placeholder="e.g. 200k"></div>';
+        html += '</div>';
+
+        html += '<div class="form-grid form-grid-3" style="margin-top:8px;">';
+        html += '<div class="form-row"><label>Engagement</label>';
+        html += '<div class="engage-group">';
+        html += '<label class="eg-green" onclick="onEngageLabelClick(this)"><input type="radio" name="acct' + i + '_engage" value="Green" onchange="onEngageChange(this)"><span>Green</span></label>';
+        html += '<label class="eg-yellow" onclick="onEngageLabelClick(this)"><input type="radio" name="acct' + i + '_engage" value="Yellow" onchange="onEngageChange(this)"><span>Yellow</span></label>';
+        html += '<label class="eg-red" onclick="onEngageLabelClick(this)"><input type="radio" name="acct' + i + '_engage" value="Red" onchange="onEngageChange(this)"><span>Red</span></label>';
+        html += '</div></div>';
+        html += '<div class="form-row"><label>Critical Move</label><input type="text" id="acct' + i + '_move" placeholder="Key move this week"></div>';
+        html += '<div class="form-row"><label>Next Step</label><input type="text" id="acct' + i + '_next" placeholder="Next action"></div>';
+        html += '</div>';
+
+        html += '</div>';
+      }
+      container.innerHTML = html;
+    })();
+  </script>
+
+  <!-- FORECAST -->
+  <div class="section" id="secForecast">
+    <h2>Forecast</h2>
+    <div class="forecast-grid">
+      <div class="forecast-item">
+        <label for="commit">Commit ($)</label>
+        <input type="text" id="commit" placeholder="e.g. 500k">
+        <div class="forecast-compare">
+          <div>SF: <span class="fc-sf" id="fcSfCommit"></span></div>
+          <div>QBR: <span class="fc-qbr" id="fcQbrCommit"></span></div>
+        </div>
+      </div>
+      <div class="forecast-item">
+        <label for="likely">Most Likely ($)</label>
+        <input type="text" id="likely" placeholder="e.g. 700k">
+        <div class="forecast-compare">
+          <div>SF: <span class="fc-sf" id="fcSfLikely"></span></div>
+          <div>QBR: <span class="fc-qbr" id="fcQbrLikely"></span></div>
+        </div>
+      </div>
+      <div class="forecast-item">
+        <label for="upside">Best Case ($)</label>
+        <input type="text" id="upside" placeholder="e.g. 1M">
+        <div class="forecast-compare">
+          <div>SF: <span class="fc-sf" id="fcSfBestCase"></span></div>
+          <div>QBR: <span class="fc-qbr" id="fcQbrBestCase"></span></div>
+        </div>
+      </div>
+      <div class="forecast-item nq-highlight">
+        <label for="nq_commit">NQ Commit ($)</label>
+        <input type="text" id="nq_commit" placeholder="Next quarter">
+      </div>
+    </div>
+    <div class="sf-accuracy-inline">
+      <div class="lbl">Is SFDC up to date?</div>
+      <div class="opts">
+        <label style="display:inline-flex;align-items:center;gap:6px;cursor:pointer;">
+          <input type="radio" name="sf_accurate" value="Yes" style="width:auto;"> Yes
+        </label>
+        <label style="display:inline-flex;align-items:center;gap:6px;cursor:pointer;">
+          <input type="radio" name="sf_accurate" value="No" style="width:auto;"> No
+        </label>
+      </div>
+      <div id="sfAccurateNote" class="note"></div>
+    </div>
+    <div class="form-row" style="margin-top:14px;">
+      <label for="forecast_note">Forecast Notes</label>
+      <textarea id="forecast_note" placeholder="Any changes to your forecast this week?"></textarea>
+    </div>
+  </div>
+  <script>
+    function renderForecastCompare() {
+      var sf = SF_DATA || {};
+      var qbr = QBR_CALL || {};
+      var ids = {
+        fcSfCommit: sf.commit, fcSfLikely: sf.mostLikely, fcSfBestCase: sf.bestCase,
+        fcQbrCommit: qbr.commit, fcQbrLikely: qbr.mostLikely, fcQbrBestCase: qbr.bestCase
+      };
+      for (var id in ids) {
+        var el = document.getElementById(id);
+        if (el) el.textContent = fmtMoney(ids[id]);
+      }
+    }
+    renderForecastCompare();
+  </script>
+
+  <!-- GOAL / RISK / ASK -->
+  <div class="section" id="secGRA">
+    <h2>Goal / Risk / Ask</h2>
+    <div class="form-row">
+      <label for="goal">This Week's #1 Goal</label>
+      <textarea id="goal" placeholder="What's the one thing you must accomplish?"></textarea>
+    </div>
+    <div class="form-row">
+      <label for="risk">Biggest Risk</label>
+      <textarea id="risk" placeholder="What could go wrong?"></textarea>
+    </div>
+    <div class="form-row">
+      <label for="ask">Ask of Manager</label>
+      <textarea id="ask" placeholder="How can Billy help you this week?"></textarea>
+    </div>
+  </div>
+
+  <!-- SUBMIT -->
+  <div class="submit-wrap" id="secSubmit">
+    <button type="button" class="submit-btn" id="submitBtn" onclick="submitForm(event)">Submit Weekly Recap</button>
+    <div id="saveBanner" class="save-banner"></div>
+    <div class="save-meta" id="saveMeta"></div>
+  </div>
+
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+<div class="success-overlay" id="successOverlay">
+  <div class="success-card">
+    <div class="success-title">Recap Submitted</div>
+    <div class="success-body" id="successBody">Your weekly recap was submitted successfully.</div>
+    <div class="success-time" id="successTime"></div>
+    <button class="success-btn" type="button" onclick="hideSubmitSuccess()">Close</button>
+  </div>
+</div>
+<div class="fatal-overlay" id="fatalOverlay">
+  <div class="fatal-card">
+    <div class="fatal-title">Page Error</div>
+    <div class="fatal-msg" id="fatalMsg">Something went wrong while loading this recap.</div>
+    <div class="fatal-pre" id="fatalStack"></div>
+  </div>
+</div>
+<div id="guideOverlay" class="guide-overlay">
+  <div id="guideCard" class="guide-card">
+    <div id="guideStep" class="g-step"></div>
+    <div id="guideTitle" class="g-title"></div>
+    <div id="guideMsg" class="g-msg"></div>
+    <div class="guide-actions">
+      <button onclick="stopGuidedMode()">Stop</button>
+      <button id="guidePrevBtn" onclick="prevGuideStep()">Back</button>
+      <button id="guideNextBtn" class="primary" onclick="nextGuideStep()">Next</button>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

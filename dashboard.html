@@ -1,0 +1,2133 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap">
+<style>
+/* ===== RESET & BASE ===== */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --ink: #111827;
+  --muted: #5f6b7c;
+  --line: #d7cdbd;
+  --card: #ffffff;
+  --surface: #f4efe5;
+  --brand: #1d4b79;
+  --brand-deep: #123456;
+}
+body {
+  font-family: 'Manrope', 'IBM Plex Sans', sans-serif;
+  background:
+    radial-gradient(1200px 500px at 8% -10%, #e8dbc2 0%, rgba(232,219,194,0) 70%),
+    radial-gradient(900px 420px at 100% -20%, #dce4d5 0%, rgba(220,228,213,0) 70%),
+    var(--surface);
+  color: var(--ink);
+  padding: 22px;
+}
+a { color: var(--brand); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+.header, .tab-bar, #dashSection, #pocSection { max-width: 1300px; margin-left: auto; margin-right: auto; }
+
+/* ===== HEADER ===== */
+.header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 18px; flex-wrap: wrap; gap: 12px;
+  background: linear-gradient(135deg, #0d1f33 0%, #163a60 100%);
+  border: 1px solid #143757;
+  border-radius: 14px;
+  padding: 14px 18px;
+  backdrop-filter: blur(6px);
+}
+.header h1 { font-size: 22px; font-weight: 800; color: #f8fafc; letter-spacing: -.2px; }
+.header-actions { display: inline-flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.back-link {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: #f8fafc;
+  color: #0f172a; padding: 8px 12px;
+  border-radius: 9px; font-size: 12px; font-weight: 800;
+  transition: transform .15s, filter .15s;
+  box-shadow: 0 4px 12px rgba(0,0,0,.2);
+}
+.back-link:hover { text-decoration: none; transform: translateY(-1px); filter: brightness(1.03); }
+.export-link {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: #15803d;
+  color: #fff; padding: 8px 12px;
+  border: 1px solid #15803d;
+  border-radius: 9px; font-size: 12px; font-weight: 800;
+  transition: transform .15s, filter .15s;
+  box-shadow: 0 4px 12px rgba(0,0,0,.2);
+  cursor: pointer;
+}
+.export-link:hover { text-decoration: none; transform: translateY(-1px); filter: brightness(1.03); }
+.cleanup-link {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: #b45309;
+  color: #fff; padding: 8px 12px;
+  border: 1px solid #b45309;
+  border-radius: 9px; font-size: 12px; font-weight: 800;
+  transition: transform .15s, filter .15s;
+  box-shadow: 0 4px 12px rgba(0,0,0,.2);
+  cursor: pointer;
+}
+.cleanup-link:hover { text-decoration: none; transform: translateY(-1px); filter: brightness(1.03); }
+
+/* ===== TAB BAR ===== */
+.tab-bar {
+  display: inline-flex; gap: 6px; margin-bottom: 18px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 4px;
+  background: rgba(255,251,243,.96);
+}
+.qa-center {
+  max-width: 1300px;
+  margin: 0 auto 14px;
+  border: 1px solid #d7cdbd;
+  border-radius: 12px;
+  background: #fffaf0;
+  padding: 12px;
+  display: none;
+  gap: 10px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.qa-center .qa-title {
+  font-size: 12px;
+  font-weight: 800;
+  color: #0f172a;
+  letter-spacing: .35px;
+  text-transform: uppercase;
+}
+.qa-center select {
+  padding: 8px 10px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 13px;
+  background: #fff;
+}
+.qa-center button {
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid #0f172a;
+  background: #0f172a;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.qa-center button.secondary {
+  background: #fff;
+  color: #0f172a;
+}
+.tab-btn {
+  padding: 10px 16px; font-size: 13px; font-weight: 800;
+  background: none; border: none; cursor: pointer;
+  color: var(--muted);
+  transition: all .2s;
+  border-radius: 9px;
+  text-transform: uppercase;
+  letter-spacing: .35px;
+}
+.tab-btn:hover { color: var(--brand); }
+.tab-btn.active { color: #fff; background: linear-gradient(135deg, var(--brand), var(--brand-deep)); box-shadow: 0 6px 14px rgba(21,53,90,.25); }
+
+/* ===== LOADING / ERROR ===== */
+.loading-state {
+  text-align: center; padding: 60px 20px; color: #666; font-size: 16px;
+}
+.loading-state .spinner {
+  display: inline-block; width: 36px; height: 36px;
+  border: 3px solid #e0e0e0; border-top-color: #4361ee;
+  border-radius: 50%; animation: spin .8s linear infinite;
+  margin-bottom: 16px;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.error-msg {
+  background: #fee; border: 1px solid #fcc; color: #c00;
+  padding: 16px; border-radius: 8px; margin: 20px 0; text-align: center;
+}
+.no-data {
+  text-align: center; padding: 60px 20px; color: #888; font-size: 18px;
+}
+
+/* ===== SUMMARY CARDS ===== */
+.summary-row {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 16px; margin-bottom: 24px;
+}
+.summary-card {
+  background: linear-gradient(180deg, #fffefb 0%, #f8f3ea 100%);
+  border: 1px solid var(--line);
+  border-radius: 14px; padding: 18px;
+  box-shadow: 0 12px 24px rgba(15,23,42,.08); text-align: center;
+}
+.summary-card .label { font-size: 10px; color: #7a879a; text-transform: uppercase; letter-spacing: .9px; margin-bottom: 6px; font-weight: 800; }
+.summary-card .value { font-size: 28px; font-weight: 800; color: var(--ink); letter-spacing: -.2px; }
+.summary-card .value.pulse-green { color: #10b981; }
+.summary-card .value.pulse-yellow { color: #f59e0b; }
+.summary-card .value.pulse-red { color: #ef4444; }
+
+/* ===== REP CARD ===== */
+.rep-card {
+  background: linear-gradient(180deg, #fffefc 0%, #f9f4ea 100%); border-radius: 14px; padding: 20px;
+  box-shadow: 0 12px 26px rgba(15,23,42,.08); margin-bottom: 14px;
+  border: 1px solid var(--line);
+  border-left: 5px solid var(--brand);
+  transition: transform .12s ease, box-shadow .12s ease;
+}
+.rep-card:hover { transform: translateY(-1px); box-shadow: 0 16px 30px rgba(15,23,42,.11); }
+.rep-card.manager-card { border-left-color: #f59e0b; }
+.rep-header {
+  display: flex; align-items: center; justify-content: space-between;
+  cursor: pointer; flex-wrap: wrap; gap: 8px;
+}
+.rep-name { font-size: 18px; font-weight: 800; letter-spacing: -.15px; }
+.rep-meta { display: flex; gap: 16px; align-items: center; flex-wrap: wrap; }
+.rep-meta span { font-size: 12px; color: #6d788b; font-weight: 600; }
+.pulse-badge {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 36px; height: 36px; border-radius: 50%;
+  font-weight: 700; font-size: 16px; color: #fff;
+}
+.pulse-high { background: #10b981; }
+.pulse-mid { background: #f59e0b; }
+.pulse-low { background: #ef4444; }
+
+.rep-details { display: none; margin-top: 16px; }
+.rep-details.open { display: block; }
+
+.detail-section { margin-bottom: 16px; }
+.detail-section h4 {
+  font-size: 12px; font-weight: 800; color: #6a7488;
+  text-transform: uppercase; letter-spacing: .5px;
+  margin-bottom: 8px; padding-bottom: 6px; border-bottom: 1px solid #edf1f7;
+}
+.detail-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 8px;
+}
+.detail-item { font-size: 14px; }
+.detail-item .dl { font-weight: 600; color: #555; }
+.pulse-reason-wide { grid-column: 1 / -1; }
+
+/* Executive highlight for Rainmaker metrics */
+.rainmaker-panel {
+  border: 1px solid #cfddee;
+  border-left: 5px solid #1f4b7a;
+  border-radius: 12px;
+  padding: 12px;
+  background: linear-gradient(180deg, #f4f8ff 0%, #eef4fb 100%);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.8);
+}
+.rainmaker-panel h4 {
+  color: #1f3554;
+  border-bottom-color: #d9e4f3;
+  margin-bottom: 10px;
+}
+.rainmaker-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(160px, 1fr));
+  gap: 8px;
+}
+.rainmaker-grid .detail-item {
+  background: #fff;
+  border: 1px solid #dbe5f3;
+  border-radius: 8px;
+  padding: 8px 10px;
+  font-size: 13px;
+}
+.rainmaker-grid .detail-item .dl {
+  display: block;
+  color: #6a7488;
+  font-size: 10px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: .45px;
+  margin-bottom: 3px;
+}
+
+/* Engagement dots */
+.engage-dot {
+  display: inline-block; width: 10px; height: 10px;
+  border-radius: 50%; margin-right: 4px; vertical-align: middle;
+}
+.engage-dot.green { background: #10b981; }
+.engage-dot.yellow { background: #f59e0b; }
+.engage-dot.red { background: #ef4444; }
+.engage-dot.gray { background: #ccc; }
+
+/* Accounts table */
+.acct-table { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 8px; }
+.acct-table th {
+  text-align: left; padding: 8px 8px; background: #f5f8fe;
+  font-weight: 700; color: #576177; border-bottom: 1px solid #e3e9f3;
+}
+.acct-table td { padding: 7px 8px; border-bottom: 1px solid #eef2f8; }
+.acct-table tbody tr:nth-child(even) td { background: #fcfdff; }
+
+/* Forecast comparison */
+.forecast-row {
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  gap: 8px; margin-top: 8px;
+}
+.forecast-cell { text-align: center; padding: 10px 8px; background: #f6f9ff; border-radius: 10px; border: 1px solid #e3ebfa; }
+.forecast-cell .fc-label { font-size: 11px; color: #888; }
+.forecast-cell .fc-val { font-size: 17px; font-weight: 800; color: #1d2a42; }
+.fc-diff { font-size: 11px; color: #888; }
+.fc-diff.up { color: #10b981; }
+.fc-diff.down { color: #ef4444; }
+
+.edit-recap-btn {
+  background: #0f172a;
+  color: #fff;
+  border: none;
+  padding: 7px 12px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: .2px;
+  cursor: pointer;
+  transition: transform .15s, background .15s;
+}
+.edit-recap-btn:hover { background: #1f2937; transform: translateY(-1px); }
+
+/* NBM blocks */
+.nbm-block {
+  background: #fee; border: 1px solid #fcc; color: #c00;
+  padding: 8px 12px; border-radius: 6px; font-size: 13px; margin-top: 4px;
+}
+.nbm-warning {
+  background: #fff8e1; border: 1px solid #ffe082; color: #e65100;
+  padding: 8px 12px; border-radius: 6px; font-size: 13px; margin-top: 4px;
+}
+
+/* ===== POC COMMAND CENTER ===== */
+.poc-section { display: none; }
+.poc-section.active { display: block; }
+.dash-section { display: block; }
+.dash-section.hidden { display: none; }
+
+/* POC filters */
+.poc-filters {
+  display: flex; gap: 12px; flex-wrap: wrap;
+  margin-bottom: 20px; align-items: center;
+}
+.poc-filters select, .poc-filters input {
+  padding: 8px 12px; border: 1px solid #ddd; border-radius: 8px;
+  font-size: 14px; background: #fff;
+}
+.poc-filters select:focus, .poc-filters input:focus {
+  outline: none; border-color: #4361ee;
+}
+.poc-filters .poc-glean-btn {
+  margin-left: auto;
+  padding: 8px 12px;
+  border: 1px solid #14532d;
+  border-radius: 8px;
+  background: #166534;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.poc-filters .poc-glean-btn:disabled {
+  opacity: .6;
+  cursor: not-allowed;
+}
+.poc-refresh-status {
+  margin-bottom: 14px;
+  border-radius: 10px;
+  padding: 10px 12px;
+  border: 1px solid #cbd5e1;
+  background: #f8fafc;
+  font-size: 13px;
+  color: #334155;
+}
+.poc-refresh-status.ok {
+  border-color: #86efac;
+  background: #f0fdf4;
+  color: #166534;
+}
+.poc-refresh-status.err {
+  border-color: #fecaca;
+  background: #fef2f2;
+  color: #991b1b;
+}
+
+/* POC summary cards */
+.poc-summary {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 12px; margin-bottom: 24px;
+}
+.poc-stat {
+  background: #fff; border-radius: 10px; padding: 16px;
+  box-shadow: 0 1px 3px rgba(0,0,0,.08); text-align: center;
+}
+.poc-stat .stat-val { font-size: 26px; font-weight: 700; }
+.poc-stat .stat-label { font-size: 11px; color: #888; text-transform: uppercase; margin-top: 4px; }
+
+/* POC account panel */
+.poc-account {
+  background: #fff; border-radius: 12px; padding: 20px;
+  box-shadow: 0 8px 20px rgba(0,0,0,.06); margin-bottom: 16px;
+  border: 1px solid var(--line);
+}
+.poc-acct-header {
+  display: flex; justify-content: space-between; align-items: center;
+  cursor: pointer; flex-wrap: wrap; gap: 8px;
+}
+.poc-acct-name { font-size: 17px; font-weight: 700; }
+.poc-acct-meta { display: flex; gap: 12px; flex-wrap: wrap; }
+.poc-acct-meta span {
+  font-size: 12px; padding: 3px 10px; border-radius: 12px;
+  background: #f0f0f0; color: #555;
+}
+.poc-acct-meta .status-active { background: #d1fae5; color: #065f46; }
+.poc-acct-meta .status-upcoming { background: #fef3c7; color: #92400e; }
+.poc-acct-meta .status-completed { background: #dbeafe; color: #1e40af; }
+.poc-acct-meta .status-stalled { background: #fee2e2; color: #991b1b; }
+
+.poc-acct-details { display: none; margin-top: 16px; }
+.poc-acct-details.open { display: block; }
+
+.poc-acct-info {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 8px; margin-bottom: 16px; font-size: 13px;
+}
+.poc-acct-info .info-label { font-weight: 600; color: #888; }
+
+/* Action items */
+.action-item {
+  display: flex; align-items: flex-start; gap: 10px;
+  padding: 10px 0; border-bottom: 1px solid #f0f0f0;
+}
+.action-item:last-child { border-bottom: none; }
+.rag-btn {
+  width: 28px; height: 28px; border-radius: 50%;
+  border: 2px solid #ccc; cursor: pointer; flex-shrink: 0;
+  font-size: 0; transition: all .15s;
+}
+.rag-btn.rag-red { background: #ef4444; border-color: #ef4444; }
+.rag-btn.rag-yellow { background: #f59e0b; border-color: #f59e0b; }
+.rag-btn.rag-green { background: #10b981; border-color: #10b981; }
+.rag-btn:hover { transform: scale(1.15); }
+.action-body { flex: 1; min-width: 0; }
+.action-title { font-size: 14px; font-weight: 600; }
+.action-source { font-size: 11px; color: #888; margin-top: 2px; }
+.action-notes {
+  font-size: 13px; color: #555; margin-top: 4px;
+  cursor: pointer; padding: 4px 6px; border-radius: 4px;
+  border: 1px solid transparent;
+}
+.action-notes:hover { border-color: #ddd; background: #fafafa; }
+.action-notes-input {
+  width: 100%; font-size: 13px; padding: 6px 8px;
+  border: 1px solid #4361ee; border-radius: 4px; margin-top: 4px;
+  font-family: inherit;
+}
+.action-delete {
+  background: none; border: none; color: #ccc; cursor: pointer;
+  font-size: 16px; padding: 4px; flex-shrink: 0;
+}
+.action-delete:hover { color: #ef4444; }
+.action-updated { font-size: 10px; color: #bbb; margin-top: 2px; }
+
+/* Add action form */
+.add-action-bar {
+  display: flex; gap: 8px; flex-wrap: wrap;
+  margin-top: 12px; padding-top: 12px; border-top: 1px solid #f0f0f0;
+}
+.add-action-bar input, .add-action-bar select {
+  padding: 6px 10px; font-size: 13px; border: 1px solid #ddd;
+  border-radius: 6px; font-family: inherit;
+}
+.add-action-bar input { flex: 1; min-width: 140px; }
+.add-action-bar button {
+  padding: 6px 14px; font-size: 13px; font-weight: 600;
+  background: #4361ee; color: #fff; border: none; border-radius: 6px;
+  cursor: pointer;
+}
+.add-action-bar button:hover { background: #3a56d4; }
+
+/* SFDC link */
+.sfdc-link {
+  display: inline-flex; align-items: center; gap: 4px;
+  font-size: 12px; color: #4361ee; margin-top: 8px;
+}
+
+@media (max-width: 820px) {
+  body { padding: 12px; }
+  .header { padding: 12px; border-radius: 12px; }
+  .header h1 { font-size: 20px; }
+  .tab-bar { width: 100%; display: grid; grid-template-columns: 1fr 1fr; }
+  .tab-btn { width: 100%; }
+  .summary-row { gap: 10px; }
+  .summary-card { padding: 14px; }
+  .summary-card .value { font-size: 24px; }
+  .rep-card { padding: 16px; }
+  .rainmaker-grid { grid-template-columns: 1fr 1fr; }
+}
+
+/* ===== SaaS Light Dashboard Override ===== */
+body {
+  font-family: 'Inter', sans-serif !important;
+  background: #F0F2F5 !important;
+  color: #374151 !important;
+}
+.header, .tab-bar, #dashSection, #pocSection {
+  max-width: 1200px !important;
+}
+.header {
+  background: #1E2A3A !important;
+  border: none !important;
+  border-radius: 10px !important;
+  box-shadow: 0 2px 10px rgba(0,0,0,.12) !important;
+  padding: 1rem 1.4rem !important;
+}
+.header h1, #pageTitle {
+  font-family: 'Inter', sans-serif !important;
+  font-size: 1.3rem !important;
+  font-weight: 700 !important;
+  letter-spacing: 0 !important;
+  color: #fff !important;
+}
+.cleanup-link {
+  background: transparent !important;
+  border: 1px solid rgba(255,255,255,.4) !important;
+  color: #fff !important;
+  border-radius: 6px !important;
+  font-family: 'Inter', sans-serif !important;
+  font-weight: 600 !important;
+}
+.export-link {
+  background: #3B82F6 !important;
+  border: 1px solid #3B82F6 !important;
+  color: #fff !important;
+  border-radius: 6px !important;
+  font-family: 'Inter', sans-serif !important;
+  font-weight: 600 !important;
+}
+
+.tab-bar {
+  border: none !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  padding: 0 !important;
+  gap: 20px !important;
+}
+.tab-btn {
+  background: transparent !important;
+  border: none !important;
+  border-bottom: 2px solid transparent !important;
+  border-radius: 0 !important;
+  color: rgba(30,42,58,.7) !important;
+  font-family: 'Inter', sans-serif !important;
+  font-weight: 600 !important;
+  text-transform: none !important;
+  letter-spacing: 0 !important;
+  padding: 0 0 8px 0 !important;
+}
+.tab-btn.active {
+  color: #1E2A3A !important;
+  border-bottom-color: #3B82F6 !important;
+}
+
+.summary-row {
+  grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
+  gap: 12px !important;
+  background: transparent !important;
+}
+.summary-card {
+  background: #fff !important;
+  border: 1px solid #E5E7EB !important;
+  border-radius: 10px !important;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.08) !important;
+}
+.summary-card .label {
+  font-family: 'Inter', sans-serif !important;
+  color: #9CA3AF !important;
+}
+.summary-card .value {
+  font-family: 'Space Mono', monospace !important;
+  color: #1E2A3A !important;
+  font-size: 2rem !important;
+}
+.summary-card .value.pulse-green { color: #3B82F6 !important; }
+.summary-card .value.pulse-yellow { color: #F59E0B !important; }
+.summary-card .value.pulse-red { color: #EF4444 !important; }
+
+#dashSection > div[style*="margin-bottom:16px"] {
+  background: #fff !important;
+  border: 1px solid #E5E7EB !important;
+  border-radius: 10px !important;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.08) !important;
+  padding: 14px !important;
+}
+#repSelector, .qa-center select {
+  background: #fff !important;
+  border: 1px solid #E5E7EB !important;
+  border-radius: 6px !important;
+  color: #374151 !important;
+  font-family: 'Inter', sans-serif !important;
+}
+#repSelector:focus, .qa-center select:focus {
+  border-color: #3B82F6 !important;
+  box-shadow: 0 0 0 3px rgba(59,130,246,.15) !important;
+  outline: none !important;
+}
+.qa-center {
+  background: #F9FAFB !important;
+  border: 1px solid #E5E7EB !important;
+  border-radius: 10px !important;
+}
+.qa-center .qa-title {
+  color: #1E2A3A !important;
+  font-family: 'Inter', sans-serif !important;
+  font-weight: 700 !important;
+}
+.qa-center button {
+  background: #F97316 !important;
+  border: 1px solid #F97316 !important;
+  color: #fff !important;
+  border-radius: 6px !important;
+  font-family: 'Inter', sans-serif !important;
+  font-weight: 600 !important;
+  text-transform: none !important;
+  letter-spacing: 0 !important;
+}
+.qa-center button.secondary {
+  background: #fff !important;
+  color: #1E2A3A !important;
+  border-color: #D1D5DB !important;
+}
+
+.rep-card, .poc-account, .poc-stat {
+  background: #fff !important;
+  border: 1px solid #E5E7EB !important;
+  border-radius: 10px !important;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.08) !important;
+}
+.rep-card { padding: 1.2rem 1.4rem !important; }
+.rep-card:hover, .poc-account:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.12) !important;
+}
+.rep-name {
+  font-family: 'Inter', sans-serif !important;
+  font-size: 1.35rem !important;
+  font-weight: 700 !important;
+  color: #1E2A3A !important;
+  letter-spacing: 0 !important;
+}
+.rep-meta span {
+  font-family: 'Inter', sans-serif !important;
+  color: #64748B !important;
+  font-size: .82rem !important;
+  font-weight: 600 !important;
+  letter-spacing: .01em !important;
+}
+.rep-meta span .mono,
+.rep-meta .mono {
+  font-family: 'Space Mono', monospace !important;
+  font-size: .8rem !important;
+  color: #475569 !important;
+  font-weight: 700 !important;
+}
+.pulse-badge {
+  width: 44px !important;
+  height: 44px !important;
+  box-shadow: 0 0 0 3px rgba(59,130,246,.12);
+}
+.edit-recap-btn {
+  border: 1px solid #F97316 !important;
+  color: #F97316 !important;
+  background: transparent !important;
+  border-radius: 999px !important;
+  font-family: 'Space Mono', monospace !important;
+  font-size: .7rem !important;
+  letter-spacing: .08em !important;
+}
+.edit-recap-btn:hover {
+  background: #F97316 !important;
+  color: #fff !important;
+}
+
+.detail-section h4, .poc-acct-name {
+  font-family: 'Inter', sans-serif !important;
+  font-weight: 700 !important;
+  color: #1E2A3A !important;
+  letter-spacing: 0 !important;
+  border-bottom: 1px solid #EEF2F7 !important;
+}
+.detail-item, .action-title, .action-notes, .action-source, .action-updated,
+.poc-acct-meta span, .poc-acct-info, .no-data, .loading-state,
+.acct-table th, .acct-table td {
+  color: #374151 !important;
+}
+.acct-table th, .acct-table td {
+  background: transparent !important;
+  border-bottom: 1px solid #EEF2F7 !important;
+}
+.engage-dot { width: 12px !important; height: 12px !important; }
+.forecast-cell {
+  background: #fff !important;
+  border: 1px solid #E5E7EB !important;
+  border-radius: 10px !important;
+}
+.forecast-cell .fc-label, .fc-diff { color: #9CA3AF !important; }
+.forecast-cell .fc-val { color: #1E2A3A !important; font-family: 'Space Mono', monospace !important; }
+.nbm-block, .nbm-warning {
+  border-left: 3px solid #EF4444 !important;
+  border-top: 0 !important;
+  border-right: 0 !important;
+  border-bottom: 0 !important;
+  border-radius: 6px !important;
+  background: rgba(239,68,68,.08) !important;
+  color: #374151 !important;
+}
+.nbm-warning {
+  border-left-color: #F59E0B !important;
+  background: rgba(245,158,11,.08) !important;
+}
+
+.poc-filters select, .poc-filters input, .add-action-bar input, .add-action-bar select, .action-notes-input {
+  background: #fff !important;
+  border: 1px solid #E5E7EB !important;
+  border-radius: 6px !important;
+  color: #374151 !important;
+}
+.add-action-bar button {
+  background: #3B82F6 !important;
+  border: 1px solid #3B82F6 !important;
+  color: #fff !important;
+  border-radius: 6px !important;
+  font-family: 'Inter', sans-serif !important;
+}
+
+@media (max-width: 980px) {
+  .summary-row { grid-template-columns: repeat(2, 1fr) !important; }
+}
+</style>
+</head>
+<body>
+<div id="fatalOverlay" style="display:none;position:fixed;inset:0;background:rgba(15,23,42,.8);z-index:99999;align-items:center;justify-content:center;padding:20px;">
+  <div style="max-width:900px;width:100%;background:#fff;border:1px solid #ef4444;border-radius:12px;padding:16px;">
+    <h2 style="margin:0 0 8px 0;color:#991b1b;">Dashboard Error</h2>
+    <p style="margin:0 0 8px 0;color:#374151;">Please screenshot this and send it to Billy/Codex.</p>
+    <pre id="fatalMsg" style="white-space:pre-wrap;background:#f8fafc;border:1px solid #e5e7eb;border-radius:8px;padding:10px;max-height:45vh;overflow:auto;"></pre>
+    <button onclick="document.getElementById('fatalOverlay').style.display='none'" style="margin-top:10px;padding:8px 12px;border:none;border-radius:8px;background:#0f172a;color:#fff;cursor:pointer;">Hide</button>
+  </div>
+</div>
+
+<!-- ===== HEADER ===== -->
+<div class="header">
+  <h1 id="pageTitle">Team Weekly Dashboard</h1>
+  <div class="header-actions">
+    <button id="cleanupBtn" class="cleanup-link" onclick="runSheetCleanup()">Clean Up Sheet</button>
+    <button id="exportCsvBtn" class="export-link" onclick="downloadSnapshotForCodex()">&#8681; Export Latest Sheet CSV</button>
+  </div>
+</div>
+
+<!-- ===== TAB BAR ===== -->
+<div class="tab-bar">
+  <button class="tab-btn active" onclick="switchTab('dashboard')">Team Dashboard</button>
+  <button class="tab-btn" onclick="switchTab('poc')">POC Command Center</button>
+</div>
+
+<div id="qaCenter" class="qa-center">
+  <span class="qa-title">Admin QA Center</span>
+  <select id="qaRepSelect">
+    <option value="">Select rep...</option>
+  </select>
+  <button onclick="openQaRepRecap()">Open Rep QA</button>
+  <button class="secondary" onclick="openMyRecap()">Open My Recap</button>
+</div>
+
+<!-- ===== TEAM DASHBOARD CONTENT ===== -->
+<div id="dashSection" class="dash-section">
+  <div id="dashContent">
+    <div class="loading-state"><div class="spinner"></div><br>Loading team data&hellip;</div>
+  </div>
+</div>
+
+<!-- ===== POC COMMAND CENTER CONTENT ===== -->
+<div id="pocSection" class="poc-section">
+  <div id="pocContent">
+    <div class="loading-state"><div class="spinner"></div><br>Loading POC data&hellip;</div>
+  </div>
+</div>
+
+<script>
+// =====================================================================
+// GLOBALS
+// =====================================================================
+var DASHBOARD_DATA = [];
+var SCRIPT_URL = "";
+var BENCHMARKS = {};
+var SESSION_EMAIL = "";
+var IS_ADMIN = false;
+var POC_DATA = null;
+var APP_EXEC_URL = "https://script.google.com/a/macros/glean.com/s/AKfycbxt9SVE3r4zf7PB0auoKaXODrnSWNm2p-Kh3ByoVWHw9YJzjkClEP8Shb2-embIfKJ5/exec";
+
+function showFatal(err, ctx) {
+  var msg = (ctx ? (ctx + ": ") : "") + ((err && err.message) ? err.message : String(err || "Unknown error"));
+  var stack = (err && err.stack) ? ("\n\n" + err.stack) : "";
+  var el = document.getElementById("fatalMsg");
+  var overlay = document.getElementById("fatalOverlay");
+  if (el && overlay) {
+    el.textContent = msg + stack;
+    overlay.style.display = "flex";
+  } else {
+    alert(msg);
+  }
+}
+
+window.addEventListener("error", function(e) { showFatal(e.error || e.message, "window.error"); });
+window.addEventListener("unhandledrejection", function(e) { showFatal(e.reason, "window.unhandledrejection"); });
+
+try {
+  var rawDashboard = <?= JSON.stringify(typeof dashboardData === 'undefined' ? [] : dashboardData) ?>;
+  var decodedDashboard = rawDashboard;
+  // Handle Apps Script templates that may deliver JSON as stringified JSON.
+  for (var di = 0; di < 3 && typeof decodedDashboard === "string"; di++) {
+    decodedDashboard = JSON.parse(decodedDashboard);
+  }
+  if (Array.isArray(decodedDashboard)) {
+    DASHBOARD_DATA = decodedDashboard;
+  } else if (decodedDashboard && typeof decodedDashboard === "object") {
+    DASHBOARD_DATA = [decodedDashboard];
+  } else {
+    DASHBOARD_DATA = [];
+  }
+} catch (eDash) {
+  showFatal(eDash, "dashboard data parse");
+  DASHBOARD_DATA = [];
+}
+try {
+  SCRIPT_URL = <?= JSON.stringify(typeof scriptUrl === 'undefined' ? '' : scriptUrl) ?>;
+} catch (eUrl) {
+  showFatal(eUrl, "script url parse");
+  SCRIPT_URL = "";
+}
+try {
+  SESSION_EMAIL = <?= JSON.stringify(typeof sessionEmail === 'undefined' ? '' : sessionEmail) ?>;
+} catch (eSession) {
+  SESSION_EMAIL = "";
+}
+try {
+  IS_ADMIN = !!<?= JSON.stringify(typeof isAdmin === 'undefined' ? false : isAdmin) ?>;
+} catch (eAdmin) {
+  IS_ADMIN = false;
+}
+try {
+  var rawBenchmarks = <?= JSON.stringify(typeof benchmarks === 'undefined' ? {} : benchmarks) ?>;
+  var decodedBenchmarks = rawBenchmarks;
+  for (var bi = 0; bi < 3 && typeof decodedBenchmarks === "string"; bi++) {
+    decodedBenchmarks = JSON.parse(decodedBenchmarks);
+  }
+  BENCHMARKS = (decodedBenchmarks && typeof decodedBenchmarks === "object") ? decodedBenchmarks : {};
+} catch (eBench) {
+  BENCHMARKS = {};
+}
+
+// =====================================================================
+// INIT — on page load
+// =====================================================================
+window.addEventListener('load', function() {
+  try {
+    initQaCenter();
+    // Render dashboard immediately from server-injected data
+    renderDashboard(DASHBOARD_DATA);
+    if (window.location.search.indexOf("page=poc") !== -1 || window.location.hash === "#poc") {
+      switchTab("poc");
+    }
+  } catch (eInit) {
+    showFatal(eInit, "dashboard init");
+  }
+});
+
+function initQaCenter() {
+  var box = document.getElementById("qaCenter");
+  if (!box) return;
+  box.style.display = "none";
+
+  function fillQaRepList() {
+    var sel = document.getElementById("qaRepSelect");
+    if (!sel) return;
+    var seen = {};
+    sel.innerHTML = '<option value="">Select rep...</option>';
+    for (var i = 0; i < DASHBOARD_DATA.length; i++) {
+      var rep = DASHBOARD_DATA[i];
+      var email = String(rep && rep.email || "").toLowerCase().trim();
+      if (!email || seen[email]) continue;
+      seen[email] = true;
+      var name = String(rep && rep.name || email);
+      var opt = document.createElement("option");
+      opt.value = email;
+      opt.textContent = name;
+      sel.appendChild(opt);
+    }
+  }
+
+  var localEmail = String(SESSION_EMAIL || "").toLowerCase().trim();
+  if (localEmail === "billy.schuett@glean.com") {
+    box.style.display = "flex";
+    fillQaRepList();
+    return;
+  }
+
+  if (typeof google !== "undefined" && google.script && google.script.run) {
+    google.script.run
+      .withSuccessHandler(function(email) {
+        var resolved = String(email || "").toLowerCase().trim();
+        if (resolved === "billy.schuett@glean.com") {
+          box.style.display = "flex";
+          fillQaRepList();
+        }
+      })
+      .withFailureHandler(function() {})
+      .getResolvedSessionEmail();
+  }
+}
+
+function openQaRepRecap() {
+  var sel = document.getElementById("qaRepSelect");
+  var email = sel ? String(sel.value || "").toLowerCase().trim() : "";
+  if (!email) {
+    alert("Please select a rep first.");
+    return;
+  }
+  window.top.location.href = APP_EXEC_URL + "?page=rep&email=" + encodeURIComponent(email) + "&v=" + Date.now();
+}
+
+function openMyRecap() {
+  window.top.location.href = APP_EXEC_URL + "?page=recap&v=" + Date.now();
+}
+
+// =====================================================================
+// TAB SWITCHING
+// =====================================================================
+function switchTab(tab) {
+  var btns = document.querySelectorAll('.tab-btn');
+  for (var i = 0; i < btns.length; i++) {
+    btns[i].classList.remove('active');
+  }
+
+  if (tab === 'poc') {
+    btns[1].classList.add('active');
+    document.getElementById('dashSection').classList.add('hidden');
+    document.getElementById('pocSection').classList.add('active');
+    document.getElementById('pageTitle').textContent = 'POC Command Center';
+
+    // Load POC data if not already loaded
+    if (!POC_DATA) {
+      loadPocData();
+    }
+  } else {
+    btns[0].classList.add('active');
+    document.getElementById('dashSection').classList.remove('hidden');
+    document.getElementById('pocSection').classList.remove('active');
+    document.getElementById('pageTitle').textContent = 'Team Weekly Dashboard';
+  }
+}
+
+// =====================================================================
+// TEAM DASHBOARD RENDERING
+// =====================================================================
+function renderDashboard(data) {
+  var container = document.getElementById('dashContent');
+
+  if (!data || data.length === 0) {
+    container.innerHTML = '<div class="no-data">No submissions yet. Check back after your reps submit their first recap.</div>';
+    return;
+  }
+
+  var html = '';
+
+  // --- Summary cards ---
+  var totalPulse = 0, pulseCount = 0;
+  var totalRed = 0, totalYellow = 0, totalGreen = 0;
+  for (var s = 0; s < data.length; s++) {
+    var p = Number(data[s].pulseScore) || 0;
+    if (p > 0) { totalPulse += p; pulseCount++; }
+    totalRed += (data[s].redAccounts || 0);
+    totalYellow += (data[s].yellowAccounts || 0);
+    totalGreen += (data[s].greenAccounts || 0);
+  }
+  var avgPulse = pulseCount > 0 ? (totalPulse / pulseCount).toFixed(1) : '—';
+  var pulseClass = avgPulse >= 8 ? 'pulse-green' : avgPulse >= 5 ? 'pulse-yellow' : 'pulse-red';
+  if (avgPulse === '—') pulseClass = '';
+
+  html += '<div class="summary-row">';
+  html += summaryCard('Reps Submitted', data.length);
+  html += summaryCard('Avg Pulse', avgPulse, pulseClass);
+  html += summaryCard('Green Accts', totalGreen, 'pulse-green');
+  html += summaryCard('Yellow Accts', totalYellow, 'pulse-yellow');
+  html += summaryCard('Red Accts', totalRed, 'pulse-red');
+  html += '</div>';
+
+  // --- Rep selector dropdown ---
+  html += '<div style="margin-bottom:16px;">';
+  html += '<label for="repSelector" style="font-weight:600;font-size:14px;margin-right:8px;">Jump to Rep:</label>';
+  html += '<select id="repSelector" onchange="scrollToRep(this.value)" style="padding:8px 12px;border:1px solid #ddd;border-radius:8px;font-size:14px;background:#fff;">';
+  html += '<option value="">Select a rep...</option>';
+  for (var j = 0; j < data.length; j++) {
+    html += '<option value="rep_' + j + '">' + escHtml(data[j].name || data[j].email) + '</option>';
+  }
+  html += '</select></div>';
+
+  // --- Rep cards ---
+  for (var i = 0; i < data.length; i++) {
+    html += buildRepCard(data[i], i);
+  }
+
+  container.innerHTML = html;
+  window._dashData = data;
+  for (var li = 0; li < data.length; li++) {
+    loadRepLiveData(li, data[li].email);
+  }
+}
+
+function loadRepLiveData(repIndex, email) {
+  google.script.run
+    .withSuccessHandler(function(json) {
+      try {
+        if (!json || !window._dashData || !window._dashData[repIndex]) return;
+        var d = (typeof json === 'string') ? JSON.parse(json) : json;
+        var rep = window._dashData[repIndex];
+        var sf = d.sfData || {};
+        var qbr = d.qbrCall || {};
+        var us = d.userStats || {};
+        var ld = d.lastData || {};
+        var lf = d.latestForecast || {};
+
+        rep.sfCommit = Number(sf.commit) || 0;
+        rep.sfMostLikely = Number(sf.mostLikely) || 0;
+        rep.sfBestCase = Number(sf.bestCase) || 0;
+        rep.qbrCommit = Number(qbr.commit) || 0;
+        rep.qbrMostLikely = Number(qbr.mostLikely) || 0;
+        rep.qbrBestCase = Number(qbr.bestCase) || 0;
+        rep.disco_amt = Number(us.disco_amt) || 0;
+        rep.disco_rank = us.disco_rank || "-";
+        rep.nbm_amt = Number(us.nbm_amt) || 0;
+        rep.nbm_rank = us.nbm_rank || "-";
+        rep.pipe_amt = Number(us.pipe_amt) || 0;
+        rep.pipe_rank = us.pipe_rank || "-";
+        rep.stg4_amt = Number(us.stg4_amt) || 0;
+        rep.stg4_rank = us.stg4_rank || "-";
+        rep.nbmBlocks = sf.nbmBlocks || [];
+        rep.nbmWarnings = sf.nbmWarnings || [];
+
+        // If team payload has blank self-forecast values, use admin live lastData fallback.
+        if (!(parseMoneyish(rep.commit) > 0)) rep.commit = parseMoneyish(lf.commit) || parseMoneyish(ld.commit);
+        if (!(parseMoneyish(rep.likely) > 0)) rep.likely = parseMoneyish(lf.likely) || parseMoneyish(ld.likely);
+        if (!(parseMoneyish(rep.upside) > 0)) rep.upside = parseMoneyish(lf.upside) || parseMoneyish(ld.upside);
+        if (!(parseMoneyish(rep.nq_commit) > 0)) rep.nq_commit = parseMoneyish(lf.nq_commit) || parseMoneyish(ld.nq_commit);
+        rep.liveUpdatedAt = new Date().toISOString();
+
+        var oldCard = document.getElementById('rep_' + repIndex);
+        if (!oldCard || !oldCard.parentNode) return;
+        var detailsOpen = false;
+        var oldDetails = oldCard.querySelector('.rep-details');
+        if (oldDetails && oldDetails.classList.contains('open')) detailsOpen = true;
+        var wrap = document.createElement('div');
+        wrap.innerHTML = buildRepCard(rep, repIndex);
+        var newCard = wrap.firstChild;
+        oldCard.parentNode.replaceChild(newCard, oldCard);
+        if (detailsOpen) {
+          var newDetails = document.getElementById('repDetails_' + repIndex);
+          if (newDetails) newDetails.classList.add('open');
+        }
+      } catch (e) {
+        console.error("loadRepLiveData parse/render error for", email, e, json);
+      }
+    })
+    .withFailureHandler(function(err) {
+      console.error("loadRepLiveData failed for", email, err);
+    })
+    .getRepDataForAdmin(email);
+}
+
+function downloadSnapshotForCodex() {
+  var btn = document.getElementById('exportCsvBtn');
+  if (btn) {
+    btn.disabled = true;
+    btn.textContent = 'Exporting...';
+  }
+
+  google.script.run
+    .withSuccessHandler(function(payload) {
+      if (btn) {
+        btn.disabled = false;
+        btn.textContent = '\u21e9 Export Latest Sheet CSV';
+      }
+      if (!payload || !payload.csv) {
+        alert('Export returned no data.');
+        return;
+      }
+      var blob = new Blob(['\ufeff' + payload.csv], { type: 'text/csv;charset=utf-8;' });
+      var url = URL.createObjectURL(blob);
+      var a = document.createElement('a');
+      a.href = url;
+      a.download = payload.filename || 'main-sheet-snapshot.csv';
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(function() { URL.revokeObjectURL(url); }, 1000);
+      alert('CSV exported. If needed, move it into /Users/billy.schuett/weekly-recap-app/');
+    })
+    .withFailureHandler(function(err) {
+      if (btn) {
+        btn.disabled = false;
+        btn.textContent = '\u21e9 Export Latest Sheet CSV';
+      }
+      alert('Export failed: ' + ((err && err.message) ? err.message : err));
+    })
+    .getMainSheetSnapshotForCodex();
+}
+
+function runSheetCleanup() {
+  if (!confirm('Run full cleanup now? This will normalize legacy money values and deduplicate by Email + Week Of (keeping latest timestamp).')) return;
+  var btn = document.getElementById('cleanupBtn');
+  if (btn) { btn.disabled = true; btn.textContent = 'Cleaning...'; }
+  google.script.run
+    .withSuccessHandler(function(r) {
+      if (btn) { btn.disabled = false; btn.textContent = 'Clean Up Sheet'; }
+      if (!r) { alert('No result returned.'); return; }
+      var lines = [];
+      lines.push('Cleanup complete.');
+      lines.push('Money cells changed: ' + (r.changedCells || 0));
+      lines.push('Rows touched (money): ' + (r.rowsTouched || 0));
+      lines.push('Duplicate keys found: ' + (r.duplicateKeys || 0));
+      lines.push('Duplicate rows removed: ' + (r.duplicateRowsRemoved || 0));
+      alert(lines.join('\n'));
+    })
+    .withFailureHandler(function(err) {
+      if (btn) { btn.disabled = false; btn.textContent = 'Clean Up Sheet'; }
+      alert('Cleanup failed: ' + ((err && err.message) ? err.message : err));
+    })
+    .runMainSheetCleanup(true);
+}
+
+function summaryCard(label, value, cls) {
+  return '<div class="summary-card"><div class="label">' + label + '</div>'
+    + '<div class="value ' + (cls || '') + '">' + value + '</div></div>';
+}
+
+function buildRepCard(rep, idx) {
+  var pulse = Number(rep.pulseScore) || 0;
+  var pClass = pulse >= 8 ? 'pulse-high' : pulse >= 5 ? 'pulse-mid' : 'pulse-low';
+  var isManager = rep.isManager;
+
+  var h = '<div class="rep-card' + (isManager ? ' manager-card' : '') + '" id="rep_' + idx + '">';
+  h += '<div class="rep-header" onclick="toggleRepDetails(' + idx + ')">';
+  h += '<div style="display:flex;align-items:center;gap:12px;">';
+  h += '<div class="pulse-badge ' + pClass + '">' + pulse + '</div>';
+  h += '<div class="rep-name">' + escHtml(rep.name || rep.email) + (isManager ? ' &#9733;' : '') + '</div>';
+  h += '</div>';
+  h += '<div class="rep-meta">';
+  h += '<span>Week of ' + escHtml(rep.weekOf || '—') + '</span>';
+  if (rep.liveUpdatedAt) h += '<span>Updated ' + escHtml(fmtUpdatedTime(rep.liveUpdatedAt)) + '</span>';
+
+  // Engagement dots
+  var engageDots = '';
+  if (rep.accounts) {
+    for (var a = 0; a < rep.accounts.length; a++) {
+      var e = (rep.accounts[a].engage || '').toLowerCase();
+      var dc = e === 'green' ? 'green' : e === 'yellow' ? 'yellow' : e === 'red' ? 'red' : 'gray';
+      engageDots += '<span class="engage-dot ' + dc + '"></span>';
+    }
+  }
+  h += '<span>' + engageDots + '</span>';
+  h += '</div></div>'; // close rep-meta & rep-header
+  h += '<div style="text-align:right;margin-top:10px;"><button class="edit-recap-btn" data-email="' + escHtml(rep.email) + '" data-name="' + escHtml(rep.name || rep.email) + '">&#9998; Edit Recap</button></div>';
+
+  // Details (collapsed by default)
+  h += '<div class="rep-details" id="repDetails_' + idx + '">';
+
+  // Pulse
+  h += '<div class="detail-section"><h4>Pulse</h4>';
+  h += '<div class="detail-grid">';
+  h += '<div class="detail-item"><span class="dl">Score:</span> ' + pulse + '/10</div>';
+  h += '<div class="detail-item pulse-reason-wide"><span class="dl">Reason:</span> ' + escHtml(rep.pulseReason || '—') + '</div>';
+  h += '</div></div>';
+
+  // Rainmaker metrics (SFDC actuals from Coefficient tabs)
+  h += '<div class="detail-section rainmaker-panel"><h4>Rainmaker Metrics (SFDC Actuals)</h4>';
+  h += '<div class="rainmaker-grid">';
+  h += '<div class="detail-item"><span class="dl">Disco Meetings:</span> ' + (rep.disco_amt || 0) + ' ' + rankLabel(rep.disco_rank) + '</div>';
+  h += '<div class="detail-item"><span class="dl">NBMs:</span> ' + (rep.nbm_amt || 0) + ' ' + rankLabel(rep.nbm_rank) + '</div>';
+  h += '<div class="detail-item"><span class="dl">Pipeline (FY):</span> ' + fmtK(rep.pipe_amt) + ' ' + rankLabel(rep.pipe_rank) + '</div>';
+  h += '<div class="detail-item"><span class="dl">Stage 4+:</span> ' + fmtK(rep.stg4_amt) + ' ' + rankLabel(rep.stg4_rank) + '</div>';
+  h += '</div></div>';
+
+  // Accounts table
+  if (rep.accounts && rep.accounts.length > 0) {
+    h += '<div class="detail-section"><h4>Accounts</h4>';
+    h += '<table class="acct-table"><thead><tr>';
+    h += '<th>Account</th><th>Stage</th><th>ARR</th><th>Engage</th><th>Key Move</th><th>Next Step</th>';
+    h += '</tr></thead><tbody>';
+    for (var ai = 0; ai < rep.accounts.length; ai++) {
+      var ac = rep.accounts[ai];
+      if (!ac.name) continue;
+      var eDot = (ac.engage || '').toLowerCase();
+      var dotCls = eDot === 'green' ? 'green' : eDot === 'yellow' ? 'yellow' : eDot === 'red' ? 'red' : 'gray';
+      h += '<tr>';
+      h += '<td>' + escHtml(ac.name) + '</td>';
+      h += '<td>' + escHtml(ac.stage || '—') + '</td>';
+      h += '<td>' + fmtK(ac.arr) + '</td>';
+      h += '<td><span class="engage-dot ' + dotCls + '"></span>' + escHtml(ac.engage || '—') + '</td>';
+      h += '<td>' + escHtml(ac.move || '—') + '</td>';
+      h += '<td>' + escHtml(ac.next || '—') + '</td>';
+      h += '</tr>';
+    }
+    h += '</tbody></table></div>';
+  }
+
+  // Forecast comparison
+  h += '<div class="detail-section"><h4>Forecast (Self-Reported vs SF vs QBR Call)</h4>';
+  h += '<div class="forecast-row">';
+  h += forecastCell('Commit', rep.commit, rep.sfCommit, rep.qbrCommit);
+  h += forecastCell('Most Likely', rep.likely, rep.sfMostLikely, rep.qbrMostLikely);
+  h += forecastCell('Best Case', rep.upside, rep.sfBestCase, rep.qbrBestCase);
+  h += '</div>';
+  if (rep.forecast_note) {
+    h += '<div style="margin-top:8px;font-size:13px;color:#555;"><b>Note:</b> ' + escHtml(rep.forecast_note) + '</div>';
+  }
+  if (rep.forecastChanges) {
+    h += '<div style="margin-top:4px;font-size:12px;color:#888;">Changes: ' + escHtml(rep.forecastChanges) + '</div>';
+  }
+  h += '</div>';
+
+  // NBM blocks / warnings
+  if (rep.nbmBlocks && rep.nbmBlocks.length > 0) {
+    h += '<div class="detail-section"><h4>NBM Blockers</h4>';
+    for (var nb = 0; nb < rep.nbmBlocks.length; nb++) {
+      h += '<div class="nbm-block">' + escHtml(rep.nbmBlocks[nb]) + '</div>';
+    }
+    h += '</div>';
+  }
+
+  // Goal / Risk / Ask
+  if (rep.goal || rep.risk || rep.ask) {
+    h += '<div class="detail-section"><h4>Goal / Risk / Ask</h4>';
+    h += '<div class="detail-grid">';
+    if (rep.goal) h += '<div class="detail-item"><span class="dl">Goal:</span> ' + escHtml(rep.goal) + '</div>';
+    if (rep.risk) h += '<div class="detail-item"><span class="dl">Risk:</span> ' + escHtml(rep.risk) + '</div>';
+    if (rep.ask) h += '<div class="detail-item"><span class="dl">Ask:</span> ' + escHtml(rep.ask) + '</div>';
+    h += '</div></div>';
+  }
+
+  // Engagement changes
+  if (rep.engagementChanges) {
+    h += '<div class="detail-section"><h4>Engagement Changes</h4>';
+    h += '<div style="font-size:13px;">' + escHtml(rep.engagementChanges) + '</div></div>';
+  }
+
+  h += '</div>'; // close rep-details
+  h += '</div>'; // close rep-card
+  return h;
+}
+
+function forecastCell(label, selfVal, sfVal, qbrVal) {
+  var sv = normalizeSelfForecast(selfVal, sfVal, qbrVal);
+  var sf = parseMoneyish(sfVal);
+  var qb = parseMoneyish(qbrVal);
+  var diff = sv - sf;
+  var diffClass = diff > 0 ? 'up' : diff < 0 ? 'down' : '';
+  var diffStr = diff !== 0 ? (diff > 0 ? '+' : '') + fmtK(diff) : '—';
+
+  var h = '<div class="forecast-cell">';
+  h += '<div class="fc-label">' + label + '</div>';
+  h += '<div class="fc-val">' + (sv === 0 ? '<span style="color:#aaa;font-size:13px;">No data</span>' : fmtK(sv)) + '</div>';
+  h += '<div class="fc-diff">SF: ' + fmtK(sf) + '</div>';
+  if (qb) h += '<div class="fc-diff">QBR: ' + fmtK(qb) + '</div>';
+  h += '<div class="fc-diff ' + diffClass + '">Gap: ' + diffStr + '</div>';
+  h += '</div>';
+  return h;
+}
+
+function toggleRepDetails(idx) {
+  var el = document.getElementById('repDetails_' + idx);
+  if (el) el.classList.toggle('open');
+}
+
+function scrollToRep(id) {
+  if (!id) return;
+  var el = document.getElementById(id);
+  if (el) {
+    el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    var details = el.querySelector('.rep-details');
+    if (details && !details.classList.contains('open')) {
+      details.classList.add('open');
+    }
+  }
+}
+
+function rankLabel(rank) {
+  if (rank === 'dead_last') return '<span style="color:#ef4444;font-weight:700;">DEAD LAST</span>';
+  if (rank === '-' || !rank) return '<span style="color:#888;">(no data)</span>';
+  var r = Number(rank);
+  if (r <= 5) return '<span style="color:#10b981;font-weight:700;">Top 5 (#' + r + ')</span>';
+  if (r <= 20) return '<span style="color:#f59e0b;font-weight:700;">Top 20 (#' + r + ')</span>';
+  return '<span style="color:#888;">#' + r + '</span>';
+}
+
+// =====================================================================
+// POC COMMAND CENTER RENDERING
+// =====================================================================
+function loadPocData() {
+  document.getElementById('pocContent').innerHTML =
+    '<div class="loading-state"><div class="spinner"></div><br>Loading POC data&hellip;</div>';
+
+  google.script.run
+    .withSuccessHandler(function(result) {
+      if (!result || !result.success) {
+        document.getElementById('pocContent').innerHTML =
+          '<div class="error-msg">Failed to load POC data: ' + escHtml((result && result.error) || 'Unknown error') + '</div>';
+        return;
+      }
+      POC_DATA = result;
+      google.script.run
+        .withSuccessHandler(function(statusRes) {
+          var status = (statusRes && statusRes.success) ? (statusRes.status || null) : null;
+          renderPoc(result, status);
+        })
+        .withFailureHandler(function() {
+          renderPoc(result, null);
+        })
+        .getPocGleanRefreshStatus();
+    })
+    .withFailureHandler(function(err) {
+      document.getElementById('pocContent').innerHTML =
+        '<div class="error-msg">Failed to load POC data: ' + escHtml(err.message || String(err)) + '</div>';
+    })
+    .getPocData();
+}
+
+function renderPoc(data, refreshStatus) {
+  var accounts = data.accounts || [];
+  var actions = data.actions || [];
+
+  if (accounts.length === 0) {
+    document.getElementById('pocContent').innerHTML =
+      '<div class="no-data">No POC accounts found. Use the <b>POC Command Center &gt; Seed POC Data</b> menu in your Google Sheet to get started.</div>';
+    return;
+  }
+
+  // Build action map: account -> [actions]
+  var actionMap = {};
+  for (var i = 0; i < actions.length; i++) {
+    var acct = actions[i].account;
+    if (!actionMap[acct]) actionMap[acct] = [];
+    actionMap[acct].push(actions[i]);
+  }
+
+  // Compute stats
+  var totalActive = 0, totalUpcoming = 0, totalRed = 0, totalYellow = 0, totalGreen = 0;
+  for (var s = 0; s < accounts.length; s++) {
+    var st = (accounts[s].status || '').toLowerCase();
+    if (st === 'active') totalActive++;
+    if (st === 'upcoming') totalUpcoming++;
+  }
+  for (var r = 0; r < actions.length; r++) {
+    var rag = (actions[r].rag || '').toLowerCase();
+    if (rag === 'red') totalRed++;
+    else if (rag === 'yellow') totalYellow++;
+    else if (rag === 'green') totalGreen++;
+  }
+
+  var html = '';
+
+  // Filters
+  html += '<div class="poc-filters">';
+  html += '<select id="pocFilterAcct" onchange="applyPocFilters()">';
+  html += '<option value="">All Accounts</option>';
+  for (var fa = 0; fa < accounts.length; fa++) {
+    html += '<option value="' + escAttr(accounts[fa].account) + '">' + escHtml(accounts[fa].account) + '</option>';
+  }
+  html += '</select>';
+  html += '<select id="pocFilterStatus" onchange="applyPocFilters()">';
+  html += '<option value="">All Statuses</option>';
+  html += '<option value="Active">Active</option>';
+  html += '<option value="Upcoming">Upcoming</option>';
+  html += '<option value="Completed">Completed</option>';
+  html += '<option value="Stalled">Stalled</option>';
+  html += '</select>';
+  html += '<select id="pocFilterRag" onchange="applyPocFilters()">';
+  html += '<option value="">All RAG</option>';
+  html += '<option value="Red">Red Only</option>';
+  html += '<option value="Yellow">Yellow Only</option>';
+  html += '<option value="Green">Green Only</option>';
+  html += '</select>';
+  html += '<button id="pocGleanRefreshBtn" class="poc-glean-btn" onclick="runPocGleanRefresh()">Run Glean Refresh</button>';
+  html += '</div>';
+
+  html += renderPocRefreshStatus(refreshStatus);
+
+  // Summary stats
+  html += '<div class="poc-summary">';
+  html += '<div class="poc-stat"><div class="stat-val">' + accounts.length + '</div><div class="stat-label">Total POCs</div></div>';
+  html += '<div class="poc-stat"><div class="stat-val">' + totalActive + '</div><div class="stat-label">Active</div></div>';
+  html += '<div class="poc-stat"><div class="stat-val">' + totalUpcoming + '</div><div class="stat-label">Upcoming</div></div>';
+  html += '<div class="poc-stat"><div class="stat-val" style="color:#ef4444">' + totalRed + '</div><div class="stat-label">Red Items</div></div>';
+  html += '<div class="poc-stat"><div class="stat-val" style="color:#f59e0b">' + totalYellow + '</div><div class="stat-label">Yellow Items</div></div>';
+  html += '<div class="poc-stat"><div class="stat-val" style="color:#10b981">' + totalGreen + '</div><div class="stat-label">Green Items</div></div>';
+  html += '</div>';
+
+  // Account panels
+  for (var p = 0; p < accounts.length; p++) {
+    html += buildPocAccountPanel(accounts[p], actionMap[accounts[p].account] || [], p);
+  }
+
+  document.getElementById('pocContent').innerHTML = html;
+}
+
+function renderPocRefreshStatus(status) {
+  if (!status) {
+    return '<div class="poc-refresh-status">No refresh run recorded yet. Click <b>Run Glean Refresh</b> to populate latest status.</div>';
+  }
+  var ranAt = status.ranAt ? fmtDate(status.ranAt) : 'Unknown time';
+  if (status.ok) {
+    return '<div class="poc-refresh-status ok">' +
+      '<b>Last Glean Refresh:</b> Success at ' + escHtml(ranAt) +
+      ' | Mode: ' + escHtml(status.mode || 'glean_writeback') +
+      ' | Fetched: ' + (status.fetchedActions || 0) +
+      ' | Inserted: ' + (status.inserted || 0) +
+      ' | Updated: ' + (status.updated || 0) +
+      ' | Rows: ' + (status.rowsInPocActions || 0) +
+      '</div>';
+  }
+  return '<div class="poc-refresh-status err">' +
+    '<b>Last Glean Refresh:</b> Failed at ' + escHtml(ranAt) +
+    (status.error ? ' | Error: ' + escHtml(status.error) : '') +
+    '</div>';
+}
+
+function buildPocAccountPanel(account, actions, idx) {
+  var statusCls = 'status-' + (account.status || 'upcoming').toLowerCase();
+
+  var h = '<div class="poc-account" data-account="' + escAttr(account.account) + '" data-status="' + escAttr(account.status) + '">';
+  h += '<div class="poc-acct-header" onclick="togglePocDetails(' + idx + ')">';
+  h += '<div class="poc-acct-name">' + escHtml(account.account) + '</div>';
+  h += '<div class="poc-acct-meta">';
+  h += '<span class="' + statusCls + '">' + escHtml(account.status || 'Unknown') + '</span>';
+  h += '<span>' + escHtml(account.pilotType || '—') + '</span>';
+  h += '<span>' + escHtml(account.stage || '—') + '</span>';
+  if (account.owner) h += '<span>' + escHtml(account.owner) + '</span>';
+
+  // RAG summary for this account
+  var rc = 0, yc = 0, gc = 0;
+  for (var x = 0; x < actions.length; x++) {
+    var r = (actions[x].rag || '').toLowerCase();
+    if (r === 'red') rc++;
+    else if (r === 'yellow') yc++;
+    else if (r === 'green') gc++;
+  }
+  if (actions.length > 0) {
+    h += '<span>';
+    if (rc) h += '<span class="engage-dot red"></span>' + rc + ' ';
+    if (yc) h += '<span class="engage-dot yellow"></span>' + yc + ' ';
+    if (gc) h += '<span class="engage-dot green"></span>' + gc;
+    h += '</span>';
+  }
+  h += '</div></div>'; // close meta & header
+
+  // Details
+  h += '<div class="poc-acct-details" id="pocDetails_' + idx + '">';
+
+  // Account info
+  h += '<div class="poc-acct-info">';
+  if (account.se) h += '<div><span class="info-label">SE:</span> ' + escHtml(account.se) + '</div>';
+  if (account.champion) h += '<div><span class="info-label">Champion:</span> ' + escHtml(account.champion) + '</div>';
+  if (account.competitor) h += '<div><span class="info-label">Competitor:</span> ' + escHtml(account.competitor) + '</div>';
+  if (account.pilotStart) h += '<div><span class="info-label">Start:</span> ' + fmtDate(account.pilotStart) + '</div>';
+  if (account.pilotEnd) h += '<div><span class="info-label">End:</span> ' + fmtDate(account.pilotEnd) + '</div>';
+  h += '</div>';
+
+  if (account.sfdcUrl) {
+    h += '<a class="sfdc-link" href="' + escAttr(account.sfdcUrl) + '" target="_blank">View in Salesforce &#8599;</a>';
+  }
+
+  // Action items
+  h += '<div style="margin-top:16px;"><h4 style="font-size:13px;font-weight:600;color:#888;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;">Action Items (' + actions.length + ')</h4>';
+
+  for (var ai = 0; ai < actions.length; ai++) {
+    h += buildActionItem(account.account, actions[ai], idx, ai);
+  }
+
+  // Add action form
+  h += '<div class="add-action-bar">';
+  h += '<input type="text" id="newAction_' + idx + '" placeholder="New action item...">';
+  h += '<select id="newActionRag_' + idx + '"><option value="Red">Red</option><option value="Yellow">Yellow</option><option value="Green">Green</option></select>';
+  h += '<input type="text" id="newActionSource_' + idx + '" placeholder="Source (SFDC, GONG...)" style="width:120px">';
+  h += '<button onclick="handleAddAction(\'' + escAttr(account.account) + '\', ' + idx + ')">+ Add</button>';
+  h += '</div>';
+
+  h += '</div>'; // close action items section
+  h += '</div>'; // close details
+  h += '</div>'; // close account panel
+  return h;
+}
+
+function buildActionItem(accountName, action, panelIdx, actionIdx) {
+  var ragCls = 'rag-' + (action.rag || 'red').toLowerCase();
+  var h = '<div class="action-item" data-rag="' + escAttr(action.rag || '') + '">';
+  h += '<button class="rag-btn ' + ragCls + '" onclick="cycleRag(\'' + escAttr(accountName) + '\', \'' + escAttr(action.actionItem) + '\', this)" title="Click to cycle RAG"></button>';
+  h += '<div class="action-body">';
+  h += '<div class="action-title">' + escHtml(action.actionItem) + '</div>';
+  if (action.signalSource) {
+    h += '<div class="action-source">Source: ' + escHtml(action.signalSource) + '</div>';
+  }
+  h += '<div class="action-notes" onclick="editNotes(this, \'' + escAttr(accountName) + '\', \'' + escAttr(action.actionItem) + '\')">'
+    + escHtml(action.notes || 'Click to add notes...') + '</div>';
+  if (action.lastUpdated) {
+    h += '<div class="action-updated">Updated: ' + fmtDate(action.lastUpdated) + (action.updatedBy ? ' by ' + escHtml(action.updatedBy) : '') + '</div>';
+  }
+  h += '</div>'; // close action-body
+  h += '<button class="action-delete" onclick="handleDeleteAction(\'' + escAttr(accountName) + '\', \'' + escAttr(action.actionItem) + '\')" title="Delete">&#10005;</button>';
+  h += '</div>'; // close action-item
+  return h;
+}
+
+function togglePocDetails(idx) {
+  var el = document.getElementById('pocDetails_' + idx);
+  if (el) el.classList.toggle('open');
+}
+
+// =====================================================================
+// POC INTERACTIONS
+// =====================================================================
+function cycleRag(account, actionItem, btn) {
+  var current = '';
+  if (btn.classList.contains('rag-red')) current = 'Red';
+  else if (btn.classList.contains('rag-yellow')) current = 'Yellow';
+  else if (btn.classList.contains('rag-green')) current = 'Green';
+
+  var next = current === 'Red' ? 'Yellow' : current === 'Yellow' ? 'Green' : 'Red';
+
+  btn.classList.remove('rag-red', 'rag-yellow', 'rag-green');
+  btn.classList.add('rag-' + next.toLowerCase());
+
+  // Also update the data-rag on parent
+  var parent = btn.closest('.action-item');
+  if (parent) parent.setAttribute('data-rag', next);
+
+  google.script.run
+    .withFailureHandler(function(err) {
+      alert('Failed to update RAG: ' + (err.message || err));
+      // Revert visually
+      btn.classList.remove('rag-red', 'rag-yellow', 'rag-green');
+      btn.classList.add('rag-' + current.toLowerCase());
+      if (parent) parent.setAttribute('data-rag', current);
+    })
+    .updateRagStatus(account, actionItem, next);
+}
+
+function editNotes(el, account, actionItem) {
+  var currentText = el.textContent;
+  if (currentText === 'Click to add notes...') currentText = '';
+
+  var input = document.createElement('textarea');
+  input.className = 'action-notes-input';
+  input.value = currentText;
+  input.rows = 2;
+  el.style.display = 'none';
+  el.parentNode.insertBefore(input, el.nextSibling);
+  input.focus();
+
+  function save() {
+    var newNotes = input.value.trim();
+    el.textContent = newNotes || 'Click to add notes...';
+    el.style.display = '';
+    input.remove();
+
+    if (newNotes !== currentText) {
+      google.script.run
+        .withFailureHandler(function(err) {
+          alert('Failed to save notes: ' + (err.message || err));
+        })
+        .updateActionNotes(account, actionItem, newNotes);
+    }
+  }
+
+  input.addEventListener('blur', save);
+  input.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); save(); }
+    if (e.key === 'Escape') { el.style.display = ''; input.remove(); }
+  });
+}
+
+function handleAddAction(accountName, panelIdx) {
+  var actionInput = document.getElementById('newAction_' + panelIdx);
+  var ragSelect = document.getElementById('newActionRag_' + panelIdx);
+  var sourceInput = document.getElementById('newActionSource_' + panelIdx);
+
+  var actionText = actionInput.value.trim();
+  if (!actionText) { alert('Please enter an action item.'); return; }
+
+  var payload = {
+    account: accountName,
+    actionItem: actionText,
+    rag: ragSelect.value,
+    signalSource: sourceInput.value.trim(),
+    notes: ''
+  };
+
+  actionInput.disabled = true;
+
+  google.script.run
+    .withSuccessHandler(function(result) {
+      if (result && result.success) {
+        // Reload POC data to reflect new item
+        POC_DATA = null;
+        loadPocData();
+      } else {
+        alert('Failed to add: ' + ((result && result.error) || 'Unknown error'));
+        actionInput.disabled = false;
+      }
+    })
+    .withFailureHandler(function(err) {
+      alert('Failed to add action: ' + (err.message || err));
+      actionInput.disabled = false;
+    })
+    .addActionItem(payload);
+}
+
+function handleDeleteAction(account, actionItem) {
+  if (!confirm('Delete action item "' + actionItem + '"?')) return;
+
+  google.script.run
+    .withSuccessHandler(function(result) {
+      if (result && result.success) {
+        POC_DATA = null;
+        loadPocData();
+      } else {
+        alert('Failed to delete: ' + ((result && result.error) || 'Unknown error'));
+      }
+    })
+    .withFailureHandler(function(err) {
+      alert('Failed to delete: ' + (err.message || err));
+    })
+    .deleteActionItem(account, actionItem);
+}
+
+function runPocGleanRefresh() {
+  var btn = document.getElementById('pocGleanRefreshBtn');
+  if (btn) { btn.disabled = true; btn.textContent = 'Refreshing...'; }
+  google.script.run
+    .withSuccessHandler(function(result) {
+      if (btn) { btn.disabled = false; btn.textContent = 'Run Glean Refresh'; }
+      if (!result || !result.success) {
+        alert('Glean refresh failed: ' + ((result && result.error) || 'Unknown error'));
+        return;
+      }
+      alert(
+        'Glean refresh complete.\\n' +
+        'Mode: ' + (result.mode || 'glean_writeback') + '\\n' +
+        'Fetched actions: ' + (result.fetchedActions || 0) + '\\n' +
+        'Inserted: ' + (result.inserted || 0) + '\\n' +
+        'Updated: ' + (result.updated || 0) + '\\n' +
+        'POC Actions rows now: ' + (result.rowsInPocActions || 0)
+      );
+      POC_DATA = null;
+      loadPocData();
+    })
+    .withFailureHandler(function(err) {
+      if (btn) { btn.disabled = false; btn.textContent = 'Run Glean Refresh'; }
+      alert('Glean refresh failed: ' + (err.message || String(err)));
+    })
+    .runPocGleanRefreshNow();
+}
+
+// =====================================================================
+// POC FILTERS
+// =====================================================================
+function applyPocFilters() {
+  var acctFilter = document.getElementById('pocFilterAcct').value;
+  var statusFilter = document.getElementById('pocFilterStatus').value;
+  var ragFilter = document.getElementById('pocFilterRag').value;
+
+  var panels = document.querySelectorAll('.poc-account');
+  for (var i = 0; i < panels.length; i++) {
+    var panel = panels[i];
+    var acct = panel.getAttribute('data-account');
+    var status = panel.getAttribute('data-status');
+
+    var showPanel = true;
+    if (acctFilter && acct !== acctFilter) showPanel = false;
+    if (statusFilter && status !== statusFilter) showPanel = false;
+
+    // RAG filter: show panel only if it has at least one matching action
+    if (ragFilter && showPanel) {
+      var actionItems = panel.querySelectorAll('.action-item');
+      var hasMatch = false;
+      for (var j = 0; j < actionItems.length; j++) {
+        var itemRag = actionItems[j].getAttribute('data-rag');
+        if (itemRag === ragFilter) {
+          hasMatch = true;
+          actionItems[j].style.display = '';
+        } else {
+          actionItems[j].style.display = 'none';
+        }
+      }
+      if (!hasMatch) showPanel = false;
+    } else if (!ragFilter) {
+      // Show all action items when no RAG filter
+      var allItems = panel.querySelectorAll('.action-item');
+      for (var k = 0; k < allItems.length; k++) {
+        allItems[k].style.display = '';
+      }
+    }
+
+    panel.style.display = showPanel ? '' : 'none';
+  }
+}
+
+// =====================================================================
+// UTILITIES
+// =====================================================================
+function escHtml(s) {
+  if (s === null || s === undefined) return '';
+  var div = document.createElement('div');
+  div.appendChild(document.createTextNode(String(s)));
+  return div.innerHTML;
+}
+
+function escAttr(s) {
+  return escHtml(s).replace(/'/g, '&#39;').replace(/"/g, '&quot;');
+}
+
+function parseMoneyish(val) {
+  if (val === null || val === undefined || val === "") return 0;
+  if (typeof val === "number") return val;
+  var s = String(val).toLowerCase().trim();
+  if (!s) return 0;
+  var n = parseFloat(s.replace(/[^0-9.]/g, "")) || 0;
+  if (s.indexOf("m") !== -1) n = n * 1000000;
+  else if (s.indexOf("k") !== -1) n = n * 1000;
+  return n;
+}
+
+function normalizeSelfForecast(rawSelf, sfVal, qbrVal) {
+  var raw = (rawSelf === null || rawSelf === undefined) ? "" : String(rawSelf).toLowerCase();
+  var v = parseMoneyish(rawSelf);
+  if (v <= 0) return 0;
+  // If user included explicit units/symbols, trust the parsed value as-is.
+  if (/[mk$]/.test(raw)) return v;
+
+  var sf = parseMoneyish(sfVal);
+  var qb = parseMoneyish(qbrVal);
+  var ref = Math.max(sf, qb);
+  if (ref < 100000) return v;
+
+  // Heuristic: pick the scale that is closest to the SF/QBR magnitude.
+  var candidates = [v, v * 1000, v * 100000, v * 1000000];
+  var best = candidates[0];
+  var bestScore = Math.abs(Math.log10(Math.max(best, 1)) - Math.log10(Math.max(ref, 1)));
+  for (var i = 1; i < candidates.length; i++) {
+    var c = candidates[i];
+    var score = Math.abs(Math.log10(Math.max(c, 1)) - Math.log10(Math.max(ref, 1)));
+    if (score < bestScore) { best = c; bestScore = score; }
+  }
+  return best;
+}
+
+function fmtK(val) {
+  var n = parseMoneyish(val);
+  if (n === 0) return '$0';
+  return '$' + Math.round(n).toLocaleString('en-US');
+}
+
+function fmtUpdatedTime(iso) {
+  if (!iso) return '';
+  try {
+    var d = new Date(iso);
+    if (isNaN(d.getTime())) return '';
+    return d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+  } catch (e) {
+    return '';
+  }
+}
+
+function fmtDate(isoStr) {
+  if (!isoStr) return '—';
+  try {
+    var d = new Date(isoStr);
+    if (isNaN(d.getTime())) return escHtml(String(isoStr));
+    var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    return months[d.getMonth()] + ' ' + d.getDate() + ', ' + d.getFullYear();
+  } catch (e) {
+    return escHtml(String(isoStr));
+  }
+}
+function closeEditModal() {
+  document.getElementById('editModal').style.display = 'none';
+  document.body.style.overflow = '';
+}
+
+function submitEditModal() {
+  var modal = document.getElementById('editModal');
+  var email = modal._repEmail;
+  if (!email) return;
+  var btn = document.getElementById('em_submitBtn');
+  var status = document.getElementById('em_status');
+  btn.disabled = true; btn.textContent = 'Saving...';
+  var f = {};
+  f.previewEmail    = email;
+  f.weekOf          = document.getElementById('em_weekOf').value;
+  f.pulseScore      = document.getElementById('em_pulseScore').value;
+  f.pulseReason     = document.getElementById('em_pulseReason').value;
+  f.rm_disco        = document.getElementById('em_rm_disco').value;
+  f.rm_nbm          = document.getElementById('em_rm_nbm').value;
+  f.rm_opp          = document.getElementById('em_rm_opp').value;
+  f.rm_accts        = document.getElementById('em_rm_accts').value;
+  f.commit          = document.getElementById('em_commit').value;
+  f.likely          = document.getElementById('em_likely').value;
+  f.upside          = document.getElementById('em_upside').value;
+  f.nq_commit       = document.getElementById('em_nq_commit').value;
+  f.forecast_note   = document.getElementById('em_forecast_note').value;
+  f.goal            = document.getElementById('em_goal').value;
+  f.risk            = document.getElementById('em_risk').value;
+  f.ask             = document.getElementById('em_ask').value;
+  f.sf_accurate     = (document.querySelector('input[name="em_sf_accurate"]:checked') || {}).value || '';
+  for (var i = 1; i <= 6; i++) {
+    f['acct' + i + '_name']   = document.getElementById('em_acct' + i + '_name').value;
+    f['acct' + i + '_stage']  = document.getElementById('em_acct' + i + '_stage').value;
+    f['acct' + i + '_arr']    = document.getElementById('em_acct' + i + '_arr').value;
+    f['acct' + i + '_engage'] = document.getElementById('em_acct' + i + '_engage').value;
+    f['acct' + i + '_move']   = document.getElementById('em_acct' + i + '_move').value;
+    f['acct' + i + '_next']   = document.getElementById('em_acct' + i + '_next').value;
+  }
+  google.script.run
+    .withSuccessHandler(function(result) {
+      btn.disabled = false; btn.textContent = 'Save Recap';
+      if (result && result.message) {
+        status.style.color = '#10b981';
+        status.textContent = result.message;
+        setTimeout(function() { closeEditModal(); location.reload(); }, 1800);
+      }
+    })
+    .withFailureHandler(function(err) {
+      btn.disabled = false; btn.textContent = 'Save Recap';
+      status.style.color = '#ef4444';
+      status.textContent = 'Error: ' + escHtml(err.message || String(err));
+    })
+    .processForm(f);
+}
+
+
+
+</script>
+<!-- EDIT RECAP MODAL -->
+<div id="editModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:2000;overflow-y:auto;padding:20px;">
+<div style="background:#fff;border-radius:14px;width:100%;max-width:880px;margin:0 auto;box-shadow:0 20px 60px rgba(0,0,0,.35);">
+<!-- Modal Header -->
+<div id="modalHeader" style="display:flex;align-items:center;justify-content:space-between;padding:18px 24px;border-bottom:1px solid #e5e7eb;position:sticky;top:0;background:#fff;z-index:10;border-radius:14px 14px 0 0;">
+<div><div style="font-size:18px;font-weight:700;color:#1a1a2e;" id="modalRepName">Edit Recap</div><div style="font-size:12px;color:#6b7280;margin-top:2px;">Editing on behalf of rep</div></div>
+<button onclick="closeEditModal()" style="background:none;border:none;font-size:26px;cursor:pointer;color:#9ca3af;line-height:1;padding:4px 8px;">&times;</button>
+</div>
+<!-- Modal Status -->
+<div id="modalStatus" style="display:none;margin:12px 24px 0;padding:10px 14px;border-radius:8px;font-size:13px;"></div>
+<!-- Modal Body -->
+<div style="padding:20px 24px;" id="modalBody">
+<div style="text-align:center;padding:40px;color:#6b7280;" id="modalLoading">&#9675; Loading rep data&hellip;</div>
+<div id="modalForm" style="display:none;">
+<!-- Week Of -->
+<div style="background:#f9fafb;border:1px solid #e5e7eb;border-radius:10px;padding:16px;margin-bottom:14px;">
+<div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#6b7280;margin-bottom:10px;padding-bottom:6px;border-bottom:2px solid #e5e7eb;">Week Of</div>
+<input type="date" id="m_weekOf" style="padding:9px 11px;border:1px solid #d1d5db;border-radius:7px;font-size:14px;font-family:inherit;background:#fff;width:200px;">
+</div>
+<!-- Pulse -->
+<div style="background:#f9fafb;border:1px solid #e5e7eb;border-radius:10px;padding:16px;margin-bottom:14px;">
+<div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#6b7280;margin-bottom:10px;padding-bottom:6px;border-bottom:2px solid #e5e7eb;">Pulse Check</div>
+<label style="font-size:12px;font-weight:600;color:#374151;display:block;margin-bottom:6px;">How are you feeling? (1=rough, 10=crushing it)</label>
+<div style="display:flex;align-items:center;gap:14px;margin-bottom:10px;">
+<div style="flex:1;"><input type="range" id="m_pulseScore" min="1" max="10" value="5" oninput="mUpdatePulse()" style="width:100%;height:8px;-webkit-appearance:none;appearance:none;background:linear-gradient(to right,#dc2626,#d97706,#16a34a);border-radius:4px;outline:none;padding:0;"></div>
+<div id="m_pulseDisplay" style="font-size:26px;font-weight:800;min-width:36px;text-align:center;color:#d97706;">5</div>
+</div>
+<label style="font-size:12px;font-weight:600;color:#374151;display:block;margin-bottom:4px;">Why?</label>
+<textarea id="m_pulseReason" placeholder="What's driving their energy?" style="width:100%;padding:9px 11px;border:1px solid #d1d5db;border-radius:7px;font-size:14px;font-family:inherit;min-height:56px;resize:vertical;"></textarea>
+</div>
+<!-- Rainmaker Metrics -->
+<div style="background:#f9fafb;border:1px solid #e5e7eb;border-radius:10px;padding:16px;margin-bottom:14px;">
+<div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#6b7280;margin-bottom:10px;padding-bottom:6px;border-bottom:2px solid #e5e7eb;">Rainmaker Metrics</div>
+<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;">
+<div><label style="font-size:12px;font-weight:600;color:#374151;display:block;margin-bottom:4px;">Discovery Mtgs</label><input type="number" id="m_rm_disco" min="0" value="0" style="width:100%;padding:9px 11px;border:1px solid #d1d5db;border-radius:7px;font-size:14px;font-family:inherit;"></div>
+<div><label style="font-size:12px;font-weight:600;color:#374151;display:block;margin-bottom:4px;">NBMs</label><input type="number" id="m_rm_nbm" min="0" value="0" style="width:100%;padding:9px 11px;border:1px solid #d1d5db;border-radius:7px;font-size:14px;font-family:inherit;"></div>
+<div><label style="font-size:12px;font-weight:600;color:#374151;display:block;margin-bottom:4px;">New Opp ARR ($)</label><input type="text" id="m_rm_opp" placeholder="e.g. 150k" style="width:100%;padding:9px 11px;border:1px solid #d1d5db;border-radius:7px;font-size:14px;font-family:inherit;"></div>
+<div><label style="font-size:12px;font-weight:600;color:#374151;display:block;margin-bottom:4px;">Target Accounts</label><input type="text" id="m_rm_accts" placeholder="# active" style="width:100%;padding:9px 11px;border:1px solid #d1d5db;border-radius:7px;font-size:14px;font-family:inherit;"></div>
+</div>
+</div>
+<!-- Accounts -->
+<div style="background:#f9fafb;border:1px solid #e5e7eb;border-radius:10px;padding:16px;margin-bottom:14px;">
+<div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#6b7280;margin-bottom:10px;padding-bottom:6px;border-bottom:2px solid #e5e7eb;">Account Updates (2x4)</div>
+<div id="m_accountCards"></div>
+</div>
+<!-- Forecast -->
+<div style="background:#f9fafb;border:1px solid #e5e7eb;border-radius:10px;padding:16px;margin-bottom:14px;">
+<div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#6b7280;margin-bottom:10px;padding-bottom:6px;border-bottom:2px solid #e5e7eb;">Forecast</div>
+<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:10px;">
+<div><label style="font-size:12px;font-weight:600;color:#374151;display:block;margin-bottom:4px;">Commit ($)</label><input type="text" id="m_commit" placeholder="e.g. 500k" style="width:100%;padding:9px 11px;border:2px solid #dc2626;background:#fef2f2;border-radius:7px;font-size:14px;font-family:inherit;font-weight:700;"><div style="font-size:11px;color:#6b7280;margin-top:4px;">SF: <span id="m_fc_sf_commit" style="color:#2563eb;font-weight:700;">$0</span><br>QBR: <span id="m_fc_qbr_commit" style="color:#7c3aed;font-weight:700;">$0</span></div></div>
+<div><label style="font-size:12px;font-weight:600;color:#374151;display:block;margin-bottom:4px;">Most Likely ($)</label><input type="text" id="m_likely" placeholder="e.g. 700k" style="width:100%;padding:9px 11px;border:2px solid #dc2626;background:#fef2f2;border-radius:7px;font-size:14px;font-family:inherit;font-weight:700;"><div style="font-size:11px;color:#6b7280;margin-top:4px;">SF: <span id="m_fc_sf_likely" style="color:#2563eb;font-weight:700;">$0</span><br>QBR: <span id="m_fc_qbr_likely" style="color:#7c3aed;font-weight:700;">$0</span></div></div>
+<div><label style="font-size:12px;font-weight:600;color:#374151;display:block;margin-bottom:4px;">Best Case ($)</label><input type="text" id="m_upside" placeholder="e.g. 1M" style="width:100%;padding:9px 11px;border:2px solid #dc2626;background:#fef2f2;border-radius:7px;font-size:14px;font-family:inherit;font-weight:700;"><div style="font-size:11px;color:#6b7280;margin-top:4px;">SF: <span id="m_fc_sf_best" style="color:#2563eb;font-weight:700;">$0</span><br>QBR: <span id="m_fc_qbr_best" style="color:#7c3aed;font-weight:700;">$0</span></div></div>
+<div><label style="font-size:12px;font-weight:600;color:#374151;display:block;margin-bottom:4px;">NQ Commit ($)</label><input type="text" id="m_nq_commit" placeholder="Next quarter" style="width:100%;padding:9px 11px;border:1px solid #d1d5db;border-radius:7px;font-size:14px;font-family:inherit;"></div>
+</div>
+<label style="font-size:12px;font-weight:600;color:#374151;display:block;margin-bottom:4px;">Forecast Notes</label>
+<textarea id="m_forecast_note" placeholder="Any changes to forecast this week?" style="width:100%;padding:9px 11px;border:1px solid #d1d5db;border-radius:7px;font-size:14px;font-family:inherit;min-height:56px;resize:vertical;"></textarea>
+</div>
+<!-- Goal / Risk / Ask -->
+<div style="background:#f9fafb;border:1px solid #e5e7eb;border-radius:10px;padding:16px;margin-bottom:14px;">
+<div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#6b7280;margin-bottom:10px;padding-bottom:6px;border-bottom:2px solid #e5e7eb;">Goal / Risk / Ask</div>
+<div style="margin-bottom:10px;"><label style="font-size:12px;font-weight:600;color:#374151;display:block;margin-bottom:4px;">This Week's #1 Goal</label><textarea id="m_goal" placeholder="What must they accomplish?" style="width:100%;padding:9px 11px;border:1px solid #d1d5db;border-radius:7px;font-size:14px;font-family:inherit;min-height:56px;resize:vertical;"></textarea></div>
+<div style="margin-bottom:10px;"><label style="font-size:12px;font-weight:600;color:#374151;display:block;margin-bottom:4px;">Biggest Risk</label><textarea id="m_risk" placeholder="What could go wrong?" style="width:100%;padding:9px 11px;border:1px solid #d1d5db;border-radius:7px;font-size:14px;font-family:inherit;min-height:56px;resize:vertical;"></textarea></div>
+<div><label style="font-size:12px;font-weight:600;color:#374151;display:block;margin-bottom:4px;">Ask of Manager</label><textarea id="m_ask" placeholder="How can Billy help?" style="width:100%;padding:9px 11px;border:1px solid #d1d5db;border-radius:7px;font-size:14px;font-family:inherit;min-height:56px;resize:vertical;"></textarea></div>
+</div>
+<!-- SF Accuracy -->
+<div style="background:#f9fafb;border:1px solid #e5e7eb;border-radius:10px;padding:16px;margin-bottom:14px;">
+<div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#6b7280;margin-bottom:10px;padding-bottom:6px;border-bottom:2px solid #e5e7eb;">Salesforce Accuracy</div>
+<label style="font-size:13px;color:#374151;display:block;margin-bottom:8px;">Is Salesforce pipeline accurate and up to date?</label>
+<div style="display:flex;gap:16px;">
+<label style="display:inline-flex;align-items:center;gap:6px;cursor:pointer;font-size:14px;"><input type="radio" name="m_sf_accurate" value="Yes" style="width:auto;"> Yes</label>
+<label style="display:inline-flex;align-items:center;gap:6px;cursor:pointer;font-size:14px;"><input type="radio" name="m_sf_accurate" value="No" style="width:auto;"> No</label>
+</div>
+</div>
+</div>
+</div>
+<!-- Modal Footer -->
+<div style="padding:16px 24px;border-top:1px solid #e5e7eb;display:flex;gap:10px;justify-content:flex-end;position:sticky;bottom:0;background:#fff;border-radius:0 0 14px 14px;">
+<button onclick="closeEditModal()" style="background:#f3f4f6;color:#374151;border:1px solid #e5e7eb;padding:10px 20px;border-radius:8px;font-size:14px;cursor:pointer;">Cancel</button>
+<button id="modalSaveBtn" onclick="mSubmitForm()" style="background:#4361ee;color:#fff;border:none;padding:10px 28px;border-radius:8px;font-size:15px;font-weight:600;cursor:pointer;">&#10003; Save Recap</button>
+</div>
+</div>
+</div>
+<script>
+var _modalEmail = "";
+
+function openEditModal(email, name) {
+  _modalEmail = email;
+  document.getElementById("editModal").style.display = "block";
+  document.getElementById("modalRepName").textContent = "Editing: " + (name || email);
+  document.getElementById("modalLoading").style.display = "block";
+  document.getElementById("modalForm").style.display = "none";
+  document.getElementById("modalStatus").style.display = "none";
+  document.getElementById("modalSaveBtn").disabled = false;
+  document.getElementById("modalSaveBtn").textContent = "\u2713 Save Recap";
+  // Build account cards
+  mBuildAccountCards();
+  // Fetch data
+  google.script.run
+    .withSuccessHandler(function(d) {
+      document.getElementById("modalLoading").style.display = "none";
+      document.getElementById("modalForm").style.display = "block";
+      var payload = (typeof d === "string") ? JSON.parse(d) : d;
+      var lastData = payload && payload.lastData ? payload.lastData : payload;
+      if (lastData) mPrefillForm(lastData);
+      mRenderForecastCompare((payload && payload.sfData) || {}, (payload && payload.qbrCall) || {});
+    })
+    .withFailureHandler(function(err) {
+      document.getElementById("modalLoading").textContent = "Failed to load data: " + (err.message || err);
+    })
+    .getRepDataForAdmin(email);
+}
+
+function mRenderForecastCompare(sf, qbr) {
+  function set(id, val) {
+    var el = document.getElementById(id);
+    if (el) el.textContent = fmtK(val);
+  }
+  sf = sf || {};
+  qbr = qbr || {};
+  set("m_fc_sf_commit", sf.commit);
+  set("m_fc_sf_likely", sf.mostLikely);
+  set("m_fc_sf_best", sf.bestCase);
+  set("m_fc_qbr_commit", qbr.commit);
+  set("m_fc_qbr_likely", qbr.mostLikely);
+  set("m_fc_qbr_best", qbr.bestCase);
+}
+
+function mBuildAccountCards() {
+  var c = document.getElementById("m_accountCards");
+  if (!c) return;
+  var h = "";
+  for (var i = 1; i <= 6; i++) {
+    h += "<div style=\"background:#f8f9fa;border:1px solid #e0e0e0;border-radius:8px;padding:12px;margin-bottom:10px;\">";
+    h += "<h4 style=\"margin:0 0 8px;font-size:13px;font-weight:700;color:#444;\">Account " + i + "</h4>";
+    h += "<div style=\"display:grid;grid-template-columns:1fr 1fr;gap:8px;\">";
+    h += "<div><label style=\"font-size:11px;color:#666;display:block;margin-bottom:2px;\">Account Name</label>";
+    h += "<input id=\"m_acct"+i+"_name\" type=\"text\" style=\"width:100%;padding:5px 7px;border:1px solid #ccc;border-radius:4px;font-size:13px;box-sizing:border-box;\" placeholder=\"Account name\"></div>";
+    h += "<div><label style=\"font-size:11px;color:#666;display:block;margin-bottom:2px;\">Stage</label>";
+    h += "<select id=\"m_acct"+i+"_stage\" style=\"width:100%;padding:5px 7px;border:1px solid #ccc;border-radius:4px;font-size:13px;\">";
+    h += "<option value=\"\">—</option>";
+    for (var s = 1; s <= 7; s++) { h += "<option value=\"" + s + "\">" + s + "</option>"; }
+    h += "</select></div>";
+    h += "<div><label style=\"font-size:11px;color:#666;display:block;margin-bottom:2px;\">ARR ($)</label>";
+    h += "<input id=\"m_acct"+i+"_arr\" type=\"text\" style=\"width:100%;padding:5px 7px;border:1px solid #ccc;border-radius:4px;font-size:13px;box-sizing:border-box;\" placeholder=\"0\"></div>";
+    h += "<div><label style=\"font-size:11px;color:#666;display:block;margin-bottom:2px;\">Engagement</label>";
+    h += "<div style=\"display:flex;gap:5px;margin-top:2px;\">";
+    var cols = [["green","Green","#22c55e"],["yellow","Yellow","#eab308"],["red","Red","#ef4444"]];
+    for (var ci = 0; ci < cols.length; ci++) {
+      h += "<label id=\"m_acct"+i+"_eng_"+cols[ci][0]+"\" onclick=\"mPickEngage(this)\" style=\"display:flex;align-items:center;gap:2px;padding:3px 8px;border-radius:10px;cursor:pointer;border:2px solid #ddd;font-size:11px;font-weight:600;\">";
+      h += "<input type=\"radio\" name=\"m_acct"+i+"_engage\" value=\""+cols[ci][0]+"\" onchange=\"mEngageChange(this)\" style=\"display:none;\">" + cols[ci][1] + "</label>";
+    }
+    h += "<label id=\"m_acct"+i+"_eng_none\" onclick=\"mPickEngage(this)\" style=\"display:flex;align-items:center;padding:3px 8px;border-radius:10px;cursor:pointer;border:2px solid #ddd;font-size:11px;\">";
+    h += "<input type=\"radio\" name=\"m_acct"+i+"_engage\" value=\"\" onchange=\"mEngageChange(this)\" style=\"display:none;\">—</label>";
+    h += "</div></div>";
+    h += "<div style=\"grid-column:span 2;\"><label style=\"font-size:11px;color:#666;display:block;margin-bottom:2px;\">Critical Move</label>";
+    h += "<input id=\"m_acct"+i+"_move\" type=\"text\" style=\"width:100%;padding:5px 7px;border:1px solid #ccc;border-radius:4px;font-size:13px;box-sizing:border-box;\" placeholder=\"Key move this week\"></div>";
+    h += "<div style=\"grid-column:span 2;\"><label style=\"font-size:11px;color:#666;display:block;margin-bottom:2px;\">Next Step</label>";
+    h += "<input id=\"m_acct"+i+"_next\" type=\"text\" style=\"width:100%;padding:5px 7px;border:1px solid #ccc;border-radius:4px;font-size:13px;box-sizing:border-box;\" placeholder=\"Next step\"></div>";
+    h += "</div></div>";
+  }
+  c.innerHTML = h;
+}
+function mPickEngage(lbl) {
+  var radio = lbl ? lbl.querySelector('input[type="radio"]') : null;
+  if (!radio) return;
+  radio.checked = true;
+  mEngageChange(radio);
+}
+function mEngageChange(radio) {
+  var n = radio.name.replace("m_acct","").replace("_engage","");
+  var colors = {green:"#16a34a", yellow:"#d97706", red:"#dc2626"};
+  var vals = ["green","yellow","red"];
+  vals.forEach(function(v) {
+    var lbl = document.getElementById("m_acct" + n + "_eng_" + v);
+    if (lbl) { lbl.style.background = ""; lbl.style.borderColor = "#e5e7eb"; lbl.style.color = ""; }
+  });
+  var selId = "m_acct" + n + "_eng_" + radio.value.toLowerCase();
+  var selLbl = document.getElementById(selId);
+  var color = colors[(radio.value || "").toLowerCase()];
+  if (selLbl && color) {
+    selLbl.style.background = color;
+    selLbl.style.borderColor = color;
+    selLbl.style.color = "#fff";
+  }
+}
+
+function mPrefillForm(d) {
+  if (!d) return;
+  var sv2 = function(id, val) { var el = document.getElementById(id); if (el) el.value = (val !== null && val !== undefined) ? String(val) : ""; };
+  // Week of
+  if (d.weekOf) { var dt = new Date(d.weekOf); if (!isNaN(dt)) { var ds = dt.toISOString().split("T")[0]; sv2("m_weekOf", ds); } }
+  // Pulse
+  sv2("m_pulseScore", d.pulseScore);
+  sv2("m_pulseReason", d.pulseReason);
+  mUpdatePulse && mUpdatePulse();
+  // Rainmaker
+  sv2("m_rm_disco", d.rm_disco); sv2("m_rm_nbm", d.rm_nbm);
+  sv2("m_rm_opp", d.rm_opp); sv2("m_rm_accts", d.rm_accts);
+  // Forecast
+  sv2("m_commit", d.commit); sv2("m_likely", d.likely);
+  sv2("m_upside", d.upside); sv2("m_nq_commit", d.nq_commit);
+  sv2("m_forecast_note", d.forecast_note);
+  // Goals
+  sv2("m_goal", d.goal); sv2("m_risk", d.risk); sv2("m_ask", d.ask);
+  // SF Accurate
+  if (d.sf_accurate) {
+    var radios = document.querySelectorAll("input[name=m_sf_accurate]");
+    for (var ri = 0; ri < radios.length; ri++) { if (radios[ri].value === d.sf_accurate) { radios[ri].checked = true; break; } }
+  }
+  // Accounts (1-based, matching getLastDataForUser keys acct1_ through acct6_)
+  for (var i = 1; i <= 6; i++) {
+    sv2("m_acct"+i+"_name",  d["acct"+i+"_name"]);
+    sv2("m_acct"+i+"_stage", String(d["acct"+i+"_stage"] || ""));
+    sv2("m_acct"+i+"_arr",   d["acct"+i+"_arr"]);
+    sv2("m_acct"+i+"_move",  d["acct"+i+"_move"]);
+    sv2("m_acct"+i+"_next",  d["acct"+i+"_next"]);
+    var eng = (d["acct"+i+"_engage"] || "").toString().toLowerCase().trim();
+    if (eng) {
+      var r = document.querySelector("input[name=\"m_acct"+i+"_engage\"][value=\""+eng+"\"]");
+      if (r) { r.checked = true; mEngageChange(r); }
+    }
+  }
+}
+function mUpdatePulse() {
+  var sl = document.getElementById("m_pulseScore");
+  var dp = document.getElementById("m_pulseDisplay");
+  if (!sl || !dp) return;
+  var v = parseInt(sl.value) || 5;
+  dp.textContent = v;
+  dp.style.color = v >= 7 ? "#16a34a" : v >= 4 ? "#d97706" : "#dc2626";
+}
+
+function mSubmitForm() {
+  // Validate at least one meaningful field before submitting
+  var hasData = false;
+  var checkIds = ["m_pulseReason","m_rm_disco","m_rm_nbm","m_rm_opp","m_commit","m_likely","m_upside","m_goal","m_risk","m_ask"];
+  for (var ci = 0; ci < checkIds.length; ci++) {
+    var el = document.getElementById(checkIds[ci]);
+    if (el && String(el.value || "").trim() !== "" && String(el.value || "").trim() !== "0") { hasData = true; break; }
+  }
+  if (!hasData) {
+    for (var ai = 1; ai <= 6 && !hasData; ai++) {
+      var nm = document.getElementById("m_acct"+ai+"_name");
+      if (nm && String(nm.value || "").trim()) { hasData = true; }
+    }
+  }
+  if (!hasData) {
+    var st = document.getElementById("modalStatus");
+    if (st) { st.style.display = "block"; st.style.color = "red"; st.textContent = "Please fill in at least one field before saving."; }
+    return;
+  }
+  var btn = document.getElementById("modalSaveBtn");
+  var statusEl = document.getElementById("modalStatus");
+  if (!_modalEmail) return;
+  function gv(id) { var el=document.getElementById(id); return el?el.value:""; }
+  var formData = {
+    previewEmail: _modalEmail,
+    weekOf: gv("m_weekOf"),
+    pulseScore: gv("m_pulseScore"),
+    pulseReason: gv("m_pulseReason"),
+    rm_disco: gv("m_rm_disco"), rm_nbm: gv("m_rm_nbm"),
+    rm_opp: gv("m_rm_opp"), rm_accts: gv("m_rm_accts"),
+    forecast_note: gv("m_forecast_note"),
+    commit: gv("m_commit"), likely: gv("m_likely"),
+    upside: gv("m_upside"), nq_commit: gv("m_nq_commit"),
+    goal: gv("m_goal"), risk: gv("m_risk"), ask: gv("m_ask"),
+    sf_accurate: (document.querySelector("input[name=\"m_sf_accurate\"]:checked") || {}).value || ""
+  };
+  for (var i=1; i<=6; i++) {
+    formData["acct"+i+"_name"] = gv("m_acct"+i+"_name");
+    formData["acct"+i+"_stage"] = gv("m_acct"+i+"_stage");
+    formData["acct"+i+"_arr"] = gv("m_acct"+i+"_arr");
+    formData["acct"+i+"_move"] = gv("m_acct"+i+"_move");
+    formData["acct"+i+"_next"] = gv("m_acct"+i+"_next");
+    var er = document.querySelector("input[name=\"m_acct"+i+"_engage\"]:checked");
+    formData["acct"+i+"_engage"] = er ? er.value : "";
+  }
+  btn.disabled = true; btn.textContent = "Saving…";
+  statusEl.style.display = "none";
+  google.script.run
+    .withSuccessHandler(function(result) {
+      btn.disabled = false; btn.textContent = "\u2713 Save Recap";
+      statusEl.style.cssText = "display:block;padding:10px 14px;border-radius:8px;font-size:13px;background:#d1fae5;color:#065f46;border:1px solid #6ee7b7;margin:0 0 12px;";
+      statusEl.textContent = "\u2705 " + (result.message || "Saved!");
+      setTimeout(function() { closeEditModal(); location.reload(); }, 1500);
+    })
+    .withFailureHandler(function(err) {
+      btn.disabled = false; btn.textContent = "\u2713 Save Recap";
+      statusEl.style.cssText = "display:block;padding:10px 14px;border-radius:8px;font-size:13px;background:#fee2e2;color:#991b1b;border:1px solid #fca5a5;margin:0 0 12px;";
+      statusEl.textContent = "\u274C Error: " + (err.message || err);
+    })
+    .processForm(formData);
+}
+
+function closeEditModal() {
+  document.getElementById("editModal").style.display = "none";
+  _modalEmail = "";
+}
+// Event delegation for edit-recap-btn (avoids quote-escaping in onclick attrs)
+document.addEventListener("click", function(e) {
+  var btn = e.target.closest(".edit-recap-btn");
+  if (btn) {
+    e.stopPropagation();
+    openEditModal(btn.getAttribute("data-email"), btn.getAttribute("data-name"));
+  }
+});
+</script>
+</body>
+</html>
