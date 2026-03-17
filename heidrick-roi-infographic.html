@@ -1,0 +1,815 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Heidrick & Struggles — Glean ROI</title>
+<style>
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    background: #f5f5f7;
+    color: #1d1d1f;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* --- Hero --- */
+  .hero {
+    background: linear-gradient(135deg, #1d1d1f 0%, #2d2d30 100%);
+    color: #f5f5f7;
+    text-align: center;
+    padding: 80px 24px 72px;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::after {
+    content: '';
+    position: absolute;
+    top: -60%;
+    left: -20%;
+    width: 140%;
+    height: 200%;
+    background: radial-gradient(ellipse at 50% 0%, rgba(0,113,227,0.08) 0%, transparent 60%);
+    pointer-events: none;
+  }
+  .hero-label {
+    font-size: 12px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #86868b;
+    margin-bottom: 16px;
+    opacity: 0; animation: fadeUp 0.5s ease forwards 0.1s;
+  }
+  .hero h1 {
+    font-size: 48px;
+    font-weight: 700;
+    line-height: 1.1;
+    margin-bottom: 12px;
+    opacity: 0; animation: fadeUp 0.5s ease forwards 0.2s;
+  }
+  .hero h1 span { color: #0071e3; }
+  .hero p {
+    font-size: 18px;
+    color: #a1a1a6;
+    max-width: 540px;
+    margin: 0 auto;
+    opacity: 0; animation: fadeUp 0.5s ease forwards 0.35s;
+  }
+
+  /* --- Container --- */
+  .container { max-width: 1080px; margin: 0 auto; padding: 0 24px; }
+
+  /* --- Section --- */
+  .section { padding: 64px 0; }
+  .section-label {
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #86868b;
+    margin-bottom: 8px;
+  }
+  .section-title {
+    font-size: 28px;
+    font-weight: 600;
+    line-height: 1.15;
+    margin-bottom: 40px;
+  }
+
+  /* --- KPI Row --- */
+  .kpi-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-top: -48px;
+    position: relative;
+    z-index: 2;
+  }
+  .kpi-card {
+    background: #fff;
+    border-radius: 16px;
+    padding: 32px 24px;
+    text-align: center;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 12px 32px rgba(0,0,0,0.06);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    opacity: 0; animation: fadeUp 0.45s ease forwards;
+  }
+  .kpi-card:nth-child(1) { animation-delay: 0.3s; }
+  .kpi-card:nth-child(2) { animation-delay: 0.4s; }
+  .kpi-card:nth-child(3) { animation-delay: 0.5s; }
+  .kpi-card:nth-child(4) { animation-delay: 0.6s; }
+  .kpi-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.06), 0 20px 48px rgba(0,0,0,0.1);
+  }
+  .kpi-value {
+    font-size: 40px;
+    font-weight: 700;
+    line-height: 1.1;
+    color: #1d1d1f;
+    margin-bottom: 4px;
+  }
+  .kpi-value.accent { color: #0071e3; }
+  .kpi-label {
+    font-size: 13px;
+    color: #86868b;
+    line-height: 1.4;
+  }
+
+  /* --- Survey Chart --- */
+  .chart-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 48px;
+    align-items: start;
+  }
+  .bar-chart { display: flex; flex-direction: column; gap: 20px; }
+  .bar-row { display: flex; align-items: center; gap: 16px; }
+  .bar-label {
+    font-size: 13px;
+    color: #6e6e73;
+    width: 130px;
+    flex-shrink: 0;
+    text-align: right;
+  }
+  .bar-track {
+    flex: 1;
+    height: 32px;
+    background: #e8e8ed;
+    border-radius: 8px;
+    overflow: hidden;
+    position: relative;
+  }
+  .bar-fill {
+    height: 100%;
+    border-radius: 8px;
+    background: #0071e3;
+    width: 0;
+    transition: width 1s cubic-bezier(0.22, 1, 0.36, 1);
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding-right: 10px;
+  }
+  .bar-fill.highlight { background: linear-gradient(90deg, #0071e3, #34aadc); }
+  .bar-pct {
+    font-size: 13px;
+    font-weight: 600;
+    color: #fff;
+    white-space: nowrap;
+  }
+  .bar-pct.outside {
+    color: #1d1d1f;
+    position: absolute;
+    right: -40px;
+    top: 50%;
+    transform: translateY(-50%);
+  }
+  .chart-insight {
+    background: #fff;
+    border-radius: 16px;
+    padding: 40px 32px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 8px 24px rgba(0,0,0,0.05);
+  }
+  .chart-insight .big-num {
+    font-size: 56px;
+    font-weight: 700;
+    color: #0071e3;
+    line-height: 1;
+    margin-bottom: 8px;
+  }
+  .chart-insight .big-label {
+    font-size: 16px;
+    color: #1d1d1f;
+    font-weight: 500;
+    margin-bottom: 16px;
+  }
+  .chart-insight p {
+    font-size: 14px;
+    color: #6e6e73;
+    line-height: 1.6;
+  }
+
+  /* --- Savings Table --- */
+  .savings-cards {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+  }
+  .savings-card {
+    background: #fff;
+    border-radius: 16px;
+    padding: 32px 24px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 8px 24px rgba(0,0,0,0.05);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    position: relative;
+    overflow: hidden;
+  }
+  .savings-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.06), 0 16px 40px rgba(0,0,0,0.09);
+  }
+  .savings-card .role {
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #86868b;
+    margin-bottom: 12px;
+  }
+  .savings-card .salary {
+    font-size: 14px;
+    color: #6e6e73;
+    margin-bottom: 16px;
+  }
+  .savings-card .saved {
+    font-size: 32px;
+    font-weight: 700;
+    color: #1d1d1f;
+  }
+  .savings-card .saved-label {
+    font-size: 12px;
+    color: #86868b;
+    margin-top: 2px;
+  }
+  .savings-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: #0071e3;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+  }
+  .savings-card:hover::before { opacity: 1; }
+
+  /* --- Pillars --- */
+  .pillars { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  .pillar {
+    background: #fff;
+    border-radius: 16px;
+    padding: 32px 24px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 8px 24px rgba(0,0,0,0.05);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    cursor: default;
+  }
+  .pillar:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.06), 0 16px 40px rgba(0,0,0,0.09);
+  }
+  .pillar-icon {
+    width: 40px; height: 40px;
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px;
+    margin-bottom: 20px;
+  }
+  .pillar:nth-child(1) .pillar-icon { background: #e8f4fd; }
+  .pillar:nth-child(2) .pillar-icon { background: #e6f9ed; }
+  .pillar:nth-child(3) .pillar-icon { background: #fef3e2; }
+  .pillar h3 {
+    font-size: 17px;
+    font-weight: 600;
+    margin-bottom: 12px;
+    line-height: 1.25;
+  }
+  .pillar p { font-size: 14px; color: #6e6e73; line-height: 1.55; }
+  .pillar ul { list-style: none; margin-top: 12px; }
+  .pillar ul li {
+    font-size: 13px;
+    color: #6e6e73;
+    padding: 6px 0;
+    border-bottom: 1px solid rgba(0,0,0,0.04);
+    line-height: 1.45;
+  }
+  .pillar ul li:last-child { border-bottom: none; }
+  .pillar ul li::before {
+    content: '\2192';
+    color: #0071e3;
+    margin-right: 8px;
+    font-size: 12px;
+  }
+
+  /* --- Quotes --- */
+  .quotes-wrap { display: flex; flex-direction: column; gap: 12px; }
+  .quote-card {
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05), 0 4px 16px rgba(0,0,0,0.04);
+    overflow: hidden;
+    transition: box-shadow 0.2s ease;
+  }
+  .quote-card:hover {
+    box-shadow: 0 2px 6px rgba(0,0,0,0.06), 0 12px 32px rgba(0,0,0,0.08);
+  }
+  .quote-header {
+    padding: 20px 24px;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    user-select: none;
+  }
+  .quote-header:hover { background: #fafafa; }
+  .quote-name {
+    font-size: 15px;
+    font-weight: 500;
+  }
+  .quote-role {
+    font-size: 13px;
+    color: #86868b;
+    margin-left: 8px;
+  }
+  .quote-chevron {
+    font-size: 14px;
+    color: #86868b;
+    transition: transform 0.25s ease;
+  }
+  .quote-card.open .quote-chevron { transform: rotate(180deg); }
+  .quote-body {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.35s ease, padding 0.35s ease;
+  }
+  .quote-card.open .quote-body {
+    max-height: 200px;
+    padding: 0 24px 24px;
+  }
+  .quote-text {
+    font-size: 15px;
+    color: #6e6e73;
+    font-style: italic;
+    line-height: 1.6;
+    border-left: 2px solid #0071e3;
+    padding-left: 16px;
+  }
+
+  /* --- AWS Migration --- */
+  .migration-grid {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    gap: 24px;
+    align-items: center;
+  }
+  .migration-card {
+    background: #fff;
+    border-radius: 16px;
+    padding: 32px 28px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 8px 24px rgba(0,0,0,0.05);
+    text-align: center;
+  }
+  .migration-card .label {
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #86868b;
+    margin-bottom: 16px;
+  }
+  .migration-card .cost {
+    font-size: 36px;
+    font-weight: 700;
+    line-height: 1;
+  }
+  .migration-card .cost.old { color: #86868b; text-decoration: line-through; }
+  .migration-card .cost.new { color: #34a853; }
+  .migration-card .sub {
+    font-size: 13px;
+    color: #6e6e73;
+    margin-top: 8px;
+  }
+  .migration-arrow {
+    font-size: 28px;
+    color: #0071e3;
+    font-weight: 300;
+  }
+  .migration-savings {
+    margin-top: 24px;
+    background: linear-gradient(135deg, #0071e3 0%, #34aadc 100%);
+    color: #fff;
+    border-radius: 12px;
+    padding: 24px 32px;
+    text-align: center;
+  }
+  .migration-savings .big {
+    font-size: 36px;
+    font-weight: 700;
+    line-height: 1;
+  }
+  .migration-savings .sub {
+    font-size: 14px;
+    opacity: 0.85;
+    margin-top: 4px;
+  }
+
+  /* --- Usage Meter --- */
+  .usage-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 16px;
+  }
+  .usage-card {
+    background: #fff;
+    border-radius: 16px;
+    padding: 28px 24px;
+    text-align: center;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 8px 24px rgba(0,0,0,0.05);
+    transition: transform 0.2s ease;
+  }
+  .usage-card:hover { transform: translateY(-3px); }
+  .usage-card .num {
+    font-size: 36px;
+    font-weight: 700;
+    color: #1d1d1f;
+  }
+  .usage-card .tag {
+    font-size: 12px;
+    color: #86868b;
+    margin-top: 4px;
+  }
+  .usage-card .note {
+    font-size: 12px;
+    color: #0071e3;
+    margin-top: 10px;
+    font-weight: 500;
+  }
+
+  /* --- CEO Quote --- */
+  .ceo-block {
+    background: #fff;
+    border-radius: 16px;
+    padding: 48px 40px;
+    text-align: center;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 12px 32px rgba(0,0,0,0.06);
+    margin-top: 48px;
+  }
+  .ceo-block blockquote {
+    font-size: 22px;
+    font-weight: 500;
+    line-height: 1.45;
+    color: #1d1d1f;
+    max-width: 640px;
+    margin: 0 auto 16px;
+  }
+  .ceo-block cite {
+    font-size: 14px;
+    color: #86868b;
+    font-style: normal;
+  }
+
+  /* --- Divider --- */
+  .divider {
+    border: none;
+    border-top: 1px solid rgba(0,0,0,0.06);
+    margin: 0;
+  }
+
+  /* --- Animations --- */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .animate-in {
+    opacity: 0;
+    transform: translateY(16px);
+    transition: opacity 0.5s ease, transform 0.5s ease;
+  }
+  .animate-in.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* --- Responsive --- */
+  @media (max-width: 768px) {
+    .hero h1 { font-size: 32px; }
+    .kpi-row { grid-template-columns: repeat(2, 1fr); }
+    .chart-grid, .pillars, .savings-cards { grid-template-columns: 1fr; }
+    .migration-grid { grid-template-columns: 1fr; }
+    .migration-arrow { transform: rotate(90deg); text-align: center; }
+    .usage-row { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Hero -->
+<section class="hero">
+  <div class="hero-label">Customer ROI Case Study</div>
+  <h1>Heidrick &amp; Struggles × <span>Glean</span></h1>
+  <p>How a global executive search firm turned $1 into $11 with enterprise AI.</p>
+</section>
+
+<!-- KPI Cards -->
+<div class="container">
+  <div class="kpi-row">
+    <div class="kpi-card">
+      <div class="kpi-value accent" id="kpi-roi">0X</div>
+      <div class="kpi-label">Return on Investment</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-value" id="kpi-time">0 min</div>
+      <div class="kpi-label">Saved per Employee per Day</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-value" id="kpi-savings">$0</div>
+      <div class="kpi-label">Est. Annual Savings (2,000 emps)</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-value" id="kpi-cost">$0</div>
+      <div class="kpi-label">Annual Glean Cost (2,000 emps)</div>
+    </div>
+  </div>
+</div>
+
+<!-- Time Savings Survey -->
+<div class="container">
+  <section class="section animate-in">
+    <div class="section-label">Pilot Survey Results</div>
+    <div class="section-title">Time savings reported by 66 pilot users</div>
+    <div class="chart-grid">
+      <div class="bar-chart" id="barChart">
+        <div class="bar-row">
+          <div class="bar-label">No savings</div>
+          <div class="bar-track">
+            <div class="bar-fill" data-width="13" style="width:0%">
+              <span class="bar-pct outside">13%</span>
+            </div>
+          </div>
+        </div>
+        <div class="bar-row">
+          <div class="bar-label">&lt; 10 min / day</div>
+          <div class="bar-track">
+            <div class="bar-fill" data-width="31" style="width:0%">
+              <span class="bar-pct">31%</span>
+            </div>
+          </div>
+        </div>
+        <div class="bar-row">
+          <div class="bar-label">10 – 30 min / day</div>
+          <div class="bar-track">
+            <div class="bar-fill highlight" data-width="44" style="width:0%">
+              <span class="bar-pct">44%</span>
+            </div>
+          </div>
+        </div>
+        <div class="bar-row">
+          <div class="bar-label">31 – 60 min / day</div>
+          <div class="bar-track">
+            <div class="bar-fill" data-width="13" style="width:0%">
+              <span class="bar-pct outside">13%</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="chart-insight">
+        <div class="big-num">87%</div>
+        <div class="big-label">of users report measurable time savings</div>
+        <p>Nearly half of respondents save 10–30 minutes every day. That's 60 hours per employee per year returned to high-value work like candidate research and client engagement.</p>
+      </div>
+    </div>
+  </section>
+</div>
+
+<div class="container"><hr class="divider"></div>
+
+<!-- Savings by Role -->
+<div class="container">
+  <section class="section animate-in">
+    <div class="section-label">Value by Role</div>
+    <div class="section-title">Annual time savings in dollar value</div>
+    <div class="savings-cards">
+      <div class="savings-card">
+        <div class="role">Associate Level</div>
+        <div class="salary">$75K – $150K salary range</div>
+        <div class="saved">$3,516</div>
+        <div class="saved-label">saved per employee per year</div>
+      </div>
+      <div class="savings-card">
+        <div class="role">Business Dev / Research</div>
+        <div class="salary">$90K – $150K salary range</div>
+        <div class="saved">$3,750</div>
+        <div class="saved-label">saved per employee per year</div>
+      </div>
+      <div class="savings-card">
+        <div class="role">Executive Level</div>
+        <div class="salary">$250K – $350K salary range</div>
+        <div class="saved">$9,375</div>
+        <div class="saved-label">saved per employee per year</div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<div class="container"><hr class="divider"></div>
+
+<!-- Three Pillars -->
+<div class="container">
+  <section class="section animate-in">
+    <div class="section-label">Value Framework</div>
+    <div class="section-title">Three pillars of ROI</div>
+    <div class="pillars">
+      <div class="pillar">
+        <div class="pillar-icon">&#9201;</div>
+        <h3>Time Savings &amp; Productivity</h3>
+        <p>Eliminates "pecking around" 10+ systems of record.</p>
+        <ul>
+          <li>~15 min saved per employee per day</li>
+          <li>Federated search across Box, Slack, Salesforce, Outlook, OneNote</li>
+          <li>Instant candidate 360° lookups</li>
+        </ul>
+      </div>
+      <div class="pillar">
+        <div class="pillar-icon">&#128279;</div>
+        <h3>Force Multiplier for Existing Tools</h3>
+        <p>Enhances ROI from current software investments.</p>
+        <ul>
+          <li>Unlocks value from Heidrick Library &amp; proprietary repos</li>
+          <li>150+ out-of-the-box connectors at no extra cost</li>
+          <li>Potential to replace redundant internal AI tools</li>
+        </ul>
+      </div>
+      <div class="pillar">
+        <div class="pillar-icon">&#128200;</div>
+        <h3>Up-Leveling Employees</h3>
+        <p>Skill leveling across the organization.</p>
+        <ul>
+          <li>Especially benefits those who struggle with complex research</li>
+          <li>Consistent with BCG/Harvard large-scale AI study</li>
+          <li>Helps everyone bring their "A-Game" to work</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+</div>
+
+<div class="container"><hr class="divider"></div>
+
+<!-- Quotes -->
+<div class="container">
+  <section class="section animate-in">
+    <div class="section-label">Voice of the Customer</div>
+    <div class="section-title">What H&amp;S users say about Glean</div>
+    <div class="quotes-wrap">
+      <div class="quote-card">
+        <div class="quote-header" onclick="toggleQuote(this)">
+          <div><span class="quote-name">Rachel Bieniek</span><span class="quote-role">Engagement Manager</span></div>
+          <span class="quote-chevron">&#9660;</span>
+        </div>
+        <div class="quote-body">
+          <div class="quote-text">"I asked Glean Chat to compile me a summary of a candidate's work history and accomplishments in bullet point format. It did so quickly and efficiently with accurate information."</div>
+        </div>
+      </div>
+      <div class="quote-card">
+        <div class="quote-header" onclick="toggleQuote(this)">
+          <div><span class="quote-name">Cory Zhang</span><span class="quote-role">Engagement Manager</span></div>
+          <span class="quote-chevron">&#9660;</span>
+        </div>
+        <div class="quote-body">
+          <div class="quote-text">"The summarizing function is very effective and it uses our language to write up the document/reports."</div>
+        </div>
+      </div>
+      <div class="quote-card">
+        <div class="quote-header" onclick="toggleQuote(this)">
+          <div><span class="quote-name">Alexander Young</span><span class="quote-role">Analyst</span></div>
+          <span class="quote-chevron">&#9660;</span>
+        </div>
+        <div class="quote-body">
+          <div class="quote-text">"I've been using Glean to source potential arrangements of the Energizers to each dimension, based on its knowledge of META and documents associated with the project. I've found combining chat feature with the ability to reference Box files quite useful!"</div>
+        </div>
+      </div>
+      <div class="quote-card">
+        <div class="quote-header" onclick="toggleQuote(this)">
+          <div><span class="quote-name">Jodi Coveny</span><span class="quote-role">Director, Research</span></div>
+          <span class="quote-chevron">&#9660;</span>
+        </div>
+        <div class="quote-body">
+          <div class="quote-text">"[The top] benefit of having it search across numerous tools and apps that we use."</div>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<div class="container"><hr class="divider"></div>
+
+<!-- AWS Migration -->
+<div class="container">
+  <section class="section animate-in">
+    <div class="section-label">Infrastructure Savings</div>
+    <div class="section-title">AWS to Glean-hosted migration</div>
+    <div class="migration-grid">
+      <div class="migration-card">
+        <div class="label">Current — Self-Hosted + AWS</div>
+        <div class="cost old">$73,863</div>
+        <div class="sub">per month · 1,000 licenses</div>
+      </div>
+      <div class="migration-arrow">&#8594;</div>
+      <div class="migration-card">
+        <div class="label">Glean-Hosted — No AWS</div>
+        <div class="cost new">$62,700</div>
+        <div class="sub">per month · 1,500 licenses</div>
+      </div>
+    </div>
+    <div class="migration-savings">
+      <div class="big">$434,112</div>
+      <div class="sub">total savings over 18 months — while adding 500 licenses</div>
+    </div>
+  </section>
+</div>
+
+<div class="container"><hr class="divider"></div>
+
+<!-- Current Usage -->
+<div class="container">
+  <section class="section animate-in">
+    <div class="section-label">Organic Growth</div>
+    <div class="section-title">Usage has outgrown the contract</div>
+    <div class="usage-row">
+      <div class="usage-card">
+        <div class="num">1,000</div>
+        <div class="tag">Licensed (contract)</div>
+      </div>
+      <div class="usage-card">
+        <div class="num">1,680</div>
+        <div class="tag">Assigned users</div>
+        <div class="note">+68% over contract</div>
+      </div>
+      <div class="usage-card">
+        <div class="num">1,200</div>
+        <div class="tag">Monthly active users</div>
+        <div class="note">120% of licensed seats</div>
+      </div>
+    </div>
+
+    <!-- CEO Quote -->
+    <div class="ceo-block">
+      <blockquote>"Tailor-made for high-end knowledge workers that deal with lots of unstructured data."</blockquote>
+    </div>
+  </section>
+</div>
+
+<div style="height: 80px;"></div>
+
+<script>
+  // Animate KPI counters
+  function animateValue(el, start, end, suffix, prefix, duration) {
+    let startTime = null;
+    const step = (ts) => {
+      if (!startTime) startTime = ts;
+      const p = Math.min((ts - startTime) / duration, 1);
+      const ease = 1 - Math.pow(1 - p, 3);
+      const val = start + (end - start) * ease;
+      if (end >= 1000000) {
+        el.textContent = prefix + (val / 1000000).toFixed(1).replace(/\.0$/, '') + 'M' + suffix;
+      } else if (end >= 1000) {
+        el.textContent = prefix + Math.round(val).toLocaleString() + suffix;
+      } else if (suffix === 'X') {
+        el.textContent = val.toFixed(2) + suffix;
+      } else {
+        el.textContent = prefix + Math.round(val) + suffix;
+      }
+      if (p < 1) requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
+  }
+
+  setTimeout(() => {
+    animateValue(document.getElementById('kpi-roi'), 0, 11.26, 'X', '', 1200);
+    animateValue(document.getElementById('kpi-time'), 0, 15, ' min', '', 1000);
+    animateValue(document.getElementById('kpi-savings'), 0, 7031250, '', '$', 1400);
+    animateValue(document.getElementById('kpi-cost'), 0, 624220, '', '$', 1200);
+  }, 700);
+
+  // Animate bars on scroll
+  const barObserver = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.querySelectorAll('.bar-fill').forEach((bar, i) => {
+          setTimeout(() => {
+            bar.style.width = bar.dataset.width + '%';
+          }, i * 120);
+        });
+        barObserver.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.3 });
+  barObserver.observe(document.getElementById('barChart'));
+
+  // Scroll-triggered fade-in
+  const fadeObserver = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.classList.add('visible');
+        fadeObserver.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.15 });
+  document.querySelectorAll('.animate-in').forEach(el => fadeObserver.observe(el));
+
+  // Expandable quotes
+  function toggleQuote(header) {
+    const card = header.parentElement;
+    card.classList.toggle('open');
+  }
+</script>
+</body>
+</html>
