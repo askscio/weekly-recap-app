@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>POC Health Dashboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
+  <style>
+    :root {
+      --bg-primary: #0f1117;
+      --bg-card: #1a1d2e;
+      --text-primary: #e8eaed;
+      --text-secondary: #9aa0a6;
+      --accent: #4285f4;
+      --positive: #34a853;
+      --warning: #fbbc04;
+      --negative: #ea4335;
+      --border: #2d3148;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: radial-gradient(circle at top, #202341 0, #050712 45%, #020308 100%);
+      color: var(--text-primary);
+      min-height: 100vh;
+      padding: 24px;
+    }
+
+    .dashboard {
+      max-width: 1240px;
+      margin: 0 auto;
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 24px;
+    }
+
+    .title-block h1 {
+      font-size: 24px;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+    }
+
+    .title-block p {
+      margin-top: 6px;
+      color: var(--text-secondary);
+      font-size: 13px;
+    }
+
+    .status-legend {
+      display: flex;
+      gap: 12px;
+      font-size: 12px;
+      color: var(--text-secondary);
+    }
+
+    .legend-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .legend-dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+    }
+
+    .dot-green { background: var(--positive); }
+    .dot-yellow { background: var(--warning); }
+    .dot-red { background: var(--negative); }
+
+    .top-row {
+      display: grid;
+      grid-template-columns: minmax(0, 2fr) minmax(0, 1.2fr);
+      gap: 20px;
+      margin-bottom: 20px;
+    }
+
+    .card,
+    .chart-card {
+      background: linear-gradient(145deg, rgba(35,39,70,0.98), rgba(12,15,32,0.98));
+      border-radius: 14px;
+      border: 1px solid rgba(255, 255, 255, 0.04);
+      box-shadow: 0 18px 45px rgba(0, 0, 0, 0.6);
+      padding: 16px 18px;
+    }
+
+    .chart-card h3 {
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--text-secondary);
+      margin-bottom: 8px;
+    }
+
+    #statusChart {
+      width: 100%;
+      height: 210px;
+    }
+
+    .kpi-row {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .kpi {
+      background: radial-gradient(circle at top left, rgba(66,133,244,0.22), rgba(15,17,23,0.95));
+      border-radius: 10px;
+      padding: 10px 11px;
+      border: 1px solid rgba(255,255,255,0.06);
+    }
+
+    .kpi-label {
+      font-size: 11px;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 4px;
+    }
+
+    .kpi-value {
+      font-size: 18px;
+      font-weight: 600;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 18px;
+    }
+
+    .account-card {
+      background: linear-gradient(155deg, rgba(26,29,46,0.98), rgba(10,13,30,0.98));
+      border-radius: 14px;
+      padding: 15px 16px 14px;
+      border: 1px solid rgba(255,255,255,0.04);
+      box-shadow: 0 14px 35px rgba(0,0,0,0.5);
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .account-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .account-name {
+      font-size: 15px;
+      font-weight: 600;
+    }
+
+    .status-pill {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      padding: 3px 10px;
+      border-radius: 999px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      border: 1px solid transparent;
+    }
+
+    .status-pill i {
+      font-size: 9px;
+    }
+
+    .status-green {
+      color: var(--positive);
+      background: rgba(52,168,83,0.12);
+      border-color: rgba(52,168,83,0.5);
+    }
+
+    .status-yellow {
+      color: var(--warning);
+      background: rgba(251,188,4,0.12);
+      border-color: rgba(251,188,4,0.5);
+    }
+
+    .status-red {
+      color: var(--negative);
+      background: rgba(234,67,53,0.12);
+      border-color: rgba(234,67,53,0.5);
+    }
+
+    .health-summary {
+      font-size: 12px;
+      line-height: 1.5;
+      color: var(--text-secondary);
+    }
+
+    .health-summary strong {
+      color: var(--text-primary);
+      font-weight: 500;
+    }
+
+    .section-label {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      color: var(--text-secondary);
+      margin-top: 3px;
+      margin-bottom: 2px;
+    }
+
+    .bullets {
+      list-style: none;
+      font-size: 12px;
+      color: var(--text-secondary);
+      margin-left: 0;
+    }
+
+    .bullets li {
+      display: flex;
+      align-items: flex-start;
+      gap: 6px;
+      margin-bottom: 4px;
+    }
+
+    .bullets li::before {
+      content: '\25CF';
+      font-size: 9px;
+      margin-top: 4px;
+      color: var(--accent);
+    }
+
+    .actions-list li::before {
+      color: var(--positive);
+    }
+
+    @media (max-width: 960px) {
+      .top-row {
+        grid-template-columns: minmax(0, 1fr);
+      }
+
+      .grid {
+        grid-template-columns: minmax(0, 1fr);
+      }
+    }
+
+    @media (max-width: 640px) {
+      body {
+        padding: 18px 14px;
+      }
+
+      header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+      }
+
+      .kpi-row {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="dashboard">
+    <header>
+      <div class="title-block">
+        <h1>POC Health Dashboard</h1>
+        <p>Snapshot of top POC accounts, health, and next actions</p>
+      </div>
+      <div class="status-legend">
+        <span class="legend-item"><span class="legend-dot dot-green"></span>Green</span>
+        <span class="legend-item"><span class="legend-dot dot-yellow"></span>Yellow</span>
+        <span class="legend-item"><span class="legend-dot dot-red"></span>Red</span>
+      </div>
+    </header>
+
+    <div class="top-row">
+      <div class="card">
+        <div class="section-label">Overview</div>
+        <div class="kpi-row" id="kpiRow"></div>
+      </div>
+      <div class="chart-card">
+        <h3>Accounts by Health Status</h3>
+        <div id="statusChart"></div>
+      </div>
+    </div>
+
+    <div class="grid" id="accountsGrid"></div>
+  </div>
+
+  <script>
+    const pocData = [
+      {
+        name: 'Chamberlain',
+        status: 'Green',
+        healthSummary: [
+          'Closed Won via NTT; SOW signed 2/24; POC kickoff scheduled 2/24 with a 30-day pilot.',
+          'Initial friction with NTT and CIO ("bait and switch") was recovered; security, architecture, and deal-desk reviews are completed.',
+          'Waiting on PO logistics and order-form finalization through NTT.'
+        ],
+        keySignals: [
+          'SOW executed with NTT and Chamberlain; NTT now holds the Glean order form.',
+          'All key approvals (security, architecture, deal desk) marked Completed.',
+          'Recent notes show active work on locating PO internally and confirming signed copy from Brad.'
+        ],
+        actions: [
+          'Niko: Confirm PO receipt and finalize order-form logistics with NTT.',
+          'Billy: Monitor NTT relationship to ensure no further delays.',
+          'Niko & Ryan: Drive pilot kickoff activities and connector setup with engineering.',
+          'Track pilot success metrics (search-time reduction, FTE productivity) to justify 3,100-user rollout.'
+        ]
+      },
+      {
+        name: 'HUDL',
+        status: 'Green',
+        healthSummary: [
+          'Mid-cycle user validation POC; scheduled to wind down first week of April.',
+          'Strong feedback from support on answer accuracy; embedded Salesforce experience working in sandbox.',
+          'Scope expanding beyond support to sales, engineering, marketing, and people ops.'
+        ],
+        keySignals: [
+          'Daniel Shaefer planning mid-April business-case pitch to SVP Courtney Rogers.',
+          'Multiple departments (sales, CX, engineering) joining the pilot; high internal excitement.',
+          'Anthropic Claude and Slack enterprise search are being evaluated in parallel.'
+        ],
+        actions: [
+          'Johnny: Complete business-case session with Daniel and document differentiation vs. Claude & Slack.',
+          'Johnny & Billy: Arrange exec intro between Glean leadership and Courtney Rogers before mid-April.',
+          'Johnny: Connect Gong, G Drive, Highspot for broader sales/eng coverage.',
+          'Billy: Prepare volume-based pricing for 2,800+ users for enterprise rollout.'
+        ]
+      },
+      {
+        name: 'Morningstar',
+        status: 'Yellow',
+        healthSummary: [
+          'POC not yet launched; MSA and legal review are the critical bottlenecks.',
+          'Team is highly engaged (onsites, workshops, sandbox demos), but legal process is slow.',
+          'Signature on MSA repeatedly targeted for "next week"; risk of slipping past fiscal timing.'
+        ],
+        keySignals: [
+          'Sam Castano and Ping Lu are strong champions; Dex McCauley engaged as AI decision-maker.',
+          'AWS partner highly motivated; Morningstar is a priority for AWS co-sell.',
+          'Competing tools in consideration: Copilot, OpenAI Enterprise, Agentforce, Notebook LM.'
+        ],
+        actions: [
+          'Taylor / Johnny: Close MSA signature this week; offer joint legal working session to unblock.',
+          'Taylor: Lock sandbox POC scope and use cases with Sam, Ping, and Jonathan Bacon.',
+          'Billy: Engage AHEAD and AWS to help push timing and ROI justification.',
+          'Taylor: Secure explicit executive sponsorship from Dex before April fiscal year start.'
+        ]
+      },
+      {
+        name: 'Kearney',
+        status: 'Yellow',
+        healthSummary: [
+          'Forecast shows large $2.4M opportunity at POC stage, but activity signals are thin or missing.',
+          'Security call was held on 2/4; POC start was targeted for mid-February.',
+          'No recent Gong, email, or Slack activity surfaced — raises questions about true status.'
+        ],
+        keySignals: [
+          'Only evidence is account-plan/forecast sheet marking deal "On Track".',
+          'No corroborating customer interactions in the last several weeks.',
+          'AHEAD is the named partner, but no recent partner updates are logged.'
+        ],
+        actions: [
+          'Taylor: Provide an up-to-date POC status; confirm whether it actually started and what is live.',
+          'Billy: Treat this as Yellow in forecast reviews; push for concrete dates and owners.',
+          'Taylor: Ensure upcoming meetings are recorded in Gong and captured in notes.',
+          'Validate security review outcomes and close plan by next forecast checkpoint.'
+        ]
+      },
+      {
+        name: 'Bread Financial',
+        status: 'Red',
+        healthSummary: [
+          'Large $500K opportunity with no recent activity across any systems.',
+          'Procurement was reviewing vendor risk assessment, but there have been no clear updates.',
+          'No POC, pilot, or evaluation activity detected — account appears dormant.'
+        ],
+        keySignals: [
+          'Account plan notes only: procurement reviewing vendor risk responses.',
+          'No Gong calls, no Slack conversations, and no recent emails surfaced.',
+          'Champions identified (CTO and SVP & CDAO) have not engaged recently.'
+        ],
+        actions: [
+          'Johnny: Re-engage Allegra Driscoll and/or Michael Boghosian this week to confirm status.',
+          'Billy: Mark as At Risk in forecast; require a go/no-go decision before next roll-up.',
+          'Johnny: Offer security/architecture working session to close out vendor risk questions.',
+          'If no response within a week, downgrade or remove from active Q1 pipeline.'
+        ]
+      }
+    ];
+
+    function computeKpis(data) {
+      const total = data.length;
+      const green = data.filter(a => a.status === 'Green').length;
+      const yellow = data.filter(a => a.status === 'Yellow').length;
+      const red = data.filter(a => a.status === 'Red').length;
+      return { total, green, yellow, red };
+    }
+
+    function renderKpis() {
+      const { total, green, yellow, red } = computeKpis(pocData);
+      const kpiRow = document.getElementById('kpiRow');
+      kpiRow.innerHTML = '';
+      const items = [
+        { label: 'Total POC Accounts', value: total },
+        { label: 'Green (On Track)', value: green },
+        { label: 'Yellow / Red (Needs Attention)', value: yellow + red }
+      ];
+      items.forEach(item => {
+        const div = document.createElement('div');
+        div.className = 'kpi';
+        div.innerHTML = `
+          <div class="kpi-label">${item.label}</div>
+          <div class="kpi-value">${item.value}</div>
+        `;
+        kpiRow.appendChild(div);
+      });
+    }
+
+    function renderAccounts() {
+      const grid = document.getElementById('accountsGrid');
+      grid.innerHTML = '';
+      pocData.forEach(acc => {
+        const card = document.createElement('div');
+        card.className = 'account-card';
+
+        const statusClass = acc.status === 'Green'
+          ? 'status-green'
+          : acc.status === 'Yellow'
+          ? 'status-yellow'
+          : 'status-red';
+
+        const statusIcon = acc.status === 'Green'
+          ? 'fa-circle-check'
+          : acc.status === 'Yellow'
+          ? 'fa-circle-exclamation'
+          : 'fa-triangle-exclamation';
+
+        const healthHtml = acc.healthSummary
+          .map(line => `<span>${line}</span>`)
+          .join(' ');
+
+        const keySignalsHtml = acc.keySignals
+          .map(line => `<li>${line}</li>`)
+          .join('');
+
+        const actionsHtml = acc.actions
+          .map(line => `<li>${line}</li>`)
+          .join('');
+
+        card.innerHTML = `
+          <div class="account-header">
+            <div class="account-name">${acc.name}</div>
+            <div class="status-pill ${statusClass}">
+              <i class="fa-solid ${statusIcon}"></i>
+              <span>${acc.status}</span>
+            </div>
+          </div>
+          <div class="section-label">Health Summary</div>
+          <div class="health-summary">${healthHtml}</div>
+          <div class="section-label">Key Signals</div>
+          <ul class="bullets">${keySignalsHtml}</ul>
+          <div class="section-label">Recommended Actions</div>
+          <ul class="bullets actions-list">${actionsHtml}</ul>
+        `;
+
+        grid.appendChild(card);
+      });
+    }
+
+    function renderStatusChart() {
+      const chartDom = document.getElementById('statusChart');
+      const myChart = echarts.init(chartDom);
+      const { green, yellow, red } = computeKpis(pocData);
+
+      const option = {
+        tooltip: { trigger: 'item' },
+        legend: {
+          bottom: 0,
+          textStyle: { color: '#9aa0a6', fontSize: 11 }
+        },
+        series: [
+          {
+            type: 'pie',
+            radius: ['45%', '75%'],
+            center: ['50%', '45%'],
+            avoidLabelOverlap: false,
+            itemStyle: {
+              borderRadius: 6,
+              borderColor: '#050712',
+              borderWidth: 2
+            },
+            label: {
+              color: '#e8eaed',
+              formatter: '{b}: {c}'
+            },
+            data: [
+              { value: green, name: 'Green', itemStyle: { color: '#34a853' } },
+              { value: yellow, name: 'Yellow', itemStyle: { color: '#fbbc04' } },
+              { value: red, name: 'Red', itemStyle: { color: '#ea4335' } }
+            ]
+          }
+        ]
+      };
+
+      myChart.setOption(option);
+      window.addEventListener('resize', () => {
+        myChart.resize();
+      });
+    }
+
+    renderKpis();
+    renderAccounts();
+    renderStatusChart();
+  </script>
+</body>
+</html>
