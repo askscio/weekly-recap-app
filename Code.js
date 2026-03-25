@@ -33,9 +33,7 @@ function doGet(e) {
       stg4_5: 0, stg4_20: 0
     };
   }
-  function cleanEmail_(v) {
-    return String(v || "").replace(/^["']+|["']+$/g, "").trim().toLowerCase();
-  }
+  // cleanEmail_ is defined globally in Config.gs
   var sessionEmail = "";
   try {
     sessionEmail = cleanEmail_(Session.getEffectiveUser().getEmail());
@@ -50,11 +48,23 @@ function doGet(e) {
     }
   }
   var isAdmin = sessionEmail === String(ADMIN_EMAIL || "").toLowerCase();
+  var isRep = REP_EMAILS.indexOf(String(sessionEmail || "").toLowerCase()) !== -1;
   var page = (e && e.parameter && e.parameter.page) ? e.parameter.page : "";
 
-  // Non-admin reps often hit base URL without ?page=recap.
-  // Treat that path as recap explicitly.
-  if (!isAdmin && page === "") page = "recap";
+  // Base URL routing:
+  // - reps land on recap
+  // - admin and everyone else land on summary
+  if (page === "") {
+    if (isRep && !((e && e.parameter && e.parameter.desktop) || "")) {
+      var routerTemplate = HtmlService.createTemplateFromFile("rep_router");
+      routerTemplate.scriptUrl = ScriptApp.getService().getUrl();
+      return routerTemplate.evaluate()
+        .setTitle("Opening Weekly Recap")
+        .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL)
+        .addMetaTag("viewport", "width=device-width, initial-scale=1");
+    }
+    page = isRep ? "recap" : "summary";
+  }
 
   if (page === "diag") {
     var activeUser = "";
@@ -82,15 +92,88 @@ function doGet(e) {
       .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
   }
 
-  if (page === "poc" || (isAdmin && page === "poc")) {
+  if (!isRep && page === "summary") {
+    var summaryTemplate = HtmlService.createTemplateFromFile("summary");
+    summaryTemplate.summaryData = JSON.stringify(getExecutiveSummaryData());
+    summaryTemplate.scriptUrl = ScriptApp.getService().getUrl();
+    summaryTemplate.sessionEmail = sessionEmail;
+    summaryTemplate.isAdmin = isAdmin;
+    return summaryTemplate.evaluate()
+      .setTitle("NorthCentral Enterprise Weekly Summary")
+      .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL)
+      .addMetaTag("viewport", "width=device-width, initial-scale=1");
+  }
+
+  if (page === "poc-legacy" || (isAdmin && page === "poc-legacy")) {
     var pocTemplate = HtmlService.createTemplateFromFile("dashboard");
-    pocTemplate.dashboardData = JSON.stringify(getTeamDashboardData());
+    pocTemplate.dashboardData = JSON.stringify([]);
     pocTemplate.benchmarks = "{}";
+    pocTemplate.quotaMetrics = "{}";
+    pocTemplate.pocDataJson = safeJsonString_(getPocData());
+    pocTemplate.pocRefreshStatusJson = "null";
+    pocTemplate.qaRepOptionsJson = safeJsonString_(getQaRepOptions_());
     pocTemplate.scriptUrl = ScriptApp.getService().getUrl();
     pocTemplate.sessionEmail = sessionEmail;
     pocTemplate.isAdmin = isAdmin;
+    pocTemplate.initialPage = "poc";
     return pocTemplate.evaluate()
       .setTitle("POC Command Center")
+      .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL)
+      .addMetaTag("viewport", "width=device-width, initial-scale=1");
+  }
+
+  if (page === "poc" || (isAdmin && page === "poc")) {
+    var pocPageTemplate = HtmlService.createTemplateFromFile("poc");
+    pocPageTemplate.scriptUrl = ScriptApp.getService().getUrl();
+    pocPageTemplate.sessionEmail = sessionEmail;
+    pocPageTemplate.isAdmin = isAdmin;
+    pocPageTemplate.pocDataJson = safeJsonString_(getPocDashboardSnapshot_());
+    return pocPageTemplate.evaluate()
+      .setTitle("POC Command Center")
+      .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL)
+      .addMetaTag("viewport", "width=device-width, initial-scale=1");
+  }
+
+  if (page === "recap-mobile") {
+    var recapMobileTemplate = HtmlService.createTemplateFromFile("recap_mobile");
+    var mobileTargetEmail = cleanEmail_(sessionEmail);
+    var mobileOnBehalf = "";
+    if (isAdmin && e && e.parameter && e.parameter.rep) {
+      mobileTargetEmail = cleanEmail_(e.parameter.rep);
+      mobileOnBehalf = mobileTargetEmail;
+    } else if (isAdmin) {
+      var mobileProps = PropertiesService.getScriptProperties();
+      var mobilePending = mobileProps.getProperty("adminEdit_" + sessionEmail);
+      if (mobilePending) {
+        mobileTargetEmail = cleanEmail_(mobilePending);
+        mobileOnBehalf = mobileTargetEmail;
+        mobileProps.deleteProperty("adminEdit_" + sessionEmail);
+      }
+    }
+    recapMobileTemplate.sessionEmail = sessionEmail;
+    recapMobileTemplate.scriptUrl = ScriptApp.getService().getUrl();
+    try {
+      recapMobileTemplate.benchmarks = getBenchmarks();
+    } catch (eBenchRecapMobile) {
+      Logger.log("getBenchmarks failed for recap-mobile " + sessionEmail + ": " + eBenchRecapMobile.message);
+      recapMobileTemplate.benchmarks = blankBenchmarks_();
+    }
+    recapMobileTemplate.rainmakerImage = "";
+    try {
+      recapMobileTemplate.lastData = getLastDataForUser(mobileTargetEmail);
+    } catch (eLastRecapMobile) {
+      Logger.log("getLastDataForUser failed for recap-mobile " + mobileTargetEmail + ": " + eLastRecapMobile.message);
+      recapMobileTemplate.lastData = null;
+    }
+    recapMobileTemplate.lastDataJson = safeJsonString_(recapMobileTemplate.lastData);
+    try { recapMobileTemplate.userStats = getUserStats(mobileTargetEmail); } catch (eStatsRecapMobile) { Logger.log("getUserStats failed for recap-mobile " + mobileTargetEmail + ": " + eStatsRecapMobile.message); recapMobileTemplate.userStats = {}; }
+    try { recapMobileTemplate.sfData = getSFDataForUser(mobileTargetEmail); } catch (eSfRecapMobile) { Logger.log("getSFDataForUser failed for recap-mobile " + mobileTargetEmail + ": " + eSfRecapMobile.message); recapMobileTemplate.sfData = {}; }
+    try { recapMobileTemplate.qbrCall = getQBRCall(mobileTargetEmail); } catch (eQbrRecapMobile) { Logger.log("getQBRCall failed for recap-mobile " + mobileTargetEmail + ": " + eQbrRecapMobile.message); recapMobileTemplate.qbrCall = {}; }
+    recapMobileTemplate.onBehalf = mobileOnBehalf;
+    recapMobileTemplate.isAdmin = isAdmin;
+    setBootstrapJson_(recapMobileTemplate);
+    return recapMobileTemplate.evaluate()
+      .setTitle(mobileOnBehalf ? "Editing: " + mobileOnBehalf : "Q4 Weekly Recap")
       .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL)
       .addMetaTag("viewport", "width=device-width, initial-scale=1");
   }
@@ -119,7 +202,7 @@ function doGet(e) {
       Logger.log("getBenchmarks failed for recap " + sessionEmail + ": " + eBenchRecap.message);
       recapTemplate.benchmarks = blankBenchmarks_();
     }
-    recapTemplate.rainmakerImage = "";
+    recapTemplate.rainmakerImage = "";  // legacy field, kept for template compat
     try {
       recapTemplate.lastData = getLastDataForUser(targetEmail);
     } catch (eLastRecap) {
@@ -139,13 +222,22 @@ function doGet(e) {
       .addMetaTag("viewport", "width=device-width, initial-scale=1");
   }
 
-  if (isAdmin && (page === "" || page === "dashboard")) {
+  if (page === "dashboard" && !isAdmin) {
+    return HtmlService.createHtmlOutput("<p style='font-family:Arial,sans-serif;padding:20px;max-width:700px;margin:auto;'>Dashboard is admin-only. Please go to <a href='?page=summary'>Summary</a>.</p>")
+      .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL)
+      .addMetaTag("viewport", "width=device-width, initial-scale=1");
+  }
+
+  if (isAdmin && page === "dashboard") {
     var dashTemplate = HtmlService.createTemplateFromFile("dashboard");
     dashTemplate.dashboardData = JSON.stringify(getTeamDashboardData());
     dashTemplate.benchmarks = "{}";
+    dashTemplate.quotaMetrics = JSON.stringify(getQuotaMetricsForDashboard_());
+    dashTemplate.qaRepOptionsJson = safeJsonString_(getQaRepOptions_());
     dashTemplate.scriptUrl = ScriptApp.getService().getUrl();
     dashTemplate.sessionEmail = sessionEmail;
     dashTemplate.isAdmin = isAdmin;
+    dashTemplate.initialPage = "dashboard";
     return dashTemplate.evaluate()
       .setTitle("Team Weekly Dashboard")
       .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL)
@@ -258,9 +350,7 @@ function setAdminEditTarget(email) {
 }
 
 function getResolvedSessionEmail() {
-  function cleanEmail_(v) {
-    return String(v || "").replace(/^["']+|["']+$/g, "").trim().toLowerCase();
-  }
+  // cleanEmail_ is defined globally in Config.gs
   var email = "";
   try { email = cleanEmail_(Session.getEffectiveUser().getEmail()); } catch (_) {}
   if (!email) {
@@ -270,7 +360,7 @@ function getResolvedSessionEmail() {
 }
 
 function testStatsDebug() {
-  var ss = SpreadsheetApp.openById("1tK7hslM--NY0fU6z7zvDwjw3K63DOTayAyQ0KE20J14");
+  var ss = SpreadsheetApp.openById(TRACKER_SHEET_ID);
   var results = {};
   var sheetNames = [DISCO_SHEET_NAME, NBM_SHEET_NAME, PIPELINE_SHEET_NAME, STAGE4_SHEET_NAME];
   sheetNames.forEach(function(name) {

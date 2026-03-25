@@ -1,0 +1,878 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@700;800&family=Space+Mono:wght@400;700&display=swap">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --ink: #1a1612;
+  --ink-mid: #4a3f35;
+  --ink-soft: #8a7a6e;
+  --page: #faf8f5;
+  --shell: #e8e2d8;
+  --warm-rule: #e8e0d4;
+  --red: #c0392b;
+  --red-bg: #fdf2f0;
+  --gold: #b8860b;
+  --gold-bg: #fdfaf0;
+  --green: #2d6a4f;
+  --green-bg: #f0f7f4;
+  --blue: #1a4a7a;
+  --blue-bg: #eff6ff;
+}
+html { background: var(--shell); min-height: 100%; }
+body {
+  font-family: 'DM Sans', sans-serif;
+  color: var(--ink);
+  background: var(--shell);
+  line-height: 1.6;
+  padding: 0;
+  -webkit-font-smoothing: antialiased;
+}
+.shell {
+  width: min(calc(100vw - 2.5in), 1840px);
+  max-width: 1840px;
+  min-width: 0;
+  margin: 0 auto;
+  padding: 8px 0 10px;
+}
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+.topbar-title {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+.tab-bar {
+  display: inline-flex;
+  gap: 6px;
+  padding: 4px;
+  border-radius: 999px;
+  background: rgba(255,255,255,.55);
+  border: 1px solid rgba(0,0,0,.06);
+}
+.tab-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 14px;
+  border: none;
+  background: transparent;
+  border-radius: 999px;
+  cursor: pointer;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  text-decoration: none;
+}
+.tab-btn.active {
+  background: var(--ink);
+  color: #fff;
+}
+.page {
+  width: 100%;
+  max-width: none;
+  margin: 0 auto;
+  background: var(--page);
+  box-shadow: 0 14px 34px rgba(26,22,18,.08);
+  border: 1px solid rgba(0,0,0,.05);
+  height: calc(100vh - 74px);
+  overflow: hidden;
+}
+.summary-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 0;
+  width: 100%;
+  height: 100%;
+}
+.summary-col {
+  min-width: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+.summary-col.left {
+  border-right: 1px solid var(--warm-rule);
+}
+.summary-panel {
+  border-bottom: 1px solid var(--warm-rule);
+}
+.summary-col .header,
+.summary-col .number-strip,
+.summary-col .progress-section,
+.summary-col .body,
+.summary-col .doc-footer {
+  padding-left: 14px;
+  padding-right: 14px;
+}
+.summary-col .number-strip {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  row-gap: 18px;
+}
+.summary-col .number-cell:nth-child(3n) { border-right: none; }
+.summary-col .doc-footer {
+  border-top: none;
+}
+.header {
+  padding: 16px 12px 10px;
+  border-bottom: 1px solid var(--warm-rule);
+}
+.header-top {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  margin-bottom: 10px;
+}
+.headline {
+  font-family: 'Playfair Display', serif;
+  font-size: 28px;
+  font-weight: 800;
+  line-height: 1.12;
+  color: var(--ink);
+  margin-bottom: 4px;
+}
+.date-line {
+  font-size: 12px;
+  color: var(--ink-soft);
+}
+.number-strip {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 0;
+  padding: 10px 8px;
+  border-bottom: 1px solid var(--warm-rule);
+}
+.number-cell {
+  text-align: center;
+  padding: 0 8px;
+  border-right: 1px solid var(--warm-rule);
+}
+.number-cell:last-child { border-right: none; }
+.number-label {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  margin-bottom: 4px;
+}
+.number-val {
+  font-family: 'Playfair Display', serif;
+  font-size: 21px;
+  font-weight: 700;
+  color: var(--ink);
+}
+.number-cell.closed .number-val { color: var(--green); }
+.number-cell.best .number-val { color: var(--gold); }
+.number-sub {
+  font-size: 9px;
+  color: var(--ink-soft);
+  margin-top: 2px;
+}
+.progress-section {
+  padding: 10px 12px 10px;
+  border-bottom: 1px solid var(--warm-rule);
+}
+.progress-row { margin-bottom: 9px; }
+.progress-row:last-child { margin-bottom: 0; }
+.progress-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 3px;
+}
+.progress-label {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--ink);
+}
+.progress-note {
+  font-size: 9px;
+  font-weight: 700;
+  color: var(--ink-soft);
+}
+.progress-note.red { color: var(--red); }
+.progress-note.gold { color: var(--gold); }
+.progress-note.green { color: var(--green); }
+.progress-track {
+  position: relative;
+  height: 7px;
+  background: var(--warm-rule);
+  border-radius: 999px;
+  overflow: hidden;
+}
+.progress-fill-base {
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  border-radius: 999px;
+  background: var(--ink);
+}
+.progress-fill-base.accent { background: var(--green); }
+.progress-fill-base.gold { background: var(--gold); }
+.progress-fill-base.blue { background: var(--blue); }
+.progress-target-line {
+  position: absolute;
+  top: -2px;
+  bottom: -2px;
+  width: 2px;
+  left: calc(84% - 1px);
+  background: rgba(26,22,18,.45);
+  border-radius: 999px;
+  z-index: 3;
+}
+.progress-overflow {
+  position: absolute;
+  top: 1px;
+  left: 84%;
+  height: 6px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #2d6a4f, #3d8b68);
+  box-shadow: inset 0 0 0 1px rgba(45,106,79,.18);
+}
+.body { padding: 0 14px; }
+.section {
+  padding: 12px 0;
+  border-bottom: 1px solid var(--warm-rule);
+}
+.section:last-child { border-bottom: none; }
+.section-label {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.section-label::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--warm-rule);
+}
+.section h2 {
+  font-family: 'Playfair Display', serif;
+  font-size: 20px;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+.section p {
+  font-size: 12px;
+  line-height: 1.6;
+  color: var(--ink-mid);
+  margin-bottom: 8px;
+}
+.section p:last-child { margin-bottom: 0; }
+.summary-pair {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px;
+  margin-bottom: 8px;
+}
+.summary-card {
+  border: 1px solid var(--warm-rule);
+  padding: 10px;
+  background: rgba(255,255,255,.35);
+}
+.card-label {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  margin-bottom: 4px;
+}
+.card-val {
+  font-family: 'Playfair Display', serif;
+  font-size: 21px;
+  font-weight: 700;
+  color: var(--ink);
+}
+.card-sub {
+  font-size: 10px;
+  color: var(--ink-soft);
+  margin-top: 4px;
+}
+.banner {
+  background: var(--blue-bg);
+  border: 1px solid #bfdbfe;
+  border-left: 4px solid var(--blue);
+  padding: 10px 12px;
+  margin-bottom: 8px;
+}
+.banner-label {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--blue);
+  margin-bottom: 4px;
+}
+.banner-val {
+  font-family: 'Playfair Display', serif;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--ink);
+}
+.banner-note {
+  margin-top: 4px;
+  font-size: 11px;
+  color: var(--ink-mid);
+  line-height: 1.6;
+}
+.bullet-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+.stack-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.bullet-block {
+  background: rgba(255,255,255,.45);
+  border: 1px solid var(--warm-rule);
+  padding: 0;
+}
+.bullet-title {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  margin: 0;
+  padding: 9px 12px;
+  border-bottom: 1px solid var(--warm-rule);
+  background: rgba(255,255,255,.65);
+}
+.bullet-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 10px 12px;
+  text-align: left;
+  align-items: flex-start;
+}
+.bullet-list li {
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--ink-mid);
+  overflow-wrap: anywhere;
+  width: 100%;
+  text-align: left;
+}
+.bullet-list li strong {
+  color: var(--ink);
+  font-weight: 700;
+}
+.nbm-panel {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+.rainmaker-three-up {
+  display: flex;
+  gap: 10px;
+  flex-wrap: nowrap;
+  align-items: stretch;
+}
+.rainmaker-three-up .nbm-subcard {
+  flex: 1 1 0;
+  min-width: 0;
+}
+.nbm-subcard {
+  border: 1px solid var(--warm-rule);
+  background: rgba(255,255,255,.45);
+  padding: 9px 10px;
+}
+.nbm-subcard.featured-green {
+  background: linear-gradient(180deg, #f2faf5 0%, #e7f5ec 100%);
+  border-color: #b8dcc7;
+  box-shadow: inset 0 0 0 1px rgba(45,106,79,.05);
+}
+.nbm-subcard.featured-green .nbm-subtitle {
+  color: var(--green);
+}
+.nbm-subtitle {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  margin-bottom: 6px;
+}
+.nbm-metric-list,
+.nbm-scheduled-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.nbm-metric-list li,
+.nbm-scheduled-list li {
+  font-size: 10px;
+  line-height: 1.34;
+  color: var(--ink-mid);
+  margin-bottom: 4px;
+}
+.nbm-metric-list li:last-child,
+.nbm-scheduled-list li:last-child {
+  margin-bottom: 0;
+}
+.nbm-metric-list strong,
+.nbm-scheduled-list strong {
+  color: var(--ink);
+  font-weight: 700;
+}
+.fullwidth-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.fullwidth-card {
+  width: 100%;
+  background: rgba(255,255,255,.55);
+  border: 1px solid var(--warm-rule);
+}
+.fullwidth-header {
+  padding: 7px 12px;
+  border-bottom: 1px solid var(--warm-rule);
+  background: linear-gradient(180deg, rgba(255,255,255,.96), rgba(248,244,238,.92));
+  text-align: center;
+}
+.fullwidth-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 17px;
+  font-weight: 700;
+  line-height: 1.15;
+  color: var(--ink);
+}
+.fullwidth-body {
+  padding: 7px 12px;
+  text-align: left;
+}
+.named-list {
+  list-style: disc;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  padding-left: 28px;
+  padding-right: 6px;
+  text-align: left;
+  align-items: flex-start;
+}
+.named-list li {
+  font-size: 10.5px;
+  line-height: 1.36;
+  color: var(--ink-mid);
+  overflow-wrap: anywhere;
+  width: 100%;
+  text-align: left;
+}
+.named-list li strong {
+  color: var(--ink);
+  font-weight: 700;
+}
+.numbered-list {
+  list-style: decimal;
+  margin: 0;
+  padding-left: 26px;
+  padding-right: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.numbered-list li {
+  font-size: 10.5px;
+  line-height: 1.34;
+  color: var(--ink-mid);
+  overflow-wrap: anywhere;
+}
+.numbered-list li strong {
+  color: var(--ink);
+  font-weight: 700;
+}
+.ask-block {
+  background: var(--ink);
+  padding: 12px 14px;
+}
+.ask-label {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 12px;
+}
+.ask-text {
+  font-size: 12px;
+  color: rgba(255,255,255,.88);
+  line-height: 1.55;
+  white-space: pre-wrap;
+}
+.doc-footer {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding: 8px 12px;
+  border-top: 1px solid var(--warm-rule);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+.empty {
+  padding: 60px 28px;
+  text-align: center;
+  color: var(--ink-soft);
+}
+@media (max-width: 900px) {
+  .page { height: auto; overflow: visible; }
+  .summary-grid { grid-template-columns: 1fr; height: auto; }
+  .summary-col { height: auto; overflow: visible; }
+  .summary-col.left { border-right: none; border-bottom: 1px solid var(--warm-rule); }
+  .number-strip { grid-template-columns: repeat(3, minmax(0, 1fr)); row-gap: 18px; }
+  .number-cell:nth-child(3n) { border-right: none; }
+}
+@media (max-width: 760px) {
+  .shell { width: calc(100vw - 12px); padding: 6px 0 10px; }
+  .page { width: 100%; }
+  .header, .progress-section, .body, .doc-footer { padding-left: 14px; padding-right: 14px; }
+  .headline { font-size: 28px; }
+  .summary-pair, .bullet-grid { grid-template-columns: 1fr; }
+  .number-strip { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .number-cell:nth-child(2n) { border-right: none; }
+  .rainmaker-three-up { flex-direction: column; }
+}
+</style>
+</head>
+<body>
+<div class="shell">
+  <div class="topbar">
+    <div class="tab-bar">
+      <a class="tab-btn active" href="https://script.google.com/a/macros/glean.com/s/AKfycbxt9SVE3r4zf7PB0auoKaXODrnSWNm2p-Kh3ByoVWHw9YJzjkClEP8Shb2-embIfKJ5/exec?page=summary" onclick="goSummary(); return false;">Summary</a>
+      <a class="tab-btn" href="https://script.google.com/a/macros/glean.com/s/AKfycbxt9SVE3r4zf7PB0auoKaXODrnSWNm2p-Kh3ByoVWHw9YJzjkClEP8Shb2-embIfKJ5/exec?page=dashboard" onclick="goDashboard(); return false;">Dashboard</a>
+      <a class="tab-btn" href="https://script.google.com/a/macros/glean.com/s/AKfycbxt9SVE3r4zf7PB0auoKaXODrnSWNm2p-Kh3ByoVWHw9YJzjkClEP8Shb2-embIfKJ5/exec?page=poc" onclick="goPoc(); return false;">POC Center</a>
+    </div>
+    <div class="topbar-title">NorthCentral Enterprise</div>
+  </div>
+
+  <div class="page">
+    <div id="summaryRoot" class="empty">Loading summary…</div>
+  </div>
+</div>
+
+<script>
+var APP_EXEC_URL = "https://script.google.com/a/macros/glean.com/s/AKfycbxt9SVE3r4zf7PB0auoKaXODrnSWNm2p-Kh3ByoVWHw9YJzjkClEP8Shb2-embIfKJ5/exec";
+var SUMMARY_DATA = <?= JSON.stringify(typeof summaryData === 'undefined' ? {} : summaryData) ?>;
+
+function parseSummaryData(raw) {
+  var x = raw;
+  for (var i = 0; i < 3 && typeof x === 'string'; i++) x = JSON.parse(x);
+  return x && typeof x === 'object' ? x : {};
+}
+function escHtml(s) {
+  var div = document.createElement('div');
+  div.appendChild(document.createTextNode(String(s || '')));
+  return div.innerHTML;
+}
+function fmtMoney(n) {
+  var v = Number(n) || 0;
+  return "$" + Math.round(v).toLocaleString("en-US");
+}
+function fmtMoneyShort(n) {
+  var v = Number(n) || 0;
+  if (Math.abs(v) >= 1000000) return "$" + (v / 1000000).toFixed(v % 1000000 === 0 ? 0 : 1) + "M";
+  if (Math.abs(v) >= 1000) return "$" + Math.round(v / 1000) + "K";
+  return "$" + Math.round(v).toLocaleString("en-US");
+}
+function fmtPct(n) {
+  return ((Number(n) || 0) * 100).toFixed(1) + "%";
+}
+function clampPct(n) {
+  return Math.max(0, Math.min(100, (Number(n) || 0) * 100));
+}
+function fmtDateShort(isoOrDate) {
+  if (!isoOrDate) return "—";
+  var d = new Date(isoOrDate);
+  if (isNaN(d.getTime())) return String(isoOrDate);
+  return d.toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
+}
+function truncateText(s, maxLen) {
+  var str = String(s || '').trim();
+  if (!maxLen || str.length <= maxLen) return str;
+  return str.slice(0, maxLen - 1).trim() + '…';
+}
+function takeTopItems(items, maxItems, maxLen) {
+  var out = [];
+  var list = items || [];
+  for (var i = 0; i < list.length && out.length < maxItems; i++) {
+    var item = truncateText(list[i], maxLen);
+    if (String(item || '').trim()) out.push(item);
+  }
+  return out;
+}
+function goSummary() { window.top.location.href = APP_EXEC_URL + "?page=summary&v=" + Date.now(); }
+function goDashboard() { window.top.location.href = APP_EXEC_URL + "?page=dashboard&v=" + Date.now(); }
+function goPoc() { window.top.location.href = APP_EXEC_URL + "?page=poc&v=" + Date.now(); }
+function overflowPct(n) {
+  var pct = (Number(n) || 0) * 100;
+  if (pct <= 100) return 0;
+  return Math.min(pct - 100, 60);
+}
+function progressRow(label, value, quota, pct, tone, note) {
+  var fillClass = tone === 'gold' ? 'gold' : tone === 'green' ? 'accent' : 'blue';
+  var baseZone = 84;
+  var overflowZone = 16;
+  var ratio = Number(pct || 0);
+  var baseWidth = Math.max(0, Math.min(1, ratio)) * baseZone;
+  var overflowRatio = ratio > 1 ? Math.min((ratio - 1) / 0.6, 1) : 0;
+  var overflowWidth = overflowRatio * overflowZone;
+  var overflowHtml = overflowWidth > 0
+    ? '<div class="progress-overflow" style="width:' + overflowWidth + '%"></div>'
+    : '';
+  return '<div class="progress-row">'
+    + '<div class="progress-header"><span class="progress-label">' + escHtml(label) + '</span><span class="progress-note ' + escHtml(tone || '') + '">' + escHtml(note || '') + '</span></div>'
+    + '<div class="progress-track">'
+    + '<div class="progress-fill-base ' + escHtml(fillClass) + '" style="width:' + baseWidth + '%"></div>'
+    + '<div class="progress-target-line"></div>'
+    + overflowHtml
+    + '</div>'
+    + '</div>';
+}
+function renderNamedList(items, className) {
+  var listClass = className || 'bullet-list';
+  if (!items || !items.length) return '<div style="text-align:left;"><ul class="' + listClass + '" style="text-align:left;margin:0;padding:0;"><li style="text-align:left;">No current notes.</li></ul></div>';
+  var html = '<div style="text-align:left;"><ul class="' + listClass + '" style="text-align:left;margin:0;padding:0;">';
+  for (var i = 0; i < items.length; i++) {
+    var raw = String(items[i] || '');
+    var m = raw.match(/^([^:]+):\s*(.*)$/);
+    if (m) {
+      var firstName = String(m[1] || '').trim().split(/\s+/)[0] || m[1];
+      var rest = String(m[2] || '').trim();
+      html += '<li style="text-align:left;"><strong>' + escHtml(firstName) + ':</strong> ' + escHtml(rest) + '</li>';
+    } else {
+      html += '<li style="text-align:left;">' + escHtml(raw) + '</li>';
+    }
+  }
+  html += '</ul></div>';
+  return html;
+}
+
+function renderNumberedList(items) {
+  if (!items || !items.length) return '<ol class="numbered-list"><li>No current notes.</li></ol>';
+  var html = '<ol class="numbered-list">';
+  for (var i = 0; i < items.length; i++) {
+    var raw = String(items[i] || '').trim();
+    var m = raw.match(/^([^:]+):\s*(.*)$/);
+    if (m) {
+      html += '<li><strong>' + escHtml(m[1].trim()) + ':</strong> ' + escHtml(m[2].trim()) + '</li>';
+    } else {
+      html += '<li>' + escHtml(raw) + '</li>';
+    }
+  }
+  html += '</ol>';
+  return html;
+}
+
+function renderNumberedSection(title, items) {
+  if (!items || !items.length) return '';
+  var limited = takeTopItems(items, 5, 200);
+  return '<div class="fullwidth-card">'
+    + '<div class="fullwidth-header"><div class="fullwidth-title">' + escHtml(title) + '</div></div>'
+    + '<div class="fullwidth-body">' + renderNumberedList(limited) + '</div>'
+    + '</div>';
+}
+
+function renderFullWidthSection(title, items) {
+  if (!items || !items.length) return '';
+  var limited = items;
+  if (title === 'Big Deal Adds') limited = takeTopItems(items, 1, 230);
+  else if (title === 'Deal Progression') limited = takeTopItems(items, 4, 300);
+  else if (title === 'Forecast Signals') limited = takeTopItems(items, 4, 300);
+  else if (title === 'Rep Priorities') limited = takeTopItems(items, 4, 300);
+  else if (title === 'Notes') limited = takeTopItems(items, 2, 180);
+  return '<div class="fullwidth-card">'
+    + '<div class="fullwidth-header"><div class="fullwidth-title">' + escHtml(title) + '</div></div>'
+    + '<div class="fullwidth-body">' + renderNamedList(limited, 'named-list') + '</div>'
+    + '</div>';
+}
+function renderNBMSection(nbm) {
+  if (!nbm) return '';
+  var completed = Array.isArray(nbm.completedQtd) ? nbm.completedQtd : [];
+  var scheduled = Array.isArray(nbm.scheduledThisWeek) ? nbm.scheduledThisWeek : [];
+  var completedHtml = '<ul class="nbm-metric-list">';
+  for (var i = 0; i < completed.length; i++) {
+    completedHtml += '<li><strong>' + escHtml(completed[i].rep || '') + '</strong>: ' + escHtml(String(completed[i].count || 0)) + '</li>';
+  }
+  completedHtml += '</ul>';
+
+  var scheduledHtml = scheduled.length
+    ? ('<ul class="nbm-scheduled-list">' + scheduled.map(function(item) { return '<li>' + escHtml(item) + '</li>'; }).join('') + '</ul>')
+    : '<ul class="nbm-scheduled-list"><li>No NBMs currently dated for this week.</li></ul>';
+
+  return '<div class="section">'
+    + '<div class="section-label">NBMs</div>'
+    + '<div class="nbm-panel">'
+    +   '<div class="nbm-subcard"><div class="nbm-subtitle">Completed QTD</div>' + completedHtml + '</div>'
+    +   '<div class="nbm-subcard"><div class="nbm-subtitle">NBMs Scheduled This Week' + (nbm.weekLabel ? ' · ' + escHtml(nbm.weekLabel) : '') + '</div>' + scheduledHtml + '</div>'
+    + '</div>'
+    + '</div>';
+}
+function renderCountList(items, emptyText) {
+  if (!items || !items.length) return '<ul class="nbm-scheduled-list"><li>' + escHtml(emptyText || 'None entered this week.') + '</li></ul>';
+  var html = '<ul class="nbm-scheduled-list">';
+  for (var i = 0; i < items.length; i++) {
+    var item = items[i] || {};
+    var count = Number(item.count) || 0;
+    var note = String(item.note || '').trim();
+    var label = '<strong>' + escHtml(item.rep || '') + '</strong>: ' + escHtml(String(count));
+    if (count > 0 && note) label += ' - ' + escHtml(note);
+    html += '<li>' + label + '</li>';
+  }
+  html += '</ul>';
+  return html;
+}
+
+function renderRainmakerSummarySection(summary) {
+  if (!summary) return '';
+  return '<div class="section">'
+    + '<div class="section-label">Rainmaker Metrics · ' + escHtml(summary.weekLabel || '') + '</div>'
+    + '<div class="rainmaker-three-up">'
+    +   '<div class="nbm-subcard featured-green"><div class="nbm-subtitle">NBMs</div>' + renderCountList(summary.nbms, 'No NBMs entered this week.') + '</div>'
+    +   '<div class="nbm-subcard"><div class="nbm-subtitle">Discovery Meetings</div>' + renderCountList(summary.discovery, 'No discovery meetings entered this week.') + '</div>'
+    +   '<div class="nbm-subcard"><div class="nbm-subtitle">Planned Channel Meetings</div>' + renderCountList(summary.channelMeetings, 'No channel meetings entered this week.') + '</div>'
+    + '</div>'
+    + '</div>';
+}
+function wrapPanel(html) {
+  return '<div class="summary-panel">' + html + '</div>';
+}
+function renderSummary(data) {
+  var root = document.getElementById('summaryRoot');
+  if (!data || !data.metrics) {
+    root.innerHTML = '<div class="empty">Summary data is unavailable.</div>';
+    return;
+  }
+
+  var m = data.metrics || {};
+  var t = data.teamRollup || {};
+  var recap = data.teamRecap || {};
+  var themeText = (t.themes && t.themes.length) ? t.themes.join(' · ') : (data.theme || 'Weekly Summary');
+  var closedSub = fmtPct(m.attainmentPct || 0) + ' attained';
+  var commitSub = fmtPct(m.commitPct || 0) + ' to quota';
+  var likelySub = fmtPct(m.likelyPct || 0) + ' to quota';
+  var bestSub = fmtPct(m.bestCasePct || 0) + ' to quota';
+  var nextQuarterSub = (m.nextQuarterCoverageX && m.nextQuarterCoverageX > 0)
+    ? m.nextQuarterCoverageX.toFixed(1) + 'x coverage vs ' + fmtMoneyShort(m.nextQuarterQuota || 0) + ' quota'
+    : 'Next-quarter coverage';
+
+  var leftHtml = '';
+  leftHtml += wrapPanel('<div class="header">'
+    +   '<div class="header-top"><span>' + escHtml(data.teamName || 'NorthCentral Enterprise') + '</span><span>' + escHtml(data.managerName || 'Billy Schuett') + '</span></div>'
+    +   '<h1 class="headline">' + escHtml(data.theme || 'Weekly Summary') + '</h1>'
+    +   '<div class="date-line">Week of ' + escHtml(fmtDateShort(data.reportingWeek)) + ' · ' + escHtml(data.quarterLabel || data.quarterKey || '') + '</div>'
+    + '</div>');
+
+  leftHtml += wrapPanel('<div class="number-strip">'
+    +   '<div class="number-cell"><div class="number-label">Quota</div><div class="number-val">' + escHtml(fmtMoneyShort(m.teamQuota)) + '</div><div class="number-sub">' + escHtml(data.teamName || '') + '</div></div>'
+    +   '<div class="number-cell closed"><div class="number-label">Closed</div><div class="number-val">' + escHtml(fmtMoneyShort(m.closed)) + '</div><div class="number-sub">' + escHtml(closedSub) + '</div></div>'
+    +   '<div class="number-cell"><div class="number-label">Commit</div><div class="number-val">' + escHtml(fmtMoneyShort(m.commit)) + '</div><div class="number-sub">' + escHtml(commitSub) + '</div></div>'
+    +   '<div class="number-cell"><div class="number-label">Most Likely</div><div class="number-val">' + escHtml(fmtMoneyShort(m.mostLikely)) + '</div><div class="number-sub">' + escHtml(likelySub) + '</div></div>'
+    +   '<div class="number-cell best"><div class="number-label">Best Case</div><div class="number-val">' + escHtml(fmtMoneyShort(m.bestCase)) + '</div><div class="number-sub">' + escHtml(bestSub) + '</div></div>'
+    +   '<div class="number-cell"><div class="number-label">Next Quarter</div><div class="number-val">' + escHtml(fmtMoneyShort(m.nextQuarter)) + '</div><div class="number-sub">' + escHtml(nextQuarterSub) + '</div></div>'
+    + '</div>');
+
+  leftHtml += wrapPanel('<div class="progress-section">'
+    + progressRow('Closed vs Quota', m.closed, m.teamQuota, m.attainmentPct, 'green', fmtMoneyShort(m.closedGap) + ' gap')
+    + progressRow('Commit vs Quota', m.commit, m.teamQuota, m.commitPct, '', fmtMoneyShort(m.commitGap) + ' gap')
+    + progressRow('Most Likely vs Quota', m.mostLikely, m.teamQuota, m.likelyPct, 'gold', fmtMoneyShort(m.likelyGap) + ' gap')
+    + progressRow('Best Case vs Quota', m.bestCase, m.teamQuota, m.bestCasePct, 'gold', fmtMoneyShort(m.bestCaseGap) + ' gap')
+    + '</div>');
+
+  if (data.leaderNote || recap.note) {
+    var noteParts = [];
+    if (data.leaderNote) noteParts.push(data.leaderNote);
+    if (!data.leaderNote && recap.note) noteParts.push(truncateText(recap.note, 220));
+    leftHtml += wrapPanel('<div class="body"><div class="section">'
+      +   '<div class="section-label">From ' + escHtml((data.managerName || 'Billy').split(' ')[0]) + '</div>'
+      +   '<h2>Team —</h2>'
+      +   (noteParts.length ? '<p>' + escHtml(noteParts.join(' ')) + '</p>' : '')
+      + '</div></div>');
+  }
+
+  if (data.rainmakerSummary) {
+    leftHtml += wrapPanel('<div class="body">' + renderRainmakerSummarySection(data.rainmakerSummary) + '</div>');
+  }
+
+  leftHtml += wrapPanel('<div class="body"><div class="section">'
+    +   '<div class="section-label">Quarter View · ' + escHtml(data.quarterLabel || data.quarterKey || '') + '</div>'
+    +   '<div class="summary-pair">'
+    +     '<div class="summary-card"><div class="card-label">Most Likely vs Quota</div><div class="card-val">' + escHtml(fmtMoneyShort(m.mostLikely)) + '</div><div class="card-sub">Gap: ' + escHtml(fmtMoneyShort(m.likelyGap)) + ' · ' + escHtml(fmtPct(m.likelyPct || 0)) + '</div></div>'
+    +     '<div class="summary-card"><div class="card-label">Best Case vs Quota</div><div class="card-val">' + escHtml(fmtMoneyShort(m.bestCase)) + '</div><div class="card-sub">Gap: ' + escHtml(fmtMoneyShort(m.bestCaseGap)) + ' · ' + escHtml(fmtPct(m.bestCasePct || 0)) + '</div></div>'
+    +   '</div>'
+    + '</div></div>');
+
+  var rightHtml = '';
+
+  rightHtml += wrapPanel('<div class="body"><div class="section">'
+    +   '<div class="fullwidth-stack">'
+    +     renderFullWidthSection('Big Deal Adds', recap.newDealItems || [])
+    +     renderFullWidthSection('Deal Progression', recap.dealProgressItems || [])
+    +     renderFullWidthSection('Forecast Signals', recap.forecastItems || [])
+    +     renderFullWidthSection('Rep Priorities', (t.priorities && t.priorities.length) ? t.priorities : (recap.priorityItems || []))
+    +   '</div>'
+    + '</div></div>');
+
+  var combinedRAN = (recap.risksAsksNotesItems && recap.risksAsksNotesItems.length)
+    ? recap.risksAsksNotesItems
+    : [].concat(t.risks || [], t.asks || [], t.notes || []).slice(0, 5);
+  if (combinedRAN && combinedRAN.length) {
+    rightHtml += wrapPanel('<div class="body"><div class="section">'
+      +   renderNumberedSection('Risks, Asks, and Notes', combinedRAN)
+      + '</div></div>');
+  }
+
+  rightHtml += wrapPanel('<div class="body"><div class="section">'
+    +   '<div class="banner"><div class="banner-label">Team Rollup</div><div class="banner-val">' + escHtml(String(t.repsSubmitted || 0)) + ' reps submitted · Pulse ' + escHtml(String(t.avgPulse || recap.avgPulse || '—')) + '/10</div><div class="banner-note">Themes: ' + escHtml(truncateText(themeText, 72)) + '. Accounts: <span style="color:#2d6a4f;font-weight:700">' + escHtml(String(t.greenAccounts || 0)) + ' Green</span> · <span style="color:#b8860b;font-weight:700">' + escHtml(String(t.yellowAccounts || 0)) + ' Yellow</span> · <span style="color:#c0392b;font-weight:700">' + escHtml(String(t.redAccounts || 0)) + ' Red</span>.</div></div>'
+    + '</div></div>');
+
+  rightHtml += '<div class="doc-footer"><span>' + escHtml(data.footerNote || 'Confidential · Team Only') + '</span><span>' + escHtml(data.managerName || 'Billy Schuett') + '</span></div>';
+
+  root.innerHTML = '<div class="summary-grid"><div class="summary-col left">' + leftHtml + '</div><div class="summary-col right">' + rightHtml + '</div></div>';
+}
+window.addEventListener('load', function() {
+  try { renderSummary(parseSummaryData(SUMMARY_DATA)); }
+  catch (e) { document.getElementById('summaryRoot').innerHTML = '<div class="empty">Summary failed to load: ' + escHtml(e.message || String(e)) + '</div>'; }
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>POC Health Dashboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
+  <style>
+    :root {
+      --bg-primary: #0f1117;
+      --bg-card: #1a1d2e;
+      --text-primary: #e8eaed;
+      --text-secondary: #9aa0a6;
+      --accent: #4285f4;
+      --positive: #34a853;
+      --warning: #fbbc04;
+      --negative: #ea4335;
+      --border: #2d3148;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: radial-gradient(circle at top, #202341 0, #050712 45%, #020308 100%);
+      color: var(--text-primary);
+      min-height: 100vh;
+      padding: 24px;
+    }
+
+    .app-shell {
+      max-width: 1240px;
+      margin: 0 auto;
+    }
+
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+
+    .nav-pills {
+      display: inline-flex;
+      gap: 8px;
+      padding: 6px;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 999px;
+      backdrop-filter: blur(10px);
+    }
+
+    .nav-pills a {
+      color: rgba(232,234,237,0.82);
+      text-decoration: none;
+      padding: 10px 16px;
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    .nav-pills a.active {
+      background: rgba(255,255,255,0.92);
+      color: #11131d;
+    }
+
+    .team-label {
+      color: rgba(232,234,237,0.65);
+      font-size: 12px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+    }
+
+    .dashboard { max-width: 1240px; margin: 0 auto; }
+
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 24px;
+      gap: 16px;
+    }
+
+    .title-block h1 {
+      font-size: 28px;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+    }
+
+    .title-block p {
+      margin-top: 6px;
+      color: var(--text-secondary);
+      font-size: 13px;
+    }
+
+    .status-legend {
+      display: flex;
+      gap: 12px;
+      font-size: 12px;
+      color: var(--text-secondary);
+      flex-wrap: wrap;
+    }
+
+    .legend-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .legend-dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+    }
+
+    .dot-green { background: var(--positive); }
+    .dot-yellow { background: var(--warning); }
+    .dot-red { background: var(--negative); }
+
+    .top-row {
+      display: grid;
+      grid-template-columns: minmax(0, 2fr) minmax(0, 1.2fr);
+      gap: 20px;
+      margin-bottom: 20px;
+    }
+
+    .card,
+    .chart-card {
+      background: linear-gradient(145deg, rgba(35,39,70,0.98), rgba(12,15,32,0.98));
+      border-radius: 14px;
+      border: 1px solid rgba(255, 255, 255, 0.04);
+      box-shadow: 0 18px 45px rgba(0, 0, 0, 0.6);
+      padding: 16px 18px;
+    }
+
+    .chart-card h3,
+    .section-label {
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--text-secondary);
+      margin-bottom: 8px;
+    }
+
+    #statusChart {
+      width: 100%;
+      height: 210px;
+    }
+
+    .kpi-row {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .kpi {
+      background: radial-gradient(circle at top left, rgba(66,133,244,0.22), rgba(15,17,23,0.95));
+      border-radius: 10px;
+      padding: 10px 11px;
+      border: 1px solid rgba(255,255,255,0.06);
+    }
+
+    .kpi-label {
+      font-size: 11px;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 4px;
+    }
+
+    .kpi-value {
+      font-size: 20px;
+      font-weight: 700;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 18px;
+    }
+
+    .account-card {
+      background: linear-gradient(155deg, rgba(26,29,46,0.98), rgba(10,13,30,0.98));
+      border-radius: 14px;
+      padding: 15px 16px 14px;
+      border: 1px solid rgba(255,255,255,0.04);
+      box-shadow: 0 14px 35px rgba(0,0,0,0.5);
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .account-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .account-name {
+      font-size: 20px;
+      font-weight: 700;
+    }
+
+    .account-submeta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      color: var(--text-secondary);
+      font-size: 12px;
+    }
+
+    .meta-chip {
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.08);
+      background: rgba(255,255,255,0.04);
+    }
+
+    .status-pill {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      padding: 4px 10px;
+      border-radius: 999px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      border: 1px solid transparent;
+      font-weight: 600;
+    }
+
+    .status-pill i { font-size: 9px; }
+    .status-green { color: var(--positive); background: rgba(52,168,83,0.12); border-color: rgba(52,168,83,0.5); }
+    .status-yellow { color: var(--warning); background: rgba(251,188,4,0.12); border-color: rgba(251,188,4,0.5); }
+    .status-red { color: var(--negative); background: rgba(234,67,53,0.12); border-color: rgba(234,67,53,0.5); }
+
+    .health-summary {
+      font-size: 13px;
+      line-height: 1.6;
+      color: var(--text-secondary);
+    }
+
+    .health-summary span {
+      display: block;
+      margin-bottom: 6px;
+    }
+
+    .bullets {
+      list-style: none;
+      font-size: 13px;
+      color: var(--text-secondary);
+      margin-left: 0;
+    }
+
+    .bullets li {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      margin-bottom: 6px;
+      line-height: 1.5;
+    }
+
+    .bullets li::before {
+      content: '\25CF';
+      font-size: 9px;
+      margin-top: 5px;
+      color: var(--accent);
+      flex: 0 0 auto;
+    }
+
+    .actions-list li::before {
+      color: var(--positive);
+    }
+
+    .error-card {
+      max-width: 1240px;
+      margin: 40px auto;
+      padding: 20px;
+      border-radius: 14px;
+      background: rgba(234,67,53,0.12);
+      border: 1px solid rgba(234,67,53,0.4);
+      color: #ffd7d4;
+    }
+
+    @media (max-width: 960px) {
+      .top-row { grid-template-columns: minmax(0, 1fr); }
+      .grid { grid-template-columns: minmax(0, 1fr); }
+    }
+
+    @media (max-width: 760px) {
+      body { padding: 18px 14px; }
+      .topbar, header { flex-direction: column; align-items: flex-start; }
+      .kpi-row { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+  </style>
+</head>
+<body>
+  <script>
+    var SCRIPT_URL = <?= JSON.stringify(typeof scriptUrl === 'undefined' ? '' : scriptUrl) ?>;
+    var CANONICAL_EXEC_URL = "https://script.google.com/a/macros/glean.com/s/AKfycbxt9SVE3r4zf7PB0auoKaXODrnSWNm2p-Kh3ByoVWHw9YJzjkClEP8Shb2-embIfKJ5/exec";
+    var POC_RAW_DATA = <?!= typeof pocDataJson === 'undefined' ? 'null' : pocDataJson ?>;
+  </script>
+
+  <div class="app-shell">
+    <div class="topbar">
+      <div class="nav-pills">
+        <a href="https://script.google.com/a/macros/glean.com/s/AKfycbxt9SVE3r4zf7PB0auoKaXODrnSWNm2p-Kh3ByoVWHw9YJzjkClEP8Shb2-embIfKJ5/exec?page=summary" onclick="goSummary(); return false;">Summary</a>
+        <a href="https://script.google.com/a/macros/glean.com/s/AKfycbxt9SVE3r4zf7PB0auoKaXODrnSWNm2p-Kh3ByoVWHw9YJzjkClEP8Shb2-embIfKJ5/exec?page=dashboard" onclick="goDashboard(); return false;">Dashboard</a>
+        <a href="https://script.google.com/a/macros/glean.com/s/AKfycbxt9SVE3r4zf7PB0auoKaXODrnSWNm2p-Kh3ByoVWHw9YJzjkClEP8Shb2-embIfKJ5/exec?page=poc" class="active" onclick="goPoc(); return false;">POC Center</a>
+      </div>
+      <div class="team-label">NorthCentral Enterprise</div>
+    </div>
+
+    <div class="dashboard" id="dashboardRoot"></div>
+  </div>
+
+  <script>
+    function withFreshV_(url) {
+      var sep = url.indexOf('?') >= 0 ? '&' : '?';
+      return url + sep + 'v=' + Date.now();
+    }
+    function navBase_() { return CANONICAL_EXEC_URL || SCRIPT_URL; }
+    function goSummary() { window.location.href = withFreshV_(navBase_() + '?page=summary'); }
+    function goDashboard() { window.location.href = withFreshV_(navBase_() + '?page=dashboard'); }
+    function goPoc() { window.location.href = withFreshV_(navBase_() + '?page=poc'); }
+
+    function escHtml(s) {
+      var div = document.createElement('div');
+      div.appendChild(document.createTextNode(String(s || '')));
+      return div.innerHTML;
+    }
+
+    function fmtDate(iso) {
+      if (!iso) return '';
+      var d = new Date(iso);
+      if (isNaN(d.getTime())) return '';
+      return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    }
+
+    function trunc(s, n) {
+      var str = String(s || '').trim();
+      if (str.length <= n) return str;
+      return str.slice(0, n - 1).trim() + '…';
+    }
+
+    function normalizeStatus(status) {
+      var s = String(status || '').toLowerCase();
+      if (s === 'red' || s === 'yellow' || s === 'green') return s;
+      return '';
+    }
+
+    function deriveHealthStatus(actions) {
+      var worst = '';
+      for (var i = 0; i < actions.length; i++) {
+        var s = normalizeStatus(actions[i].rag);
+        if (s === 'red') return 'Red';
+        if (s === 'yellow') worst = 'Yellow';
+        else if (s === 'green' && !worst) worst = 'Green';
+      }
+      return worst || 'Yellow';
+    }
+
+    function statusClass(status) {
+      return status === 'Green' ? 'status-green' : status === 'Yellow' ? 'status-yellow' : 'status-red';
+    }
+
+    function statusIcon(status) {
+      return status === 'Green'
+        ? 'fa-circle-check'
+        : status === 'Yellow'
+        ? 'fa-circle-exclamation'
+        : 'fa-triangle-exclamation';
+    }
+
+    function groupActionsByAccount(actions) {
+      var out = {};
+      for (var i = 0; i < actions.length; i++) {
+        var a = actions[i];
+        var key = String(a.account || '').trim();
+        if (!key) continue;
+        if (!out[key]) out[key] = [];
+        out[key].push(a);
+      }
+      Object.keys(out).forEach(function(key) {
+        out[key].sort(function(x, y) {
+          return new Date(y.lastUpdated || 0).getTime() - new Date(x.lastUpdated || 0).getTime();
+        });
+      });
+      return out;
+    }
+
+    function buildAccountModel(account, actions) {
+      var latest = actions[0] || null;
+      var status = deriveHealthStatus(actions);
+      var notes = [];
+      var signals = [];
+      var recs = [];
+      for (var i = 0; i < actions.length; i++) {
+        var act = actions[i];
+        if (act.notes && notes.length < 3) notes.push(trunc(act.notes, 220));
+        if (act.actionItem && signals.length < 3) signals.push(act.actionItem);
+        if (act.actionItem && recs.length < 4) recs.push((act.signalSource ? (String(act.signalSource).toUpperCase() + ': ') : '') + act.actionItem);
+      }
+      return {
+        name: account.account,
+        status: status,
+        latestDate: latest && latest.lastUpdated ? fmtDate(latest.lastUpdated) : 'No recent activity',
+        actionCount: actions.length,
+        se: account.se || '',
+        champion: account.champion || '',
+        start: account.pilotStart ? fmtDate(account.pilotStart) : '',
+        end: account.pilotEnd ? fmtDate(account.pilotEnd) : '',
+        competitor: account.competitor || '',
+        sfdcUrl: account.sfdcUrl || '',
+        healthSummary: notes.length ? notes : ['No recent notes captured.'],
+        keySignals: signals.length ? signals : ['No recent signals captured.'],
+        actions: recs.length ? recs : ['No recommended actions available.']
+      };
+    }
+
+    function buildViewModel(raw) {
+      if (!raw) {
+        return { success: false, error: 'Could not load POC data.' };
+      }
+      if (raw.accounts && raw.accounts.length && raw.accounts[0].health_summary) {
+        var snapshotAccounts = raw.accounts.map(function(acct) {
+          var healthSummary = (acct.health_summary || []).map(function(line) { return trunc(line, 240); });
+          var keySignals = (acct.key_signals || []).map(function(line) { return trunc(line, 180); });
+          var actions = (acct.recommended_actions || []).map(function(line) { return trunc(line, 180); });
+          return {
+            name: acct.name || 'Unknown Account',
+            status: acct.status || 'Yellow',
+            latestDate: raw.generated_at ? fmtDate(raw.generated_at) : 'Current snapshot',
+            actionCount: actions.length || keySignals.length || healthSummary.length || 0,
+            se: '',
+            champion: '',
+            start: '',
+            end: '',
+            competitor: '',
+            sfdcUrl: '',
+            healthSummary: healthSummary.length ? healthSummary : ['No recent health summary captured.'],
+            keySignals: keySignals.length ? keySignals : ['No recent key signals captured.'],
+            actions: actions.length ? actions : ['No recommended actions available.']
+          };
+        });
+        snapshotAccounts.sort(function(a, b) {
+          return a.name.localeCompare(b.name);
+        });
+        return { success: true, accounts: snapshotAccounts };
+      }
+      if (!raw.success) {
+        return { success: false, error: raw && raw.error ? raw.error : 'Could not load POC data.' };
+      }
+      var grouped = groupActionsByAccount(raw.actions || []);
+      var accounts = (raw.accounts || []).map(function(acct) {
+        return buildAccountModel(acct, grouped[acct.account] || []);
+      });
+      accounts.sort(function(a, b) {
+        return a.name.localeCompare(b.name);
+      });
+      return { success: true, accounts: accounts };
+    }
+
+    function computeKpis(data) {
+      var total = data.length;
+      var green = data.filter(function(a) { return a.status === 'Green'; }).length;
+      var yellow = data.filter(function(a) { return a.status === 'Yellow'; }).length;
+      var red = data.filter(function(a) { return a.status === 'Red'; }).length;
+      return { total: total, green: green, yellow: yellow, red: red };
+    }
+
+    function renderKpis(data) {
+      var kpiRow = document.getElementById('kpiRow');
+      var stats = computeKpis(data);
+      var items = [
+        { label: 'Total POC Accounts', value: stats.total },
+        { label: 'Green', value: stats.green },
+        { label: 'Yellow', value: stats.yellow },
+        { label: 'Red', value: stats.red }
+      ];
+      kpiRow.innerHTML = items.map(function(item) {
+        return '<div class="kpi"><div class="kpi-label">' + escHtml(item.label) + '</div><div class="kpi-value">' + escHtml(item.value) + '</div></div>';
+      }).join('');
+    }
+
+    function renderAccounts(data) {
+      var grid = document.getElementById('accountsGrid');
+      grid.innerHTML = data.map(function(acc) {
+        var healthHtml = acc.healthSummary.map(function(line) {
+          return '<span>' + escHtml(line) + '</span>';
+        }).join('');
+        var keySignalsHtml = acc.keySignals.map(function(line) {
+          return '<li>' + escHtml(line) + '</li>';
+        }).join('');
+        var actionsHtml = acc.actions.map(function(line) {
+          return '<li>' + escHtml(line) + '</li>';
+        }).join('');
+
+        var submeta = [];
+        if (acc.latestDate) submeta.push('<span class="meta-chip">Latest activity ' + escHtml(acc.latestDate) + '</span>');
+        submeta.push('<span class="meta-chip">' + escHtml(acc.actionCount) + ' recent action' + (acc.actionCount === 1 ? '' : 's') + '</span>');
+        if (acc.se) submeta.push('<span class="meta-chip">SE: ' + escHtml(acc.se) + '</span>');
+        if (acc.champion) submeta.push('<span class="meta-chip">Champion: ' + escHtml(acc.champion) + '</span>');
+        if (acc.competitor) submeta.push('<span class="meta-chip">Competitor: ' + escHtml(acc.competitor) + '</span>');
+        if (acc.start) submeta.push('<span class="meta-chip">Start: ' + escHtml(acc.start) + '</span>');
+        if (acc.end) submeta.push('<span class="meta-chip">End: ' + escHtml(acc.end) + '</span>');
+
+        var sfdc = acc.sfdcUrl
+          ? '<div><a href="' + escHtml(acc.sfdcUrl) + '" target="_blank" style="color:#8ab4ff;text-decoration:none;">View in Salesforce &#8599;</a></div>'
+          : '';
+
+        return ''
+          + '<div class="account-card">'
+          + '  <div class="account-header">'
+          + '    <div class="account-name">' + escHtml(acc.name) + '</div>'
+          + '    <div class="status-pill ' + statusClass(acc.status) + '"><i class="fa-solid ' + statusIcon(acc.status) + '"></i><span>' + escHtml(acc.status) + '</span></div>'
+          + '  </div>'
+          + '  <div class="account-submeta">' + submeta.join('') + '</div>'
+          +    sfdc
+          + '  <div class="section-label">Health Summary</div>'
+          + '  <div class="health-summary">' + healthHtml + '</div>'
+          + '  <div class="section-label">Key Signals</div>'
+          + '  <ul class="bullets">' + keySignalsHtml + '</ul>'
+          + '  <div class="section-label">Recommended Actions</div>'
+          + '  <ul class="bullets actions-list">' + actionsHtml + '</ul>'
+          + '</div>';
+      }).join('');
+    }
+
+    function renderStatusChart(data) {
+      var chartDom = document.getElementById('statusChart');
+      if (!chartDom || typeof echarts === 'undefined') return;
+      var myChart = echarts.init(chartDom);
+      var stats = computeKpis(data);
+      myChart.setOption({
+        tooltip: { trigger: 'item' },
+        legend: { bottom: 0, textStyle: { color: '#9aa0a6', fontSize: 11 } },
+        series: [{
+          type: 'pie',
+          radius: ['45%', '75%'],
+          center: ['50%', '45%'],
+          avoidLabelOverlap: false,
+          itemStyle: { borderRadius: 6, borderColor: '#050712', borderWidth: 2 },
+          label: { color: '#e8eaed', formatter: '{b}: {c}' },
+          data: [
+            { value: stats.green, name: 'Green', itemStyle: { color: '#34a853' } },
+            { value: stats.yellow, name: 'Yellow', itemStyle: { color: '#fbbc04' } },
+            { value: stats.red, name: 'Red', itemStyle: { color: '#ea4335' } }
+          ]
+        }]
+      });
+      window.addEventListener('resize', function() { myChart.resize(); });
+    }
+
+    function renderError(msg) {
+      document.getElementById('dashboardRoot').innerHTML =
+        '<div class="error-card"><strong>Could not load POC dashboard.</strong><div style="margin-top:8px;">' + escHtml(msg) + '</div></div>';
+    }
+
+    function renderPage(raw) {
+      var model = buildViewModel(raw);
+      if (!model.success) {
+        renderError(model.error || 'Unknown error');
+        return;
+      }
+      document.getElementById('dashboardRoot').innerHTML = ''
+        + '<header>'
+        + '  <div class="title-block">'
+        + '    <h1>POC Health Dashboard</h1>'
+        + '    <p>Snapshot of top POC accounts, health, and next actions</p>'
+        + '  </div>'
+        + '  <div class="status-legend">'
+        + '    <span class="legend-item"><span class="legend-dot dot-green"></span>Green</span>'
+        + '    <span class="legend-item"><span class="legend-dot dot-yellow"></span>Yellow</span>'
+        + '    <span class="legend-item"><span class="legend-dot dot-red"></span>Red</span>'
+        + '  </div>'
+        + '</header>'
+        + '<div class="top-row">'
+        + '  <div class="card"><div class="section-label">Overview</div><div class="kpi-row" id="kpiRow"></div></div>'
+        + '  <div class="chart-card"><h3>Accounts by Health Status</h3><div id="statusChart"></div></div>'
+        + '</div>'
+        + '<div class="grid" id="accountsGrid"></div>';
+
+      renderKpis(model.accounts);
+      renderAccounts(model.accounts);
+      renderStatusChart(model.accounts);
+    }
+
+    renderPage(POC_RAW_DATA);
+  </script>
+</body>
+</html>

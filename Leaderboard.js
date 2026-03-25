@@ -1,6 +1,8 @@
 // -----------------------------------------------------------------------
 // LEADERBOARD HELPERS
 // -----------------------------------------------------------------------
+var _repStatsCache_ = null;
+
 function aggregateByRep_(sheetName, ownerCol, amtCol, mode) {
   try {
     var ss = SpreadsheetApp.openById("1tK7hslM--NY0fU6z7zvDwjw3K63DOTayAyQ0KE20J14");
@@ -36,20 +38,26 @@ function aggregateByRep_(sheetName, ownerCol, amtCol, mode) {
   }
 }
 
-function getRankAndValue_(sortedList, repName) {
-  var target = repName.toLowerCase().trim();
-  var firstName = target.split(" ")[0];
-  // Pass 1: exact full name match
+function getRankAndValue_(sortedList, repNameOrNames) {
+  var repNames = Array.isArray(repNameOrNames) ? repNameOrNames : [repNameOrNames];
+  var exactNames = repNames.map(function(n) { return String(n || "").toLowerCase().trim(); }).filter(Boolean);
   for (var i = 0; i < sortedList.length; i++) {
-    if (sortedList[i].name.toLowerCase().trim() === target) {
+    var rowName = String(sortedList[i].name || "").toLowerCase().trim();
+    for (var j = 0; j < exactNames.length; j++) {
+      if (rowName === exactNames[j]) return { rank: i + 1, amt: sortedList[i].value };
+    }
+  }
+  for (var i = 0; i < sortedList.length; i++) {
+    if (typeof ownerMatchesAnyRepName_ === "function" && ownerMatchesAnyRepName_(sortedList[i].name, repNames)) {
       return { rank: i + 1, amt: sortedList[i].value };
     }
   }
-  // Pass 2: first-name-only fallback (handles sheets that store only first names)
+  var firstNames = exactNames.map(function(n) { return n.split(" ")[0]; }).filter(Boolean);
   for (var i = 0; i < sortedList.length; i++) {
-    var sn = sortedList[i].name.toLowerCase().trim();
-    if (sn === firstName || sn.split(" ")[0] === firstName) {
-      return { rank: i + 1, amt: sortedList[i].value };
+    var sn = String(sortedList[i].name || "").toLowerCase().trim();
+    var snFirst = sn.split(" ")[0];
+    for (var k = 0; k < firstNames.length; k++) {
+      if (sn === firstNames[k] || snFirst === firstNames[k]) return { rank: i + 1, amt: sortedList[i].value };
     }
   }
   return { rank: "-", amt: 0 };
@@ -97,15 +105,19 @@ function getBenchmarks() {
 // USER STATS (from Coefficient tabs)
 // -----------------------------------------------------------------------
 function getUserStats(email) {
-  var name = getUserNameFromEmail(email);
-  if (!name) return getBlankStats();
+  var names = (typeof getUserNameCandidatesFromEmail === "function") ? getUserNameCandidatesFromEmail(email) : [];
+  if (!names.length) {
+    var fallbackName = getUserNameFromEmail(email);
+    names = fallbackName ? [fallbackName] : [];
+  }
+  if (!names.length) return getBlankStats();
 
   var stats = _getRepStats_();
 
-  var disco = getRankAndValue_(stats.disco, name);
-  var nbm = getRankAndValue_(stats.nbm, name);
-  var pipe = getRankAndValue_(stats.pipe, name);
-  var stg4 = getRankAndValue_(stats.stg4, name);
+  var disco = getRankAndValue_(stats.disco, names);
+  var nbm = getRankAndValue_(stats.nbm, names);
+  var pipe = getRankAndValue_(stats.pipe, names);
+  var stg4 = getRankAndValue_(stats.stg4, names);
 
   return {
     disco_rank: disco.rank,

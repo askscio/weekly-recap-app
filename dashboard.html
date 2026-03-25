@@ -3,24 +3,24 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@700;800&family=Space+Mono:wght@400;700&display=swap">
 <style>
 /* ===== RESET & BASE ===== */
 * { box-sizing: border-box; margin: 0; padding: 0; }
 :root {
   --ink: #111827;
-  --muted: #5f6b7c;
-  --line: #d7cdbd;
+  --muted: #667085;
+  --line: #d9e1ea;
   --card: #ffffff;
-  --surface: #f4efe5;
+  --surface: #f3f6fb;
   --brand: #1d4b79;
-  --brand-deep: #123456;
+  --brand-deep: #133a60;
 }
 body {
-  font-family: 'Manrope', 'IBM Plex Sans', sans-serif;
+  font-family: 'Inter', sans-serif;
   background:
-    radial-gradient(1200px 500px at 8% -10%, #e8dbc2 0%, rgba(232,219,194,0) 70%),
-    radial-gradient(900px 420px at 100% -20%, #dce4d5 0%, rgba(220,228,213,0) 70%),
+    radial-gradient(900px 320px at 0% -10%, rgba(59,130,246,0.08) 0%, rgba(59,130,246,0) 65%),
+    radial-gradient(900px 320px at 100% -10%, rgba(249,115,22,0.06) 0%, rgba(249,115,22,0) 65%),
     var(--surface);
   color: var(--ink);
   padding: 22px;
@@ -77,10 +77,11 @@ a:hover { text-decoration: underline; }
 /* ===== TAB BAR ===== */
 .tab-bar {
   display: inline-flex; gap: 6px; margin-bottom: 18px;
-  border: 1px solid var(--line);
+  border: 1px solid #d7dee8;
   border-radius: 12px;
   padding: 4px;
-  background: rgba(255,251,243,.96);
+  background: rgba(255,255,255,.9);
+  box-shadow: 0 8px 18px rgba(15,23,42,.06);
 }
 .qa-center {
   max-width: 1300px;
@@ -155,42 +156,83 @@ a:hover { text-decoration: underline; }
 
 /* ===== SUMMARY CARDS ===== */
 .summary-row {
-  display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: 16px; margin-bottom: 24px;
+  display: grid;
+  grid-template-columns: repeat(6, minmax(110px, 1fr));
+  gap: 8px;
+  margin-bottom: 8px;
+  padding: 8px;
+  border-radius: 10px;
+  background: #fff;
+  border: 1px solid #e2e8f0;
 }
 .summary-card {
-  background: linear-gradient(180deg, #fffefb 0%, #f8f3ea 100%);
-  border: 1px solid var(--line);
-  border-radius: 14px; padding: 18px;
-  box-shadow: 0 12px 24px rgba(15,23,42,.08); text-align: center;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  padding: 8px 6px;
+  background: #f9fafc;
+  text-align: center;
+  min-height: 64px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
-.summary-card .label { font-size: 10px; color: #7a879a; text-transform: uppercase; letter-spacing: .9px; margin-bottom: 6px; font-weight: 800; }
-.summary-card .value { font-size: 28px; font-weight: 800; color: var(--ink); letter-spacing: -.2px; }
-.summary-card .value.pulse-green { color: #10b981; }
-.summary-card .value.pulse-yellow { color: #f59e0b; }
-.summary-card .value.pulse-red { color: #ef4444; }
+.summary-card .label { font-size: 9px; color: #6b7280; text-transform: uppercase; letter-spacing: .12em; font-weight: 700; margin-bottom: 4px; }
+.summary-card .value { font-size: 0.95rem !important; font-weight: 800 !important; color: #111827 !important; font-family: 'Space Mono', monospace !important; line-height: 1.1 !important; white-space: nowrap !important; overflow: hidden !important; text-overflow: ellipsis !important; display: inline-block !important; max-width: 100% !important; min-width: 0 !important; }
+.summary-card .value.pulse-green { color: #047857 !important; }
+.summary-card .value.pulse-yellow { color: #b45309 !important; }
+.summary-card .value.pulse-red { color: #dc2626 !important; }
+.rainmaker-rollup {
+  border: 1px solid #dbe6f2;
+  background: linear-gradient(180deg, #f8fbff 0%, #eef5fc 100%);
+  border-radius: 12px;
+  padding: 8px;
+  margin-bottom: 12px;
+}
+.rainmaker-rollup-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(120px, 1fr));
+  gap: 8px;
+  margin-bottom: 0;
+  border: 1px solid #e2e8f0;
+  background: #fff;
+  border-radius: 10px;
+  padding: 8px;
+}
+.rainmaker-rollup .summary-card {
+  background: #fff !important;
+  border-color: #d6e2f0 !important;
+}
+.rainmaker-rollup-title {
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: #5b6b80;
+  margin: 0 0 8px 2px;
+}
 
 /* ===== REP CARD ===== */
 .rep-card {
-  background: linear-gradient(180deg, #fffefc 0%, #f9f4ea 100%); border-radius: 14px; padding: 20px;
-  box-shadow: 0 12px 26px rgba(15,23,42,.08); margin-bottom: 14px;
+  background: #fff; border-radius: 14px; padding: 20px;
+  box-shadow: 0 10px 24px rgba(15,23,42,.07); margin-bottom: 14px;
   border: 1px solid var(--line);
   border-left: 5px solid var(--brand);
   transition: transform .12s ease, box-shadow .12s ease;
 }
-.rep-card:hover { transform: translateY(-1px); box-shadow: 0 16px 30px rgba(15,23,42,.11); }
+.rep-card:hover { transform: translateY(-1px); box-shadow: 0 14px 30px rgba(15,23,42,.1); }
 .rep-card.manager-card { border-left-color: #f59e0b; }
 .rep-header {
   display: flex; align-items: center; justify-content: space-between;
   cursor: pointer; flex-wrap: wrap; gap: 8px;
 }
-.rep-name { font-size: 18px; font-weight: 800; letter-spacing: -.15px; }
+.rep-name { font-size: 18px; font-weight: 800; letter-spacing: -.15px; color: #1f2937; }
 .rep-meta { display: flex; gap: 16px; align-items: center; flex-wrap: wrap; }
-.rep-meta span { font-size: 12px; color: #6d788b; font-weight: 600; }
+.rep-meta span { font-size: 13px; color: #475467; font-weight: 600; font-family: 'Inter', sans-serif; }
 .pulse-badge {
   display: inline-flex; align-items: center; justify-content: center;
   width: 36px; height: 36px; border-radius: 50%;
   font-weight: 700; font-size: 16px; color: #fff;
+  box-shadow: 0 6px 14px rgba(15,23,42,.12);
 }
 .pulse-high { background: #10b981; }
 .pulse-mid { background: #f59e0b; }
@@ -201,16 +243,16 @@ a:hover { text-decoration: underline; }
 
 .detail-section { margin-bottom: 16px; }
 .detail-section h4 {
-  font-size: 12px; font-weight: 800; color: #6a7488;
+  font-size: 12px; font-weight: 800; color: #667085;
   text-transform: uppercase; letter-spacing: .5px;
-  margin-bottom: 8px; padding-bottom: 6px; border-bottom: 1px solid #edf1f7;
+  margin-bottom: 8px; padding-bottom: 6px; border-bottom: 1px solid #e8edf3;
 }
 .detail-grid {
   display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
   gap: 8px;
 }
-.detail-item { font-size: 14px; }
-.detail-item .dl { font-weight: 600; color: #555; }
+.detail-item { font-size: 14px; color: #344054; line-height: 1.45; }
+.detail-item .dl { font-weight: 700; color: #667085; }
 .pulse-reason-wide { grid-column: 1 / -1; }
 
 /* Executive highlight for Rainmaker metrics */
@@ -219,7 +261,7 @@ a:hover { text-decoration: underline; }
   border-left: 5px solid #1f4b7a;
   border-radius: 12px;
   padding: 12px;
-  background: linear-gradient(180deg, #f4f8ff 0%, #eef4fb 100%);
+  background: linear-gradient(180deg, #f8fbff 0%, #f2f7fd 100%);
   box-shadow: inset 0 1px 0 rgba(255,255,255,.8);
 }
 .rainmaker-panel h4 {
@@ -254,9 +296,9 @@ a:hover { text-decoration: underline; }
   display: inline-block; width: 10px; height: 10px;
   border-radius: 50%; margin-right: 4px; vertical-align: middle;
 }
-.engage-dot.green { background: #10b981; }
-.engage-dot.yellow { background: #f59e0b; }
-.engage-dot.red { background: #ef4444; }
+.engage-dot.green { background: #2d6a4f; }
+.engage-dot.yellow { background: #b8860b; }
+.engage-dot.red { background: #c0392b; }
 .engage-dot.gray { background: #ccc; }
 
 /* Accounts table */
@@ -337,6 +379,15 @@ a:hover { text-decoration: underline; }
   opacity: .6;
   cursor: not-allowed;
 }
+.poc-filters .poc-recap-btn {
+  border: 1px solid #f97316;
+  background: #fff7ed;
+  color: #c2410c;
+}
+.poc-filters .poc-recap-btn:hover {
+  background: #f97316;
+  color: #fff;
+}
 .poc-refresh-status {
   margin-bottom: 14px;
   border-radius: 10px;
@@ -345,6 +396,47 @@ a:hover { text-decoration: underline; }
   background: #f8fafc;
   font-size: 13px;
   color: #334155;
+}
+.poc-refresh-topline {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 6px;
+}
+.poc-refresh-copy {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.poc-mode-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  border: 1px solid #bfdbfe;
+  background: #eff6ff;
+  color: #1d4ed8;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .02em;
+  text-transform: uppercase;
+}
+.poc-mode-badge.active {
+  border-color: #bbf7d0;
+  background: #f0fdf4;
+  color: #166534;
+}
+.poc-mode-badge.passive {
+  border-color: #fde68a;
+  background: #fffbeb;
+  color: #92400e;
+}
+.poc-refresh-meta {
+  line-height: 1.6;
 }
 .poc-refresh-status.ok {
   border-color: #86efac;
@@ -355,6 +447,47 @@ a:hover { text-decoration: underline; }
   border-color: #fecaca;
   background: #fef2f2;
   color: #991b1b;
+}
+.poc-recap-note {
+  margin-bottom: 18px;
+  border-radius: 12px;
+  padding: 16px 18px;
+  border: 1px solid #dbeafe;
+  background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+  box-shadow: 0 1px 4px rgba(0,0,0,.06);
+}
+.poc-recap-note-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+.poc-recap-note-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: #1e2a3a;
+}
+.poc-recap-note-subtitle {
+  margin-top: 4px;
+  font-size: 12px;
+  color: #64748b;
+}
+.poc-recap-note-body {
+  font-size: 14px;
+  line-height: 1.7;
+  color: #334155;
+}
+.poc-recap-note-meta {
+  font-size: 12px;
+  line-height: 1.5;
+  color: #64748b;
+  text-align: right;
+  white-space: nowrap;
+}
+.poc-recap-note.loading .poc-recap-note-body {
+  color: #64748b;
+  font-style: italic;
 }
 
 /* POC summary cards */
@@ -376,12 +509,36 @@ a:hover { text-decoration: underline; }
   border: 1px solid var(--line);
 }
 .poc-acct-header {
-  display: flex; justify-content: space-between; align-items: center;
-  cursor: pointer; flex-wrap: wrap; gap: 8px;
+  display: flex; justify-content: space-between; align-items: flex-start;
+  cursor: pointer; flex-wrap: wrap; gap: 14px;
 }
+.poc-acct-headline { display:flex; flex-direction:column; gap:8px; min-width:0; }
 .poc-acct-name { font-size: 17px; font-weight: 700; }
-.poc-acct-meta { display: flex; gap: 12px; flex-wrap: wrap; }
-.poc-acct-meta span {
+.poc-acct-submeta {
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+  align-items:center;
+  font-size:12px;
+  color:#8a7a6e;
+}
+.poc-acct-submeta .submeta-chip {
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  padding:4px 9px;
+  border-radius:999px;
+  background:#f8f4ee;
+  border:1px solid #eee2d4;
+  font-weight:600;
+}
+.poc-acct-submeta .submeta-chip.strong {
+  background:#eff6ff;
+  border-color:#dbeafe;
+  color:#1d4ed8;
+}
+.poc-acct-meta { display: flex; gap: 10px; flex-wrap: wrap; align-items:center; justify-content:flex-end; }
+.poc-acct-meta > .meta-pill {
   font-size: 12px; padding: 3px 10px; border-radius: 12px;
   background: #f0f0f0; color: #555;
 }
@@ -398,11 +555,30 @@ a:hover { text-decoration: underline; }
   gap: 8px; margin-bottom: 16px; font-size: 13px;
 }
 .poc-acct-info .info-label { font-weight: 600; color: #888; }
+.poc-actions-header {
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  flex-wrap:wrap;
+  margin: 18px 0 10px;
+}
+.poc-actions-title {
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color:#7c6d61;
+}
+.poc-actions-meta {
+  font-size: 12px;
+  color:#8a7a6e;
+}
 
 /* Action items */
 .action-item {
-  display: flex; align-items: flex-start; gap: 10px;
-  padding: 10px 0; border-bottom: 1px solid #f0f0f0;
+  display: flex; align-items: flex-start; gap: 12px;
+  padding: 14px 0; border-bottom: 1px solid #f0f0f0;
 }
 .action-item:last-child { border-bottom: none; }
 .rag-btn {
@@ -415,12 +591,49 @@ a:hover { text-decoration: underline; }
 .rag-btn.rag-green { background: #10b981; border-color: #10b981; }
 .rag-btn:hover { transform: scale(1.15); }
 .action-body { flex: 1; min-width: 0; }
-.action-title { font-size: 14px; font-weight: 600; }
-.action-source { font-size: 11px; color: #888; margin-top: 2px; }
+.action-topline {
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:10px;
+  flex-wrap:wrap;
+  margin-bottom: 6px;
+}
+.action-title-wrap {
+  display:flex;
+  align-items:center;
+  gap:8px;
+  flex-wrap:wrap;
+  min-width:0;
+}
+.action-title { font-size: 15px; font-weight: 700; line-height: 1.35; }
+.action-badges {
+  display:flex;
+  align-items:center;
+  gap:8px;
+  flex-wrap:wrap;
+}
+.action-badge {
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  padding:4px 9px;
+  border-radius:999px;
+  font-size:11px;
+  font-weight:700;
+  letter-spacing:.02em;
+  background:#f8f4ee;
+  border:1px solid #eee2d4;
+  color:#6b5c50;
+}
+.action-badge.source { background:#eff6ff; border-color:#dbeafe; color:#1d4ed8; }
+.action-badge.date { background:#f0fdf4; border-color:#bbf7d0; color:#166534; }
+.action-badge.newest { background:#fff7ed; border-color:#fed7aa; color:#c2410c; }
 .action-notes {
-  font-size: 13px; color: #555; margin-top: 4px;
+  font-size: 13px; color: #555; margin-top: 0;
   cursor: pointer; padding: 4px 6px; border-radius: 4px;
   border: 1px solid transparent;
+  line-height: 1.65;
 }
 .action-notes:hover { border-color: #ddd; background: #fafafa; }
 .action-notes-input {
@@ -433,7 +646,7 @@ a:hover { text-decoration: underline; }
   font-size: 16px; padding: 4px; flex-shrink: 0;
 }
 .action-delete:hover { color: #ef4444; }
-.action-updated { font-size: 10px; color: #bbb; margin-top: 2px; }
+.action-updated { font-size: 11px; color: #9a8f86; margin-top: 8px; }
 
 /* Add action form */
 .add-action-bar {
@@ -471,244 +684,591 @@ a:hover { text-decoration: underline; }
   .rainmaker-grid { grid-template-columns: 1fr 1fr; }
 }
 
-/* ===== SaaS Light Dashboard Override ===== */
+/* ===== Editorial Summary System Applied To Dashboard + POC ===== */
 body {
-  font-family: 'Inter', sans-serif !important;
-  background: #F0F2F5 !important;
-  color: #374151 !important;
+  font-family: 'DM Sans', sans-serif !important;
+  background: #e8e2d8 !important;
+  color: #1a1612 !important;
+  padding: 24px 18px !important;
 }
-.header, .tab-bar, #dashSection, #pocSection {
-  max-width: 1200px !important;
+.shell {
+  max-width: 1040px;
+  margin: 0 auto;
 }
-.header {
-  background: #1E2A3A !important;
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 18px;
+}
+.topbar-title {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: #8a7a6e;
+}
+.page {
+  background: #faf8f5 !important;
+  box-shadow: 0 14px 34px rgba(26,22,18,.08) !important;
+  border: 1px solid rgba(0,0,0,.05) !important;
+  border-radius: 14px !important;
+  padding: 0 !important;
+  margin-bottom: 20px !important;
+  position: relative;
+  overflow: hidden;
+}
+.page-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  padding: 36px 30px 18px;
+  border-bottom: 1px solid #e8e0d4;
+  background: transparent;
+}
+.page-header .headline {
+  font-family: 'Playfair Display', serif;
+  font-size: 36px;
+  font-weight: 800;
+  line-height: 1.12;
+  color: #1a1612;
+  margin: 0;
+}
+/* child elements inherit width from .shell and .page — no individual max-width needed */
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+#qaCenter, #dashSection, #pocSection {
+  background: transparent !important;
   border: none !important;
-  border-radius: 10px !important;
-  box-shadow: 0 2px 10px rgba(0,0,0,.12) !important;
-  padding: 1rem 1.4rem !important;
+  box-shadow: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
 }
-.header h1, #pageTitle {
-  font-family: 'Inter', sans-serif !important;
-  font-size: 1.3rem !important;
+#qaCenter { border-bottom: 1px solid #e8e0d4 !important; margin:0 !important; padding: 12px 30px 14px !important; background:#fffaf0 !important; }
+#dashSection, #pocSection { padding: 0 !important; margin: 0 !important; }
+.page > #dashSection, .page > #pocSection { padding: 0 30px 30px !important; }
+.qa-center {
+  border-radius: 0 !important;
+  margin: 0 !important;
+  padding: 14px 30px !important;
+  background: #fffaf0 !important;
+  border: none !important;
+  border-bottom: 1px solid #e8e0d4 !important;
+  box-shadow: none !important;
+}
+.qa-center .qa-title { font-size: 10px !important; letter-spacing: .16em !important; text-transform: uppercase !important; }
+.summary-row {
+  display: grid !important;
+  grid-template-columns: repeat(6, minmax(110px, 1fr)) !important;
+  gap: 8px !important;
+  margin-bottom: 10px !important;
+  border: 1px solid #e2e8f0 !important;
+  background: #fff !important;
+  border-radius: 10px !important;
+  padding: 8px !important;
+}
+.summary-card {
+  border: 1px solid #e5e7eb !important;
+  border-radius: 8px !important;
+  background: #f9fafc !important;
+  padding: 8px 6px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: center !important;
+  min-height: 66px !important;
+}
+.summary-card:last-child,
+.summary-card:nth-child(6n) { border-right: none !important; }
+.cleanup-link,
+.export-link {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  padding: 10px 14px !important;
+  border-radius: 999px !important;
+  font-family: 'DM Sans', sans-serif !important;
+  font-size: 11px !important;
   font-weight: 700 !important;
-  letter-spacing: 0 !important;
-  color: #fff !important;
+  letter-spacing: .12em !important;
+  text-transform: uppercase !important;
+  box-shadow: none !important;
 }
 .cleanup-link {
-  background: transparent !important;
-  border: 1px solid rgba(255,255,255,.4) !important;
-  color: #fff !important;
-  border-radius: 6px !important;
-  font-family: 'Inter', sans-serif !important;
-  font-weight: 600 !important;
+  background: rgba(255,255,255,.55) !important;
+  border: 1px solid rgba(0,0,0,.08) !important;
+  color: #4a3f35 !important;
 }
 .export-link {
-  background: #3B82F6 !important;
-  border: 1px solid #3B82F6 !important;
+  background: #1a1612 !important;
+  border: 1px solid #1a1612 !important;
   color: #fff !important;
-  border-radius: 6px !important;
-  font-family: 'Inter', sans-serif !important;
-  font-weight: 600 !important;
 }
 
 .tab-bar {
-  border: none !important;
-  border-radius: 0 !important;
-  background: transparent !important;
-  padding: 0 !important;
-  gap: 20px !important;
+  display: inline-flex !important;
+  gap: 6px !important;
+  padding: 4px !important;
+  border-radius: 999px !important;
+  background: rgba(255,255,255,.55) !important;
+  border: 1px solid rgba(0,0,0,.06) !important;
+  box-shadow: none !important;
+  margin-bottom: 18px !important;
 }
 .tab-btn {
-  background: transparent !important;
+  padding: 10px 14px !important;
   border: none !important;
-  border-bottom: 2px solid transparent !important;
-  border-radius: 0 !important;
-  color: rgba(30,42,58,.7) !important;
-  font-family: 'Inter', sans-serif !important;
-  font-weight: 600 !important;
-  text-transform: none !important;
-  letter-spacing: 0 !important;
-  padding: 0 0 8px 0 !important;
+  border-radius: 999px !important;
+  background: transparent !important;
+  color: #8a7a6e !important;
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  letter-spacing: .12em !important;
+  text-transform: uppercase !important;
 }
 .tab-btn.active {
-  color: #1E2A3A !important;
-  border-bottom-color: #3B82F6 !important;
+  background: #1a1612 !important;
+  color: #fff !important;
+  border-bottom-color: transparent !important;
+  box-shadow: none !important;
+}
+
+#dashSection,
+#pocSection {
+  padding: 28px 30px;
+}
+.qa-center {
+  border-radius: 0 !important;
+  margin: 0 !important;
+  padding: 14px 30px !important;
+  background: rgba(0,0,0,.02) !important;
+  border: none !important;
+  border-bottom: 1px solid #e8e0d4 !important;
+  box-shadow: none !important;
+}
+.qa-center .qa-title {
+  font-family: 'DM Sans', sans-serif !important;
+  color: #8a7a6e !important;
+  font-size: 10px !important;
+  font-weight: 700 !important;
+  letter-spacing: .16em !important;
+  text-transform: uppercase !important;
+}
+.qa-center select,
+#repSelector,
+.poc-filters select,
+.poc-filters input,
+.add-action-bar input,
+.add-action-bar select,
+.action-notes-input {
+  background: rgba(255,255,255,.75) !important;
+  border: 1px solid #e8e0d4 !important;
+  border-radius: 10px !important;
+  color: #1a1612 !important;
+  font-family: 'DM Sans', sans-serif !important;
+}
+.qa-center button,
+.add-action-bar button,
+.team-recap-btn,
+.poc-filters .poc-glean-btn,
+.poc-filters .poc-recap-btn {
+  border-radius: 999px !important;
+  font-family: 'DM Sans', sans-serif !important;
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  letter-spacing: .12em !important;
+  text-transform: uppercase !important;
+  padding: 10px 14px !important;
+}
+.qa-center button,
+.add-action-bar button,
+.team-recap-btn,
+.poc-filters .poc-glean-btn {
+  background: #1a1612 !important;
+  border: 1px solid #1a1612 !important;
+  color: #fff !important;
+}
+.qa-center button.secondary,
+.poc-filters .poc-recap-btn {
+  background: rgba(255,255,255,.55) !important;
+  border: 1px solid rgba(0,0,0,.08) !important;
+  color: #4a3f35 !important;
 }
 
 .summary-row {
-  grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
-  gap: 12px !important;
-  background: transparent !important;
+  display: grid !important;
+  grid-template-columns: repeat(6, minmax(100px, 1fr)) !important;
+  gap: 8px !important;
+  margin-bottom: 10px !important;
+  border-radius: 12px !important;
+  border: 1px solid #e2e8f0 !important;
+  background: #fff !important;
+  padding: 8px !important;
 }
 .summary-card {
-  background: #fff !important;
-  border: 1px solid #E5E7EB !important;
+  border: 1px solid #e5e7eb !important;
   border-radius: 10px !important;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.08) !important;
+  padding: 8px 6px !important;
+  background: #f9fafc !important;
+  box-shadow: 0 2px 6px rgba(0,0,0,.05) !important;
+  min-height: 72px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: center !important;
+  text-align: center !important;
+}
+.summary-card:last-child,
+.summary-card:nth-child(6n) {
+  border-right: 1px solid #e5e7eb !important;
 }
 .summary-card .label {
-  font-family: 'Inter', sans-serif !important;
-  color: #9CA3AF !important;
+  font-family: 'DM Sans', sans-serif !important;
+  color: #6b7280 !important;
+  font-size: 9px !important;
+  font-weight: 700 !important;
+  letter-spacing: .12em !important;
+  text-transform: uppercase !important;
+  margin-bottom: 4px !important;
 }
 .summary-card .value {
   font-family: 'Space Mono', monospace !important;
-  color: #1E2A3A !important;
-  font-size: 2rem !important;
+  color: #111827 !important;
+  font-size: 0.95rem !important;
+  font-weight: 800 !important;
+  line-height: 1.1 !important;
+  letter-spacing: -.02em !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  display: inline-block !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
 }
-.summary-card .value.pulse-green { color: #3B82F6 !important; }
-.summary-card .value.pulse-yellow { color: #F59E0B !important; }
-.summary-card .value.pulse-red { color: #EF4444 !important; }
+.summary-card .value.pulse-green { color: #047857 !important; }
+.summary-card .value.pulse-yellow { color: #b45309 !important; }
+.summary-card .value.pulse-red { color: #dc2626 !important; }
 
-#dashSection > div[style*="margin-bottom:16px"] {
-  background: #fff !important;
-  border: 1px solid #E5E7EB !important;
-  border-radius: 10px !important;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.08) !important;
-  padding: 14px !important;
+.team-tools-row {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 14px !important;
+  flex-wrap: wrap !important;
+  margin: 6px 0 18px !important;
+  padding-bottom: 14px !important;
+  border-bottom: 1px solid #e8e0d4 !important;
 }
-#repSelector, .qa-center select {
-  background: #fff !important;
-  border: 1px solid #E5E7EB !important;
-  border-radius: 6px !important;
-  color: #374151 !important;
-  font-family: 'Inter', sans-serif !important;
-}
-#repSelector:focus, .qa-center select:focus {
-  border-color: #3B82F6 !important;
-  box-shadow: 0 0 0 3px rgba(59,130,246,.15) !important;
-  outline: none !important;
-}
-.qa-center {
-  background: #F9FAFB !important;
-  border: 1px solid #E5E7EB !important;
-  border-radius: 10px !important;
-}
-.qa-center .qa-title {
-  color: #1E2A3A !important;
-  font-family: 'Inter', sans-serif !important;
-  font-weight: 700 !important;
-}
-.qa-center button {
-  background: #F97316 !important;
-  border: 1px solid #F97316 !important;
-  color: #fff !important;
-  border-radius: 6px !important;
-  font-family: 'Inter', sans-serif !important;
-  font-weight: 600 !important;
-  text-transform: none !important;
-  letter-spacing: 0 !important;
-}
-.qa-center button.secondary {
-  background: #fff !important;
-  color: #1E2A3A !important;
-  border-color: #D1D5DB !important;
+.team-tools-left,
+.team-tools-actions {
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  flex-wrap: wrap !important;
 }
 
-.rep-card, .poc-account, .poc-stat {
-  background: #fff !important;
-  border: 1px solid #E5E7EB !important;
-  border-radius: 10px !important;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.08) !important;
+.team-recap-note,
+.poc-refresh-status,
+.poc-recap-note {
+  border-radius: 14px !important;
+  border: 1px solid #e8e0d4 !important;
+  background: rgba(255,255,255,.5) !important;
+  box-shadow: none !important;
 }
-.rep-card { padding: 1.2rem 1.4rem !important; }
-.rep-card:hover, .poc-account:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0,0,0,0.12) !important;
+.team-recap-note,
+.poc-recap-note {
+  padding: 18px 20px !important;
+  margin-bottom: 18px !important;
 }
-.rep-name {
-  font-family: 'Inter', sans-serif !important;
-  font-size: 1.35rem !important;
+.team-recap-note-title,
+.poc-recap-note-title {
+  font-family: 'Playfair Display', serif !important;
+  font-size: 22px !important;
   font-weight: 700 !important;
-  color: #1E2A3A !important;
+  color: #1a1612 !important;
+}
+.team-recap-note-subtitle,
+.poc-recap-note-subtitle,
+.team-recap-note-meta,
+.poc-recap-note-meta,
+.poc-refresh-meta {
+  color: #8a7a6e !important;
+  font-family: 'DM Sans', sans-serif !important;
+}
+.team-recap-note-body,
+.poc-recap-note-body {
+  font-family: 'DM Sans', sans-serif !important;
+  color: #4a3f35 !important;
+  line-height: 1.72 !important;
+}
+.team-recap-section-title {
+  color: #8a7a6e !important;
+  letter-spacing: .14em !important;
+}
+
+.rep-card,
+.poc-account,
+.poc-stat {
+  background: rgba(255,255,255,.42) !important;
+  border: 1px solid #e8e0d4 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+.rep-card {
+  padding: 20px 22px !important;
+  margin-bottom: 16px !important;
+  border-left: none !important;
+  border-top: 4px solid #1a4a7a !important;
+}
+.rep-card.manager-card {
+  border-top-color: #b8860b !important;
+}
+.rep-card:hover,
+.poc-account:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 24px rgba(26,22,18,.08) !important;
+}
+.rep-name,
+.poc-acct-name {
+  font-family: 'Playfair Display', serif !important;
+  font-size: 1.75rem !important;
+  font-weight: 700 !important;
+  color: #1a1612 !important;
   letter-spacing: 0 !important;
+}
+.rep-meta span,
+.detail-item,
+.action-title,
+.action-notes,
+.action-updated,
+.poc-acct-meta > .meta-pill,
+.poc-acct-submeta,
+.action-badge,
+.poc-acct-info,
+.no-data,
+.loading-state,
+.acct-table th,
+.acct-table td {
+  font-family: 'DM Sans', sans-serif !important;
+  color: #4a3f35 !important;
 }
 .rep-meta span {
-  font-family: 'Inter', sans-serif !important;
-  color: #64748B !important;
-  font-size: .82rem !important;
+  font-size: 12px !important;
   font-weight: 600 !important;
-  letter-spacing: .01em !important;
 }
 .rep-meta span .mono,
-.rep-meta .mono {
+.rep-meta .mono,
+.summary-card .value,
+.forecast-cell .fc-val,
+.poc-stat .stat-val {
   font-family: 'Space Mono', monospace !important;
-  font-size: .8rem !important;
-  color: #475569 !important;
-  font-weight: 700 !important;
 }
 .pulse-badge {
   width: 44px !important;
   height: 44px !important;
-  box-shadow: 0 0 0 3px rgba(59,130,246,.12);
+  box-shadow: none !important;
+}
+/* Ensure engage-dots always show RAG colors regardless of parent overrides */
+.engage-dot.green { background: #2d6a4f !important; }
+.engage-dot.yellow { background: #b8860b !important; }
+.engage-dot.red { background: #c0392b !important; }
+.engage-dot.gray { background: #ccc !important; }
+.detail-section h4 {
+  font-family: 'DM Sans', sans-serif !important;
+  font-size: 9px !important;
+  font-weight: 700 !important;
+  letter-spacing: .18em !important;
+  text-transform: uppercase !important;
+  color: #8a7a6e !important;
+  margin-bottom: 12px !important;
+  border-bottom: 1px solid #e8e0d4 !important;
+}
+.rainmaker-panel {
+  background: rgba(239,246,255,.55) !important;
+  border: 1px solid #dbeafe !important;
+  border-left: 4px solid #1a4a7a !important;
+  box-shadow: none !important;
+}
+.rainmaker-grid .detail-item {
+  background: rgba(255,255,255,.8) !important;
+  border: 1px solid #dbeafe !important;
+  border-radius: 0 !important;
+}
+.acct-table th {
+  background: rgba(255,255,255,.4) !important;
+  color: #8a7a6e !important;
+  font-size: 10px !important;
+  letter-spacing: .1em !important;
+  text-transform: uppercase !important;
+}
+.acct-table td {
+  border-bottom: 1px solid #e8e0d4 !important;
+}
+.forecast-row {
+  gap: 12px !important;
+}
+.forecast-cell {
+  background: rgba(255,255,255,.55) !important;
+  border: 1px solid #e8e0d4 !important;
+  border-radius: 0 !important;
+}
+.forecast-cell .fc-label,
+.fc-diff {
+  color: #8a7a6e !important;
+}
+.forecast-cell .fc-val {
+  color: #1a1612 !important;
 }
 .edit-recap-btn {
-  border: 1px solid #F97316 !important;
-  color: #F97316 !important;
-  background: transparent !important;
+  border: 1px solid rgba(0,0,0,.08) !important;
+  color: #4a3f35 !important;
+  background: rgba(255,255,255,.55) !important;
   border-radius: 999px !important;
-  font-family: 'Space Mono', monospace !important;
-  font-size: .7rem !important;
-  letter-spacing: .08em !important;
+  font-family: 'DM Sans', sans-serif !important;
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  letter-spacing: .12em !important;
+  text-transform: uppercase !important;
 }
 .edit-recap-btn:hover {
-  background: #F97316 !important;
+  background: #1a1612 !important;
   color: #fff !important;
 }
 
-.detail-section h4, .poc-acct-name {
-  font-family: 'Inter', sans-serif !important;
-  font-weight: 700 !important;
-  color: #1E2A3A !important;
-  letter-spacing: 0 !important;
-  border-bottom: 1px solid #EEF2F7 !important;
-}
-.detail-item, .action-title, .action-notes, .action-source, .action-updated,
-.poc-acct-meta span, .poc-acct-info, .no-data, .loading-state,
-.acct-table th, .acct-table td {
-  color: #374151 !important;
-}
-.acct-table th, .acct-table td {
-  background: transparent !important;
-  border-bottom: 1px solid #EEF2F7 !important;
-}
-.engage-dot { width: 12px !important; height: 12px !important; }
-.forecast-cell {
-  background: #fff !important;
-  border: 1px solid #E5E7EB !important;
-  border-radius: 10px !important;
-}
-.forecast-cell .fc-label, .fc-diff { color: #9CA3AF !important; }
-.forecast-cell .fc-val { color: #1E2A3A !important; font-family: 'Space Mono', monospace !important; }
-.nbm-block, .nbm-warning {
-  border-left: 3px solid #EF4444 !important;
+.nbm-block,
+.nbm-warning {
+  border-left: 3px solid #c0392b !important;
   border-top: 0 !important;
   border-right: 0 !important;
   border-bottom: 0 !important;
-  border-radius: 6px !important;
-  background: rgba(239,68,68,.08) !important;
-  color: #374151 !important;
+  border-radius: 0 !important;
+  background: #fdf2f0 !important;
+  color: #4a3f35 !important;
 }
 .nbm-warning {
-  border-left-color: #F59E0B !important;
-  background: rgba(245,158,11,.08) !important;
+  border-left-color: #b8860b !important;
+  background: #fdfaf0 !important;
 }
 
-.poc-filters select, .poc-filters input, .add-action-bar input, .add-action-bar select, .action-notes-input {
-  background: #fff !important;
-  border: 1px solid #E5E7EB !important;
-  border-radius: 6px !important;
-  color: #374151 !important;
+.poc-refresh-status {
+  padding: 14px 16px !important;
+  margin-bottom: 16px !important;
 }
-.add-action-bar button {
-  background: #3B82F6 !important;
-  border: 1px solid #3B82F6 !important;
-  color: #fff !important;
-  border-radius: 6px !important;
-  font-family: 'Inter', sans-serif !important;
+.poc-refresh-status.ok {
+  border-color: #d6eadf !important;
+  background: #f0f7f4 !important;
+  color: #2d6a4f !important;
+}
+.poc-refresh-status.err {
+  border-color: #f4d5cf !important;
+  background: #fdf2f0 !important;
+  color: #c0392b !important;
+}
+.poc-mode-badge {
+  border-radius: 999px !important;
+  font-family: 'DM Sans', sans-serif !important;
+  font-size: 10px !important;
+  letter-spacing: .12em !important;
+  text-transform: uppercase !important;
+}
+.poc-mode-badge.active {
+  border-color: #d6eadf !important;
+  background: #f0f7f4 !important;
+  color: #2d6a4f !important;
+}
+.poc-mode-badge.passive {
+  border-color: #efe3bf !important;
+  background: #fdfaf0 !important;
+  color: #8a6a14 !important;
+}
+.poc-summary {
+  gap: 0 !important;
+  margin-bottom: 20px !important;
+  border: 1px solid #e8e0d4 !important;
+  background: rgba(255,255,255,.4) !important;
+}
+.poc-stat {
+  border-right: 1px solid #e8e0d4 !important;
+  border-radius: 0 !important;
+  padding: 18px 14px !important;
+}
+.poc-stat:last-child {
+  border-right: none !important;
+}
+.poc-stat .stat-val {
+  font-family: 'Playfair Display', serif !important;
+  font-size: 2rem !important;
+}
+.stat-val-red { color: #c0392b !important; }
+.stat-val-yellow { color: #b8860b !important; }
+.stat-val-green { color: #2d6a4f !important; }
+.poc-stat .stat-label {
+  font-size: 9px !important;
+  font-weight: 700 !important;
+  letter-spacing: .14em !important;
+  text-transform: uppercase !important;
+  color: #8a7a6e !important;
+}
+.poc-account {
+  padding: 20px 22px !important;
+}
+.meta-pill {
+  background: rgba(255,255,255,.6);
+  border: 1px solid #e8e0d4;
+  border-radius: 999px;
+  color: #4a3f35;
+  padding: 4px 10px;
+  font-size: 11px;
+  font-weight: 600;
+}
+.rag-dots {
+  background: transparent;
+  border: none;
+  padding: 0;
+  font-size: 12px;
+  font-weight: 600;
+  color: #4a3f35;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+}
+.rag-dot {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  vertical-align: middle;
+  margin-right: 2px;
+  border: none !important;
+  box-shadow: none !important;
+}
+.rag-dot-red { background: #c0392b !important; }
+.rag-dot-yellow { background: #b8860b !important; }
+.rag-dot-green { background: #2d6a4f !important; }
+.action-item {
+  border-bottom: 1px solid #e8e0d4 !important;
+}
+.action-notes {
+  background: rgba(255,255,255,.45) !important;
 }
 
 @media (max-width: 980px) {
+  .summary-row { grid-template-columns: repeat(3, 1fr) !important; }
+  .poc-summary { grid-template-columns: repeat(3, minmax(0, 1fr)) !important; }
+  .rainmaker-rollup-grid { grid-template-columns: repeat(3, 1fr) !important; }
+}
+@media (max-width: 640px) {
   .summary-row { grid-template-columns: repeat(2, 1fr) !important; }
+  .poc-summary { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
+  .rainmaker-rollup-grid { grid-template-columns: 1fr !important; }
+  .page-header { padding: 24px 20px 14px; }
+  .page-header .headline { font-size: 28px; }
 }
 </style>
 </head>
@@ -722,42 +1282,53 @@ body {
   </div>
 </div>
 
-<!-- ===== HEADER ===== -->
-<div class="header">
-  <h1 id="pageTitle">Team Weekly Dashboard</h1>
-  <div class="header-actions">
-    <button id="cleanupBtn" class="cleanup-link" onclick="runSheetCleanup()">Clean Up Sheet</button>
-    <button id="exportCsvBtn" class="export-link" onclick="downloadSnapshotForCodex()">&#8681; Export Latest Sheet CSV</button>
+<!-- ===== TOPBAR (matches Summary page layout) ===== -->
+<div class="shell">
+  <div class="topbar">
+    <div class="tab-bar">
+      <a class="tab-btn" href="https://script.google.com/a/macros/glean.com/s/AKfycbxt9SVE3r4zf7PB0auoKaXODrnSWNm2p-Kh3ByoVWHw9YJzjkClEP8Shb2-embIfKJ5/exec?page=summary" onclick="openSummaryPage(); return false;">Summary</a>
+      <a class="tab-btn <?= (typeof initialPage !== 'undefined' && initialPage === 'dashboard') ? 'active' : '' ?>" href="https://script.google.com/a/macros/glean.com/s/AKfycbxt9SVE3r4zf7PB0auoKaXODrnSWNm2p-Kh3ByoVWHw9YJzjkClEP8Shb2-embIfKJ5/exec?page=dashboard" onclick="openDashboardPage(); return false;">Dashboard</a>
+      <a class="tab-btn <?= (typeof initialPage !== 'undefined' && initialPage === 'poc') ? 'active' : '' ?>" href="https://script.google.com/a/macros/glean.com/s/AKfycbxt9SVE3r4zf7PB0auoKaXODrnSWNm2p-Kh3ByoVWHw9YJzjkClEP8Shb2-embIfKJ5/exec?page=poc" onclick="openPocPage(); return false;">POC Center</a>
+    </div>
+    <div class="topbar-title" id="topbarLabel">NorthCentral Enterprise</div>
   </div>
-</div>
 
-<!-- ===== TAB BAR ===== -->
-<div class="tab-bar">
-  <button class="tab-btn active" onclick="switchTab('dashboard')">Team Dashboard</button>
-  <button class="tab-btn" onclick="switchTab('poc')">POC Command Center</button>
-</div>
+  <!-- ===== PAGE CARD (cream background, like Summary) ===== -->
+  <div class="page">
+    <div class="page-header">
+      <h1 class="headline" id="pageTitle"><?= (typeof initialPage !== 'undefined' && initialPage === 'poc') ? 'POC Command Center' : 'Team Dashboard' ?></h1>
+      <div class="header-actions">
+        <button id="cleanupBtn" class="cleanup-link" onclick="runSheetCleanup()">Clean Up Sheet</button>
+        <button id="exportCsvBtn" class="export-link" onclick="downloadSnapshotForCodex()">&#8681; Export Latest Sheet CSV</button>
+      </div>
+    </div>
 
-<div id="qaCenter" class="qa-center">
-  <span class="qa-title">Admin QA Center</span>
-  <select id="qaRepSelect">
-    <option value="">Select rep...</option>
-  </select>
-  <button onclick="openQaRepRecap()">Open Rep QA</button>
-  <button class="secondary" onclick="openMyRecap()">Open My Recap</button>
-</div>
+    <div id="qaCenter" class="qa-center">
+      <span class="qa-title">Admin QA Center</span>
+      <select id="qaRepSelect">
+        <option value="">Select rep...</option>
+      </select>
+      <button onclick="openQaRepRecap()">Open Rep QA</button>
+      <button class="secondary" onclick="openMyRecap()">Open My Recap</button>
+    </div>
 
-<!-- ===== TEAM DASHBOARD CONTENT ===== -->
-<div id="dashSection" class="dash-section">
-  <div id="dashContent">
-    <div class="loading-state"><div class="spinner"></div><br>Loading team data&hellip;</div>
+    <!-- ===== TEAM DASHBOARD CONTENT ===== -->
+    <div id="dashSection" class="dash-section<?= (typeof initialPage !== 'undefined' && initialPage === 'poc') ? ' hidden' : '' ?>">
+      <div id="dashContent">
+        <div class="loading-state"><div class="spinner"></div><br>Loading team data&hellip;</div>
+      </div>
+    </div>
+
+    <!-- ===== POC COMMAND CENTER CONTENT ===== -->
+    <div id="pocSection" class="poc-section<?= (typeof initialPage !== 'undefined' && initialPage === 'poc') ? ' active' : '' ?>">
+      <div id="pocContent">
+        <div class="loading-state"><div class="spinner"></div><br>Loading POC data&hellip;</div>
+      </div>
+    </div>
   </div>
-</div>
 
-<!-- ===== POC COMMAND CENTER CONTENT ===== -->
-<div id="pocSection" class="poc-section">
-  <div id="pocContent">
-    <div class="loading-state"><div class="spinner"></div><br>Loading POC data&hellip;</div>
-  </div>
+<script id="initialPocDataPayload" type="application/json"><?!= (typeof pocDataJson === 'undefined' ? 'null' : pocDataJson) ?></script>
+<script id="initialPocRefreshStatusPayload" type="application/json"><?!= (typeof pocRefreshStatusJson === 'undefined' ? 'null' : pocRefreshStatusJson) ?></script>
 </div>
 
 <script>
@@ -770,6 +1341,14 @@ var BENCHMARKS = {};
 var SESSION_EMAIL = "";
 var IS_ADMIN = false;
 var POC_DATA = null;
+var POC_REFRESH_STATUS = null;
+var POC_RECAP_NOTE = null;
+var TEAM_RECAP_NOTE = null;
+var INITIAL_PAGE = <?= JSON.stringify(typeof initialPage === 'undefined' ? 'dashboard' : initialPage) ?>;
+var QUOTA_METRICS = <?= JSON.stringify(typeof quotaMetrics === 'undefined' ? '{}' : quotaMetrics) ?>;
+var QA_REP_OPTIONS = [];
+var INITIAL_POC_DATA = null;
+var INITIAL_POC_REFRESH_STATUS = null;
 var APP_EXEC_URL = "https://script.google.com/a/macros/glean.com/s/AKfycbxt9SVE3r4zf7PB0auoKaXODrnSWNm2p-Kh3ByoVWHw9YJzjkClEP8Shb2-embIfKJ5/exec";
 
 function showFatal(err, ctx) {
@@ -832,6 +1411,32 @@ try {
 } catch (eBench) {
   BENCHMARKS = {};
 }
+try {
+  var rawQaRepOptions = <?= JSON.stringify(typeof qaRepOptionsJson === 'undefined' ? '[]' : qaRepOptionsJson) ?>;
+  var decodedQaRepOptions = rawQaRepOptions;
+  for (var qri = 0; qri < 3 && typeof decodedQaRepOptions === "string"; qri++) {
+    decodedQaRepOptions = JSON.parse(decodedQaRepOptions);
+  }
+  QA_REP_OPTIONS = Array.isArray(decodedQaRepOptions) ? decodedQaRepOptions : [];
+} catch (eQaOptions) {
+  QA_REP_OPTIONS = [];
+}
+
+function readJsonPayload_(id, fallback) {
+  try {
+    var el = document.getElementById(id);
+    if (!el) return fallback;
+    var txt = (el.textContent || "").trim();
+    return txt ? JSON.parse(txt) : fallback;
+  } catch (ePayload) {
+    console.error("Failed to parse payload", id, ePayload);
+    return fallback;
+  }
+}
+
+INITIAL_POC_DATA = readJsonPayload_("initialPocDataPayload", null);
+INITIAL_POC_REFRESH_STATUS = readJsonPayload_("initialPocRefreshStatusPayload", null);
+
 
 // =====================================================================
 // INIT — on page load
@@ -839,15 +1444,34 @@ try {
 window.addEventListener('load', function() {
   try {
     initQaCenter();
-    // Render dashboard immediately from server-injected data
-    renderDashboard(DASHBOARD_DATA);
-    if (window.location.search.indexOf("page=poc") !== -1 || window.location.hash === "#poc") {
-      switchTab("poc");
-    }
+    bootInitialView_();
   } catch (eInit) {
-    showFatal(eInit, "dashboard init");
+    showFatal(eInit, 'dashboard init');
   }
 });
+
+function pageWantsPoc_() {
+  var pocSectionEl = document.getElementById('pocSection');
+  var urlWantsPoc = /(?:^|[?&])page=poc(?:&|$)/.test(window.location.search || '');
+  var domWantsPoc = !!(pocSectionEl && pocSectionEl.classList.contains('active'));
+  return (INITIAL_PAGE === 'poc') || urlWantsPoc || domWantsPoc;
+}
+
+function bootInitialView_() {
+  if (pageWantsPoc_()) {
+    activatePocView();
+    if (INITIAL_POC_DATA && INITIAL_POC_DATA.success) {
+      POC_DATA = INITIAL_POC_DATA;
+      POC_REFRESH_STATUS = INITIAL_POC_REFRESH_STATUS || null;
+      renderPoc(POC_DATA, POC_REFRESH_STATUS);
+    } else {
+      loadPocData();
+    }
+    return;
+  }
+  activateDashboardView();
+  renderDashboard(DASHBOARD_DATA);
+}
 
 function initQaCenter() {
   var box = document.getElementById("qaCenter");
@@ -859,8 +1483,9 @@ function initQaCenter() {
     if (!sel) return;
     var seen = {};
     sel.innerHTML = '<option value="">Select rep...</option>';
-    for (var i = 0; i < DASHBOARD_DATA.length; i++) {
-      var rep = DASHBOARD_DATA[i];
+    var source = (QA_REP_OPTIONS && QA_REP_OPTIONS.length) ? QA_REP_OPTIONS : DASHBOARD_DATA;
+    for (var i = 0; i < source.length; i++) {
+      var rep = source[i];
       var email = String(rep && rep.email || "").toLowerCase().trim();
       if (!email || seen[email]) continue;
       seen[email] = true;
@@ -907,30 +1532,53 @@ function openMyRecap() {
   window.top.location.href = APP_EXEC_URL + "?page=recap&v=" + Date.now();
 }
 
+function openDashboardPage() {
+  window.top.location.href = APP_EXEC_URL + "?page=dashboard&v=" + Date.now();
+}
+
+function openPocPage() {
+  window.top.location.href = APP_EXEC_URL + "?page=poc&v=" + Date.now();
+}
+
+function openSummaryPage() {
+  window.top.location.href = APP_EXEC_URL + "?page=summary&v=" + Date.now();
+}
+
 // =====================================================================
 // TAB SWITCHING
 // =====================================================================
-function switchTab(tab) {
+function setActiveTabButton_(index) {
   var btns = document.querySelectorAll('.tab-btn');
-  for (var i = 0; i < btns.length; i++) {
-    btns[i].classList.remove('active');
-  }
+  for (var i = 0; i < btns.length; i++) btns[i].classList.remove('active');
+  if (btns[index]) btns[index].classList.add('active');
+}
 
+function activateDashboardView() {
+  setActiveTabButton_(1);
+  document.getElementById('dashSection').classList.remove('hidden');
+  document.getElementById('pocSection').classList.remove('active');
+  document.getElementById('pageTitle').textContent = 'Team Dashboard';
+  document.getElementById('topbarLabel').textContent = 'NorthCentral Enterprise';
+}
+
+function activatePocView() {
+  setActiveTabButton_(2);
+  document.getElementById('dashSection').classList.add('hidden');
+  document.getElementById('pocSection').classList.add('active');
+  document.getElementById('pageTitle').textContent = 'POC Command Center';
+  document.getElementById('topbarLabel').textContent = 'NorthCentral Enterprise';
+}
+
+function switchTab(tab) {
   if (tab === 'poc') {
-    btns[1].classList.add('active');
-    document.getElementById('dashSection').classList.add('hidden');
-    document.getElementById('pocSection').classList.add('active');
-    document.getElementById('pageTitle').textContent = 'POC Command Center';
-
-    // Load POC data if not already loaded
-    if (!POC_DATA) {
+    activatePocView();
+    if (POC_DATA && POC_DATA.success) {
+      renderPoc(POC_DATA, POC_REFRESH_STATUS || null);
+    } else {
       loadPocData();
     }
   } else {
-    btns[0].classList.add('active');
-    document.getElementById('dashSection').classList.remove('hidden');
-    document.getElementById('pocSection').classList.remove('active');
-    document.getElementById('pageTitle').textContent = 'Team Weekly Dashboard';
+    activateDashboardView();
   }
 }
 
@@ -961,23 +1609,57 @@ function renderDashboard(data) {
   var pulseClass = avgPulse >= 8 ? 'pulse-green' : avgPulse >= 5 ? 'pulse-yellow' : 'pulse-red';
   if (avgPulse === '—') pulseClass = '';
 
-  html += '<div class="summary-row">';
+  // Parse quota metrics for Closed Won display
+  var qm = {};
+  try {
+    var rawQm = QUOTA_METRICS;
+    for (var qi = 0; qi < 3 && typeof rawQm === 'string'; qi++) rawQm = JSON.parse(rawQm);
+    qm = rawQm && typeof rawQm === 'object' ? rawQm : {};
+  } catch (eQm) { qm = {}; }
+
+  html += '<div class="summary-row" style="display:grid;grid-template-columns:repeat(6,minmax(120px,1fr));gap:8px;margin-bottom:10px;border:1px solid #e2e8f0;background:#fff;border-radius:10px;padding:8px;">';
   html += summaryCard('Reps Submitted', data.length);
   html += summaryCard('Avg Pulse', avgPulse, pulseClass);
+  if (qm.closed !== undefined) {
+    var closedStr = '$' + Math.round(Number(qm.closed) || 0).toLocaleString('en-US');
+    html += summaryCard('Closed Won', closedStr, 'pulse-green');
+  }
   html += summaryCard('Green Accts', totalGreen, 'pulse-green');
   html += summaryCard('Yellow Accts', totalYellow, 'pulse-yellow');
   html += summaryCard('Red Accts', totalRed, 'pulse-red');
   html += '</div>';
 
-  // --- Rep selector dropdown ---
-  html += '<div style="margin-bottom:16px;">';
+  var rainmakerDisco = 0, rainmakerNbm = 0, rainmakerChannel = 0;
+  for (var rs = 0; rs < data.length; rs++) {
+    rainmakerDisco += Number(data[rs].rm_disco) || 0;
+    rainmakerNbm += Number(data[rs].rm_nbm) || 0;
+    rainmakerChannel += Number(data[rs].rm_accts) || 0;
+  }
+  html += '<div class="rainmaker-rollup">';
+  html += '<div class="rainmaker-rollup-title">Rainmaker Metrics — This Week Plan</div>';
+  html += '<div class="rainmaker-rollup-grid">';
+  html += summaryCard('This Week Disco Mtgs', rainmakerDisco);
+  html += summaryCard('This Week NBMs', rainmakerNbm);
+  html += summaryCard('This Week Channel Mtgs', rainmakerChannel);
+  html += '</div>';
+  html += '</div>';
+
+  html += '<div class="team-tools-row">';
+  html += '<div class="team-tools-left">';
   html += '<label for="repSelector" style="font-weight:600;font-size:14px;margin-right:8px;">Jump to Rep:</label>';
   html += '<select id="repSelector" onchange="scrollToRep(this.value)" style="padding:8px 12px;border:1px solid #ddd;border-radius:8px;font-size:14px;background:#fff;">';
   html += '<option value="">Select a rep...</option>';
   for (var j = 0; j < data.length; j++) {
     html += '<option value="rep_' + j + '">' + escHtml(data[j].name || data[j].email) + '</option>';
   }
-  html += '</select></div>';
+  html += '</select>';
+  html += '</div>';
+  html += '<div class="team-tools-actions">';
+  html += '<button id="teamRecapNoteBtn" class="team-recap-btn" onclick="loadTeamRecapNote()">Recap Note</button>';
+  html += '</div>';
+  html += '</div>';
+
+  html += renderTeamRecapNotePanel();
 
   // --- Rep cards ---
   for (var i = 0; i < data.length; i++) {
@@ -985,10 +1667,81 @@ function renderDashboard(data) {
   }
 
   container.innerHTML = html;
+  fixSummaryCardFontFit();
   window._dashData = data;
   for (var li = 0; li < data.length; li++) {
     loadRepLiveData(li, data[li].email);
   }
+}
+
+function renderTeamRecapNotePanel() {
+  if (!TEAM_RECAP_NOTE) return '';
+
+  if (TEAM_RECAP_NOTE.loading) {
+    return '<div class="team-recap-note loading">' +
+      '<div class="team-recap-note-header">' +
+      '<div><div class="team-recap-note-title">Team Recap Note</div><div class="team-recap-note-subtitle">Building a current team summary using only recap updates from the last 7 days.</div></div>' +
+      '</div>' +
+      '<div class="team-recap-note-body">Pulling this week&apos;s team themes, pulse, deal progression, and biggest updates…</div>' +
+      '</div>';
+  }
+
+  if (!TEAM_RECAP_NOTE.success) {
+    return '<div class="team-recap-note">' +
+      '<div class="team-recap-note-header">' +
+      '<div><div class="team-recap-note-title">Team Recap Note</div><div class="team-recap-note-subtitle">Only recap entries from the last 7 days are included.</div></div>' +
+      '</div>' +
+      '<div class="team-recap-note-body"><b>Could not generate note:</b> ' + escHtml(TEAM_RECAP_NOTE.error || 'Unknown error') + '</div>' +
+      '</div>';
+  }
+
+  var generatedAt = TEAM_RECAP_NOTE.generatedAt ? fmtDate(TEAM_RECAP_NOTE.generatedAt) : '';
+  var sectionHtml = '';
+  if (TEAM_RECAP_NOTE.themeItems && TEAM_RECAP_NOTE.themeItems.length) {
+    sectionHtml += renderTeamRecapSection('Themes', TEAM_RECAP_NOTE.themeItems);
+  }
+  if (TEAM_RECAP_NOTE.newDealItems && TEAM_RECAP_NOTE.newDealItems.length) {
+    sectionHtml += renderTeamRecapSection('Big Deal Adds', TEAM_RECAP_NOTE.newDealItems);
+  }
+  if (TEAM_RECAP_NOTE.dealProgressItems && TEAM_RECAP_NOTE.dealProgressItems.length) {
+    sectionHtml += renderTeamRecapSection('Deal Progression', TEAM_RECAP_NOTE.dealProgressItems);
+  }
+  if (TEAM_RECAP_NOTE.forecastItems && TEAM_RECAP_NOTE.forecastItems.length) {
+    sectionHtml += renderTeamRecapSection('Forecast Signals', TEAM_RECAP_NOTE.forecastItems);
+  }
+  if (TEAM_RECAP_NOTE.priorityItems && TEAM_RECAP_NOTE.priorityItems.length) {
+    sectionHtml += renderTeamRecapSection('Rep Priorities', TEAM_RECAP_NOTE.priorityItems);
+  }
+
+  return '<div class="team-recap-note">' +
+    '<div class="team-recap-note-header">' +
+      '<div>' +
+        '<div class="team-recap-note-title">Team Recap Note</div>' +
+        '<div class="team-recap-note-subtitle">Summary of team recap highlights from the last ' + escHtml(String(TEAM_RECAP_NOTE.daysBack || 7)) + ' days only.</div>' +
+      '</div>' +
+      '<div class="team-recap-note-meta">' +
+        '<div><b>Recaps used:</b> ' + escHtml(String(TEAM_RECAP_NOTE.recapsUsed || 0)) + '</div>' +
+        '<div><b>Average pulse:</b> ' + escHtml(String(TEAM_RECAP_NOTE.avgPulse || '—')) + '</div>' +
+        (generatedAt ? '<div><b>Generated:</b> ' + escHtml(generatedAt) + '</div>' : '') +
+      '</div>' +
+    '</div>' +
+    '<div class="team-recap-note-body">' +
+      '<div class="team-recap-note-intro">' + escHtml(TEAM_RECAP_NOTE.note || '') + '</div>' +
+      sectionHtml +
+    '</div>' +
+  '</div>';
+}
+
+function renderTeamRecapSection(title, items) {
+  if (!items || !items.length) return '';
+  var html = '<div class="team-recap-section">';
+  html += '<div class="team-recap-section-title">' + escHtml(title) + '</div>';
+  html += '<ul class="team-recap-list">';
+  for (var i = 0; i < items.length; i++) {
+    html += '<li>' + escHtml(items[i]) + '</li>';
+  }
+  html += '</ul></div>';
+  return html;
 }
 
 function loadRepLiveData(repIndex, email) {
@@ -1113,8 +1866,24 @@ function runSheetCleanup() {
 }
 
 function summaryCard(label, value, cls) {
-  return '<div class="summary-card"><div class="label">' + label + '</div>'
-    + '<div class="value ' + (cls || '') + '">' + value + '</div></div>';
+  return '<div class="summary-card" style="border:1px solid #e5e7eb;background:#f9fafc;border-radius:10px;padding:8px 6px;min-height:66px;display:flex;flex-direction:column;justify-content:center;text-align:center;">'
+    + '<div class="label" style="font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#6b7280;margin-bottom:4px;">' + label + '</div>'
+    + '<div class="value ' + (cls || '') + '" style="font-size:1.2rem;font-weight:800;font-family:\'Space Mono\',monospace;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.1;">' + value + '</div>'
+    + '</div>';
+}
+
+function fixSummaryCardFontFit() {
+  var row = document.querySelector('.summary-row');
+  if (!row) return;
+  var values = row.querySelectorAll('.summary-card .value');
+  values.forEach(function(v){
+    var style = window.getComputedStyle(v);
+    var fontSize = parseFloat(style.fontSize);
+    while (v.scrollWidth > v.clientWidth && fontSize > 10) {
+      fontSize -= 1;
+      v.style.fontSize = fontSize + 'px';
+    }
+  });
 }
 
 function buildRepCard(rep, idx) {
@@ -1132,16 +1901,17 @@ function buildRepCard(rep, idx) {
   h += '<span>Week of ' + escHtml(rep.weekOf || '—') + '</span>';
   if (rep.liveUpdatedAt) h += '<span>Updated ' + escHtml(fmtUpdatedTime(rep.liveUpdatedAt)) + '</span>';
 
-  // Engagement dots
+  // Engagement dots — inline styles to avoid CSS override conflicts
   var engageDots = '';
+  var dotColors = { green: '#2d6a4f', yellow: '#b8860b', red: '#c0392b', gray: '#ccc' };
   if (rep.accounts) {
     for (var a = 0; a < rep.accounts.length; a++) {
       var e = (rep.accounts[a].engage || '').toLowerCase();
       var dc = e === 'green' ? 'green' : e === 'yellow' ? 'yellow' : e === 'red' ? 'red' : 'gray';
-      engageDots += '<span class="engage-dot ' + dc + '"></span>';
+      engageDots += '<span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:' + dotColors[dc] + ';margin-right:3px;vertical-align:middle"></span>';
     }
   }
-  h += '<span>' + engageDots + '</span>';
+  h += '<span style="background:transparent !important;border:none !important;padding:0 !important">' + engageDots + '</span>';
   h += '</div></div>'; // close rep-meta & rep-header
   h += '<div style="text-align:right;margin-top:10px;"><button class="edit-recap-btn" data-email="' + escHtml(rep.email) + '" data-name="' + escHtml(rep.name || rep.email) + '">&#9998; Edit Recap</button></div>';
 
@@ -1162,6 +1932,14 @@ function buildRepCard(rep, idx) {
   h += '<div class="detail-item"><span class="dl">NBMs:</span> ' + (rep.nbm_amt || 0) + ' ' + rankLabel(rep.nbm_rank) + '</div>';
   h += '<div class="detail-item"><span class="dl">Pipeline (FY):</span> ' + fmtK(rep.pipe_amt) + ' ' + rankLabel(rep.pipe_rank) + '</div>';
   h += '<div class="detail-item"><span class="dl">Stage 4+:</span> ' + fmtK(rep.stg4_amt) + ' ' + rankLabel(rep.stg4_rank) + '</div>';
+  h += '</div></div>';
+
+  h += '<div class="detail-section rainmaker-panel"><h4>Rainmaker Metrics (This Week Plan)</h4>';
+  h += '<div class="rainmaker-grid">';
+  h += '<div class="detail-item"><span class="dl">Discovery Mtgs:</span> ' + (Number(rep.rm_disco) || 0) + '</div>';
+  h += '<div class="detail-item"><span class="dl">NBMs:</span> ' + (Number(rep.rm_nbm) || 0) + '</div>';
+  h += '<div class="detail-item"><span class="dl">NBM Customer:</span> ' + escHtml(String(rep.nbm_scheduled_week || '—')) + '</div>';
+  h += '<div class="detail-item"><span class="dl">Planned Channel Meetings:</span> ' + (Number(rep.rm_accts) || 0) + '</div>';
   h += '</div></div>';
 
   // Accounts table
@@ -1242,13 +2020,15 @@ function forecastCell(label, selfVal, sfVal, qbrVal) {
 
   var h = '<div class="forecast-cell">';
   h += '<div class="fc-label">' + label + '</div>';
-  h += '<div class="fc-val">' + (sv === 0 ? '<span style="color:#aaa;font-size:13px;">No data</span>' : fmtK(sv)) + '</div>';
+  h += '<div class="fc-val">' + fmtK(sv) + '</div>';
   h += '<div class="fc-diff">SF: ' + fmtK(sf) + '</div>';
   if (qb) h += '<div class="fc-diff">QBR: ' + fmtK(qb) + '</div>';
   h += '<div class="fc-diff ' + diffClass + '">Gap: ' + diffStr + '</div>';
   h += '</div>';
   return h;
 }
+
+
 
 function toggleRepDetails(idx) {
   var el = document.getElementById('repDetails_' + idx);
@@ -1279,9 +2059,57 @@ function rankLabel(rank) {
 // =====================================================================
 // POC COMMAND CENTER RENDERING
 // =====================================================================
-function loadPocData() {
+function renderPocLoadingState_() {
   document.getElementById('pocContent').innerHTML =
     '<div class="loading-state"><div class="spinner"></div><br>Loading POC data&hellip;</div>';
+}
+
+function buildPocActionMap_(actions) {
+  var actionMap = {};
+  for (var i = 0; i < actions.length; i++) {
+    var acct = actions[i].account;
+    if (!actionMap[acct]) actionMap[acct] = [];
+    actionMap[acct].push(actions[i]);
+  }
+  for (var acctKey in actionMap) {
+    actionMap[acctKey].sort(function(a, b) {
+      var at = a && a.lastUpdated ? new Date(a.lastUpdated).getTime() : 0;
+      var bt = b && b.lastUpdated ? new Date(b.lastUpdated).getTime() : 0;
+      if (bt !== at) return bt - at;
+      return String(b && b.actionItem || '').localeCompare(String(a && a.actionItem || ''));
+    });
+  }
+  return actionMap;
+}
+
+function getPocSummaryStats_(accounts, actions) {
+  var stats = {
+    totalPocs: accounts.length,
+    active: 0,
+    upcoming: 0,
+    red: 0,
+    yellow: 0,
+    green: 0
+  };
+
+  for (var i = 0; i < accounts.length; i++) {
+    var status = String(accounts[i].status || '').toLowerCase();
+    if (status === 'active') stats.active++;
+    if (status === 'upcoming') stats.upcoming++;
+  }
+
+  for (var j = 0; j < actions.length; j++) {
+    var rag = String(actions[j].rag || '').toLowerCase();
+    if (rag === 'red') stats.red++;
+    else if (rag === 'yellow') stats.yellow++;
+    else if (rag === 'green') stats.green++;
+  }
+
+  return stats;
+}
+
+function loadPocData() {
+  renderPocLoadingState_();
 
   google.script.run
     .withSuccessHandler(function(result) {
@@ -1291,19 +2119,21 @@ function loadPocData() {
         return;
       }
       POC_DATA = result;
+      renderPoc(result, POC_REFRESH_STATUS || null);
       google.script.run
         .withSuccessHandler(function(statusRes) {
-          var status = (statusRes && statusRes.success) ? (statusRes.status || null) : null;
-          renderPoc(result, status);
+          POC_REFRESH_STATUS = (statusRes && statusRes.success) ? (statusRes.status || null) : null;
+          renderPoc(result, POC_REFRESH_STATUS || null);
         })
-        .withFailureHandler(function() {
-          renderPoc(result, null);
+        .withFailureHandler(function(err) {
+          // Keep basic rendering but log refresh status errors.
+          console.error('Failed to get POC refresh status', err);
         })
         .getPocGleanRefreshStatus();
     })
     .withFailureHandler(function(err) {
       document.getElementById('pocContent').innerHTML =
-        '<div class="error-msg">Failed to load POC data: ' + escHtml(err.message || String(err)) + '</div>';
+        '<div class="error-msg">Failed to load POC data: ' + escHtml(err.message || String(err) || 'Unknown Apps Script error') + '</div>';
     })
     .getPocData();
 }
@@ -1311,6 +2141,8 @@ function loadPocData() {
 function renderPoc(data, refreshStatus) {
   var accounts = data.accounts || [];
   var actions = data.actions || [];
+  var refreshCfg = data.refreshConfig || { canTrigger: false, mode: 'glean_native_writeback', reason: '' };
+  var refreshBtnLabel = refreshCfg.canTrigger ? 'Run Glean Refresh' : 'Refresh From Sheet';
 
   if (accounts.length === 0) {
     document.getElementById('pocContent').innerHTML =
@@ -1318,27 +2150,8 @@ function renderPoc(data, refreshStatus) {
     return;
   }
 
-  // Build action map: account -> [actions]
-  var actionMap = {};
-  for (var i = 0; i < actions.length; i++) {
-    var acct = actions[i].account;
-    if (!actionMap[acct]) actionMap[acct] = [];
-    actionMap[acct].push(actions[i]);
-  }
-
-  // Compute stats
-  var totalActive = 0, totalUpcoming = 0, totalRed = 0, totalYellow = 0, totalGreen = 0;
-  for (var s = 0; s < accounts.length; s++) {
-    var st = (accounts[s].status || '').toLowerCase();
-    if (st === 'active') totalActive++;
-    if (st === 'upcoming') totalUpcoming++;
-  }
-  for (var r = 0; r < actions.length; r++) {
-    var rag = (actions[r].rag || '').toLowerCase();
-    if (rag === 'red') totalRed++;
-    else if (rag === 'yellow') totalYellow++;
-    else if (rag === 'green') totalGreen++;
-  }
+  var actionMap = buildPocActionMap_(actions);
+  var stats = getPocSummaryStats_(accounts, actions);
 
   var html = '';
 
@@ -1363,19 +2176,21 @@ function renderPoc(data, refreshStatus) {
   html += '<option value="Yellow">Yellow Only</option>';
   html += '<option value="Green">Green Only</option>';
   html += '</select>';
-  html += '<button id="pocGleanRefreshBtn" class="poc-glean-btn" onclick="runPocGleanRefresh()">Run Glean Refresh</button>';
+  html += '<button id="pocRecapNoteBtn" class="poc-glean-btn poc-recap-btn" onclick="loadPocRecapNote()">Recap Note</button>';
+  html += '<button id="pocGleanRefreshBtn" class="poc-glean-btn" onclick="runPocGleanRefresh()">' + escHtml(refreshBtnLabel) + '</button>';
   html += '</div>';
 
-  html += renderPocRefreshStatus(refreshStatus);
+  html += renderPocRefreshStatus(refreshStatus, data);
+  html += renderPocRecapNotePanel();
 
   // Summary stats
   html += '<div class="poc-summary">';
-  html += '<div class="poc-stat"><div class="stat-val">' + accounts.length + '</div><div class="stat-label">Total POCs</div></div>';
-  html += '<div class="poc-stat"><div class="stat-val">' + totalActive + '</div><div class="stat-label">Active</div></div>';
-  html += '<div class="poc-stat"><div class="stat-val">' + totalUpcoming + '</div><div class="stat-label">Upcoming</div></div>';
-  html += '<div class="poc-stat"><div class="stat-val" style="color:#ef4444">' + totalRed + '</div><div class="stat-label">Red Items</div></div>';
-  html += '<div class="poc-stat"><div class="stat-val" style="color:#f59e0b">' + totalYellow + '</div><div class="stat-label">Yellow Items</div></div>';
-  html += '<div class="poc-stat"><div class="stat-val" style="color:#10b981">' + totalGreen + '</div><div class="stat-label">Green Items</div></div>';
+  html += '<div class="poc-stat"><div class="stat-val">' + stats.totalPocs + '</div><div class="stat-label">Total POCs</div></div>';
+  html += '<div class="poc-stat"><div class="stat-val">' + stats.active + '</div><div class="stat-label">Active</div></div>';
+  html += '<div class="poc-stat"><div class="stat-val">' + stats.upcoming + '</div><div class="stat-label">Upcoming</div></div>';
+  html += '<div class="poc-stat"><div class="stat-val stat-val-red">' + stats.red + '</div><div class="stat-label">Red Items</div></div>';
+  html += '<div class="poc-stat"><div class="stat-val stat-val-yellow">' + stats.yellow + '</div><div class="stat-label">Yellow Items</div></div>';
+  html += '<div class="poc-stat"><div class="stat-val stat-val-green">' + stats.green + '</div><div class="stat-label">Green Items</div></div>';
   html += '</div>';
 
   // Account panels
@@ -1386,38 +2201,98 @@ function renderPoc(data, refreshStatus) {
   document.getElementById('pocContent').innerHTML = html;
 }
 
-function renderPocRefreshStatus(status) {
+function renderPocRecapNotePanel() {
+  if (!POC_RECAP_NOTE) return '';
+
+  if (POC_RECAP_NOTE.loading) {
+    return '<div class="poc-recap-note loading">' +
+      '<div class="poc-recap-note-header">' +
+      '<div><div class="poc-recap-note-title">Recap Note</div><div class="poc-recap-note-subtitle">Generating a current summary using only rep updates from the last 7 days.</div></div>' +
+      '</div>' +
+      '<div class="poc-recap-note-body">Pulling the latest 7-day rep updates and current POC actions…</div>' +
+      '</div>';
+  }
+
+  if (!POC_RECAP_NOTE.success) {
+    return '<div class="poc-recap-note">' +
+      '<div class="poc-recap-note-header">' +
+      '<div><div class="poc-recap-note-title">Recap Note</div><div class="poc-recap-note-subtitle">Only rep updates from the last 7 days are included.</div></div>' +
+      '</div>' +
+      '<div class="poc-recap-note-body"><b>Could not generate note:</b> ' + escHtml(POC_RECAP_NOTE.error || 'Unknown error') + '</div>' +
+      '</div>';
+  }
+
+  var generatedAt = POC_RECAP_NOTE.generatedAt ? fmtDate(POC_RECAP_NOTE.generatedAt) : '';
+  return '<div class="poc-recap-note">' +
+    '<div class="poc-recap-note-header">' +
+    '<div>' +
+    '<div class="poc-recap-note-title">Recap Note</div>' +
+    '<div class="poc-recap-note-subtitle">Current summary using only rep updates from the last ' + escHtml(String(POC_RECAP_NOTE.daysBack || 7)) + ' days.</div>' +
+    '</div>' +
+    '<div class="poc-recap-note-meta">' +
+    '<div><b>Accounts:</b> ' + escHtml(String(POC_RECAP_NOTE.accountsConsidered || 0)) + '</div>' +
+    '<div><b>Recent rep updates:</b> ' + escHtml(String(POC_RECAP_NOTE.recentRepUpdatesUsed || 0)) + '</div>' +
+    (generatedAt ? '<div><b>Generated:</b> ' + escHtml(generatedAt) + '</div>' : '') +
+    '</div>' +
+    '</div>' +
+    '<div class="poc-recap-note-body">' + escHtml(POC_RECAP_NOTE.note || '') + '</div>' +
+    '</div>';
+}
+
+function renderPocRefreshStatus(status, data) {
+  var fallbackRows = (data && data.rowsInPocActions) ? data.rowsInPocActions : 0;
+  var cfg = (data && data.refreshConfig) ? data.refreshConfig : null;
+  if (!cfg || !cfg.canTrigger) {
+    return '';
+  }
+  var cfgMode = cfg ? cfg.mode : 'glean_native_writeback';
+  var modeInfo = getPocModeInfo((status && status.mode) || cfgMode, cfg && cfg.canTrigger);
+  var badgeHtml = '<span class="poc-mode-badge ' + escAttr(modeInfo.tone) + '">' + escHtml(modeInfo.label) + '</span>';
   if (!status) {
-    return '<div class="poc-refresh-status">No refresh run recorded yet. Click <b>Run Glean Refresh</b> to populate latest status.</div>';
+    return '';
   }
   var ranAt = status.ranAt ? fmtDate(status.ranAt) : 'Unknown time';
   if (status.ok) {
     return '<div class="poc-refresh-status ok">' +
-      '<b>Last Glean Refresh:</b> Success at ' + escHtml(ranAt) +
-      ' | Mode: ' + escHtml(status.mode || 'glean_writeback') +
-      ' | Fetched: ' + (status.fetchedActions || 0) +
-      ' | Inserted: ' + (status.inserted || 0) +
-      ' | Updated: ' + (status.updated || 0) +
-      ' | Rows: ' + (status.rowsInPocActions || 0) +
+      '<div class="poc-refresh-topline"><div class="poc-refresh-copy"><b>Last Refresh: Success</b>' + badgeHtml + '</div><div>' + escHtml(ranAt) + '</div></div>' +
+      '<div class="poc-refresh-meta">' +
+      '<b>Fetched:</b> ' + (status.fetchedActions || 0) +
+      ' | <b>Replaced:</b> ' + (status.replaced || 0) +
+      ' | <b>Cleared:</b> ' + (status.removed || 0) +
+      ' | <b>Max/Account:</b> ' + (status.maxPerAccount || 8) +
+      ' | <b>Rows:</b> ' + (status.rowsInPocActions || fallbackRows) +
+      '</div>' +
       '</div>';
   }
-  return '<div class="poc-refresh-status err">' +
-    '<b>Last Glean Refresh:</b> Failed at ' + escHtml(ranAt) +
-    (status.error ? ' | Error: ' + escHtml(status.error) : '') +
-    '</div>';
+  return '';
+}
+
+function getPocModeInfo(mode, canTrigger) {
+  var m = String(mode || '').toLowerCase();
+  if (m === 'apps_script_snapshot_replace' || m === 'apps_script_direct' || m === 'apps_script_proxy' || canTrigger) {
+    return { label: 'Active Refresh', tone: 'active' };
+  }
+  if (m === 'glean_native_writeback') {
+    return { label: 'Passive Status', tone: 'passive' };
+  }
+  return { label: 'Status Only', tone: 'passive' };
 }
 
 function buildPocAccountPanel(account, actions, idx) {
   var statusCls = 'status-' + (account.status || 'upcoming').toLowerCase();
+  var latestAction = actions && actions.length ? actions[0] : null;
+  var latestLabel = latestAction && latestAction.lastUpdated ? fmtDate(latestAction.lastUpdated) : 'No dated activity yet';
 
   var h = '<div class="poc-account" data-account="' + escAttr(account.account) + '" data-status="' + escAttr(account.status) + '">';
   h += '<div class="poc-acct-header" onclick="togglePocDetails(' + idx + ')">';
+  h += '<div class="poc-acct-headline">';
   h += '<div class="poc-acct-name">' + escHtml(account.account) + '</div>';
+  h += '<div class="poc-acct-submeta">';
+  h += '<span class="submeta-chip strong">Latest activity ' + escHtml(latestLabel) + '</span>';
+  h += '<span class="submeta-chip">' + actions.length + ' recent action' + (actions.length === 1 ? '' : 's') + '</span>';
+  h += '</div></div>';
   h += '<div class="poc-acct-meta">';
-  h += '<span class="' + statusCls + '">' + escHtml(account.status || 'Unknown') + '</span>';
-  h += '<span>' + escHtml(account.pilotType || '—') + '</span>';
-  h += '<span>' + escHtml(account.stage || '—') + '</span>';
-  if (account.owner) h += '<span>' + escHtml(account.owner) + '</span>';
+  h += '<span class="meta-pill ' + statusCls + '">' + escHtml(account.status || 'Unknown') + '</span>';
 
   // RAG summary for this account
   var rc = 0, yc = 0, gc = 0;
@@ -1428,10 +2303,10 @@ function buildPocAccountPanel(account, actions, idx) {
     else if (r === 'green') gc++;
   }
   if (actions.length > 0) {
-    h += '<span>';
-    if (rc) h += '<span class="engage-dot red"></span>' + rc + ' ';
-    if (yc) h += '<span class="engage-dot yellow"></span>' + yc + ' ';
-    if (gc) h += '<span class="engage-dot green"></span>' + gc;
+    h += '<span class="rag-dots">';
+    if (rc) h += '<span class="rag-dot rag-dot-red"></span>' + rc + ' ';
+    if (yc) h += '<span class="rag-dot rag-dot-yellow"></span>' + yc + ' ';
+    if (gc) h += '<span class="rag-dot rag-dot-green"></span>' + gc;
     h += '</span>';
   }
   h += '</div></div>'; // close meta & header
@@ -1453,7 +2328,11 @@ function buildPocAccountPanel(account, actions, idx) {
   }
 
   // Action items
-  h += '<div style="margin-top:16px;"><h4 style="font-size:13px;font-weight:600;color:#888;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;">Action Items (' + actions.length + ')</h4>';
+  h += '<div style="margin-top:16px;">';
+  h += '<div class="poc-actions-header">';
+  h += '<div class="poc-actions-title">Latest Action Items</div>';
+  h += '<div class="poc-actions-meta">Showing newest first' + (actions.length ? ' • ' + actions.length + ' shown' : '') + '</div>';
+  h += '</div>';
 
   for (var ai = 0; ai < actions.length; ai++) {
     h += buildActionItem(account.account, actions[ai], idx, ai);
@@ -1475,17 +2354,24 @@ function buildPocAccountPanel(account, actions, idx) {
 
 function buildActionItem(accountName, action, panelIdx, actionIdx) {
   var ragCls = 'rag-' + (action.rag || 'red').toLowerCase();
+  var sourceLabel = String(action.signalSource || '').trim();
+  var updatedLabel = action.lastUpdated ? fmtDate(action.lastUpdated) : '';
   var h = '<div class="action-item" data-rag="' + escAttr(action.rag || '') + '">';
   h += '<button class="rag-btn ' + ragCls + '" onclick="cycleRag(\'' + escAttr(accountName) + '\', \'' + escAttr(action.actionItem) + '\', this)" title="Click to cycle RAG"></button>';
   h += '<div class="action-body">';
+  h += '<div class="action-topline">';
+  h += '<div class="action-title-wrap">';
   h += '<div class="action-title">' + escHtml(action.actionItem) + '</div>';
-  if (action.signalSource) {
-    h += '<div class="action-source">Source: ' + escHtml(action.signalSource) + '</div>';
-  }
+  if (actionIdx === 0) h += '<span class="action-badge newest">Newest</span>';
+  h += '</div>';
+  h += '<div class="action-badges">';
+  if (sourceLabel) h += '<span class="action-badge source">' + escHtml(sourceLabel) + '</span>';
+  if (updatedLabel) h += '<span class="action-badge date">' + escHtml(updatedLabel) + '</span>';
+  h += '</div></div>';
   h += '<div class="action-notes" onclick="editNotes(this, \'' + escAttr(accountName) + '\', \'' + escAttr(action.actionItem) + '\')">'
     + escHtml(action.notes || 'Click to add notes...') + '</div>';
   if (action.lastUpdated) {
-    h += '<div class="action-updated">Updated: ' + fmtDate(action.lastUpdated) + (action.updatedBy ? ' by ' + escHtml(action.updatedBy) : '') + '</div>';
+    h += '<div class="action-updated">Updated ' + fmtDate(action.lastUpdated) + (action.updatedBy ? ' by ' + escHtml(action.updatedBy) : '') + '</div>';
   }
   h += '</div>'; // close action-body
   h += '<button class="action-delete" onclick="handleDeleteAction(\'' + escAttr(accountName) + '\', \'' + escAttr(action.actionItem) + '\')" title="Delete">&#10005;</button>';
@@ -1618,29 +2504,111 @@ function handleDeleteAction(account, actionItem) {
 function runPocGleanRefresh() {
   var btn = document.getElementById('pocGleanRefreshBtn');
   if (btn) { btn.disabled = true; btn.textContent = 'Refreshing...'; }
+  if (POC_DATA && POC_DATA.refreshConfig && !POC_DATA.refreshConfig.canTrigger) {
+    if (btn) { btn.disabled = false; btn.textContent = 'Refresh From Sheet'; }
+    POC_DATA = null;
+    loadPocData();
+    return;
+  }
+
   google.script.run
     .withSuccessHandler(function(result) {
-      if (btn) { btn.disabled = false; btn.textContent = 'Run Glean Refresh'; }
+      var defaultLabel = 'Run Glean Refresh';
+      if (POC_DATA && POC_DATA.refreshConfig && !POC_DATA.refreshConfig.canTrigger) {
+        defaultLabel = 'Refresh From Sheet';
+      }
+      if (btn) { btn.disabled = false; btn.textContent = defaultLabel; }
       if (!result || !result.success) {
         alert('Glean refresh failed: ' + ((result && result.error) || 'Unknown error'));
         return;
       }
       alert(
         'Glean refresh complete.\\n' +
-        'Mode: ' + (result.mode || 'glean_writeback') + '\\n' +
+        'Mode: ' + (result.mode || 'apps_script_snapshot_replace') + '\\n' +
         'Fetched actions: ' + (result.fetchedActions || 0) + '\\n' +
-        'Inserted: ' + (result.inserted || 0) + '\\n' +
-        'Updated: ' + (result.updated || 0) + '\\n' +
+        'Replaced rows: ' + (result.replaced || 0) + '\\n' +
+        'Old rows cleared: ' + (result.removed || 0) + '\\n' +
+        'Max per account: ' + (result.maxPerAccount || 6) + '\\n' +
         'POC Actions rows now: ' + (result.rowsInPocActions || 0)
       );
       POC_DATA = null;
       loadPocData();
     })
     .withFailureHandler(function(err) {
-      if (btn) { btn.disabled = false; btn.textContent = 'Run Glean Refresh'; }
+      if (btn) { btn.disabled = false; btn.textContent = (POC_DATA && POC_DATA.refreshConfig && !POC_DATA.refreshConfig.canTrigger) ? 'Refresh From Sheet' : 'Run Glean Refresh'; }
       alert('Glean refresh failed: ' + (err.message || String(err)));
     })
     .runPocGleanRefreshNow();
+}
+
+function loadTeamRecapNote() {
+  var btn = document.getElementById('teamRecapNoteBtn');
+  if (btn) {
+    btn.disabled = true;
+    btn.textContent = 'Generating...';
+  }
+  TEAM_RECAP_NOTE = { loading: true };
+  renderDashboard(window._dashData || DASHBOARD_DATA || []);
+
+  google.script.run
+    .withSuccessHandler(function(result) {
+      TEAM_RECAP_NOTE = (result && result.success) ? result : {
+        success: false,
+        error: (result && result.error) || 'Unknown error'
+      };
+      if (btn) {
+        btn.disabled = false;
+        btn.textContent = 'Recap Note';
+      }
+      renderDashboard(window._dashData || DASHBOARD_DATA || []);
+    })
+    .withFailureHandler(function(err) {
+      TEAM_RECAP_NOTE = {
+        success: false,
+        error: err && err.message ? err.message : String(err)
+      };
+      if (btn) {
+        btn.disabled = false;
+        btn.textContent = 'Recap Note';
+      }
+      renderDashboard(window._dashData || DASHBOARD_DATA || []);
+    })
+    .getTeamRecapNote();
+}
+
+function loadPocRecapNote() {
+  var btn = document.getElementById('pocRecapNoteBtn');
+  if (btn) {
+    btn.disabled = true;
+    btn.textContent = 'Generating...';
+  }
+  POC_RECAP_NOTE = { loading: true };
+  if (POC_DATA) renderPoc(POC_DATA, POC_REFRESH_STATUS);
+
+  google.script.run
+    .withSuccessHandler(function(result) {
+      POC_RECAP_NOTE = (result && result.success) ? result : {
+        success: false,
+        error: (result && result.error) || 'Unknown error'
+      };
+      if (btn) {
+        btn.disabled = false;
+        btn.textContent = 'Recap Note';
+      }
+      if (POC_DATA) renderPoc(POC_DATA, POC_REFRESH_STATUS);
+    })
+    .withFailureHandler(function(err) {
+      POC_RECAP_NOTE = {
+        success: false,
+        error: err && err.message ? err.message : String(err)
+      };
+      if (btn) {
+        btn.disabled = false;
+        btn.textContent = 'Recap Note';
+      }
+      if (POC_DATA) renderPoc(POC_DATA, POC_REFRESH_STATUS);
+    })
+    .getPocRecapNote();
 }
 
 // =====================================================================
@@ -1713,27 +2681,9 @@ function parseMoneyish(val) {
 }
 
 function normalizeSelfForecast(rawSelf, sfVal, qbrVal) {
-  var raw = (rawSelf === null || rawSelf === undefined) ? "" : String(rawSelf).toLowerCase();
   var v = parseMoneyish(rawSelf);
   if (v <= 0) return 0;
-  // If user included explicit units/symbols, trust the parsed value as-is.
-  if (/[mk$]/.test(raw)) return v;
-
-  var sf = parseMoneyish(sfVal);
-  var qb = parseMoneyish(qbrVal);
-  var ref = Math.max(sf, qb);
-  if (ref < 100000) return v;
-
-  // Heuristic: pick the scale that is closest to the SF/QBR magnitude.
-  var candidates = [v, v * 1000, v * 100000, v * 1000000];
-  var best = candidates[0];
-  var bestScore = Math.abs(Math.log10(Math.max(best, 1)) - Math.log10(Math.max(ref, 1)));
-  for (var i = 1; i < candidates.length; i++) {
-    var c = candidates[i];
-    var score = Math.abs(Math.log10(Math.max(c, 1)) - Math.log10(Math.max(ref, 1)));
-    if (score < bestScore) { best = c; bestScore = score; }
-  }
-  return best;
+  return v;
 }
 
 function fmtK(val) {
@@ -1808,7 +2758,10 @@ function submitEditModal() {
       if (result && result.message) {
         status.style.color = '#10b981';
         status.textContent = result.message;
-        setTimeout(function() { closeEditModal(); location.reload(); }, 1800);
+        setTimeout(function() {
+          closeEditModal();
+          window.top.location.href = APP_EXEC_URL + "?page=dashboard&saved=1&v=" + Date.now();
+        }, 900);
       }
     })
     .withFailureHandler(function(err) {
@@ -1854,13 +2807,14 @@ function submitEditModal() {
 </div>
 <!-- Rainmaker Metrics -->
 <div style="background:#f9fafb;border:1px solid #e5e7eb;border-radius:10px;padding:16px;margin-bottom:14px;">
-<div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#6b7280;margin-bottom:10px;padding-bottom:6px;border-bottom:2px solid #e5e7eb;">Rainmaker Metrics</div>
+<div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#6b7280;margin-bottom:10px;padding-bottom:6px;border-bottom:2px solid #e5e7eb;">Rainmaker Metrics — This Week Plan</div>
 <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;">
 <div><label style="font-size:12px;font-weight:600;color:#374151;display:block;margin-bottom:4px;">Discovery Mtgs</label><input type="number" id="m_rm_disco" min="0" value="0" style="width:100%;padding:9px 11px;border:1px solid #d1d5db;border-radius:7px;font-size:14px;font-family:inherit;"></div>
 <div><label style="font-size:12px;font-weight:600;color:#374151;display:block;margin-bottom:4px;">NBMs</label><input type="number" id="m_rm_nbm" min="0" value="0" style="width:100%;padding:9px 11px;border:1px solid #d1d5db;border-radius:7px;font-size:14px;font-family:inherit;"></div>
-<div><label style="font-size:12px;font-weight:600;color:#374151;display:block;margin-bottom:4px;">New Opp ARR ($)</label><input type="text" id="m_rm_opp" placeholder="e.g. 150k" style="width:100%;padding:9px 11px;border:1px solid #d1d5db;border-radius:7px;font-size:14px;font-family:inherit;"></div>
-<div><label style="font-size:12px;font-weight:600;color:#374151;display:block;margin-bottom:4px;">Target Accounts</label><input type="text" id="m_rm_accts" placeholder="# active" style="width:100%;padding:9px 11px;border:1px solid #d1d5db;border-radius:7px;font-size:14px;font-family:inherit;"></div>
+<div><label style="font-size:12px;font-weight:600;color:#374151;display:block;margin-bottom:4px;">NBM Customer Name</label><input type="text" id="m_rm_nbm_customer" placeholder="Insert Customer Name" style="width:100%;padding:9px 11px;border:1px solid #d1d5db;border-radius:7px;font-size:14px;font-family:inherit;"></div>
+<div><label style="font-size:12px;font-weight:600;color:#374151;display:block;margin-bottom:4px;">Planned Channel Meetings</label><input type="number" id="m_rm_accts" min="0" value="0" placeholder="0" style="width:100%;padding:9px 11px;border:1px solid #d1d5db;border-radius:7px;font-size:14px;font-family:inherit;"></div>
 </div>
+<input type="hidden" id="m_rm_opp" value="">
 </div>
 <!-- Accounts -->
 <div style="background:#f9fafb;border:1px solid #e5e7eb;border-radius:10px;padding:16px;margin-bottom:14px;">
@@ -2019,7 +2973,8 @@ function mPrefillForm(d) {
   mUpdatePulse && mUpdatePulse();
   // Rainmaker
   sv2("m_rm_disco", d.rm_disco); sv2("m_rm_nbm", d.rm_nbm);
-  sv2("m_rm_opp", d.rm_opp); sv2("m_rm_accts", d.rm_accts);
+  sv2("m_rm_nbm_customer", d.nbm_scheduled_week);
+  sv2("m_rm_accts", d.rm_accts);
   // Forecast
   sv2("m_commit", d.commit); sv2("m_likely", d.likely);
   sv2("m_upside", d.upside); sv2("m_nq_commit", d.nq_commit);
@@ -2057,7 +3012,7 @@ function mUpdatePulse() {
 function mSubmitForm() {
   // Validate at least one meaningful field before submitting
   var hasData = false;
-  var checkIds = ["m_pulseReason","m_rm_disco","m_rm_nbm","m_rm_opp","m_commit","m_likely","m_upside","m_goal","m_risk","m_ask"];
+  var checkIds = ["m_pulseReason","m_rm_disco","m_rm_nbm","m_rm_nbm_customer","m_rm_accts","m_commit","m_likely","m_upside","m_goal","m_risk","m_ask"];
   for (var ci = 0; ci < checkIds.length; ci++) {
     var el = document.getElementById(checkIds[ci]);
     if (el && String(el.value || "").trim() !== "" && String(el.value || "").trim() !== "0") { hasData = true; break; }
@@ -2075,6 +3030,17 @@ function mSubmitForm() {
   }
   var btn = document.getElementById("modalSaveBtn");
   var statusEl = document.getElementById("modalStatus");
+  var modalNbm = parseInt(document.getElementById("m_rm_nbm").value, 10) || 0;
+  var modalNbmCustomer = String(document.getElementById("m_rm_nbm_customer").value || "").trim();
+  if (modalNbm > 0 && !modalNbmCustomer) {
+    if (statusEl) {
+      statusEl.style.display = "block";
+      statusEl.style.color = "red";
+      statusEl.textContent = "If NBM is greater than zero, Insert Customer Name is required.";
+    }
+    document.getElementById("m_rm_nbm_customer").focus();
+    return;
+  }
   if (!_modalEmail) return;
   function gv(id) { var el=document.getElementById(id); return el?el.value:""; }
   var formData = {
@@ -2083,7 +3049,9 @@ function mSubmitForm() {
     pulseScore: gv("m_pulseScore"),
     pulseReason: gv("m_pulseReason"),
     rm_disco: gv("m_rm_disco"), rm_nbm: gv("m_rm_nbm"),
-    rm_opp: gv("m_rm_opp"), rm_accts: gv("m_rm_accts"),
+    rm_opp: "", rm_accts: gv("m_rm_accts"),
+    nbm_scheduled_count: gv("m_rm_nbm"),
+    nbm_scheduled_week: gv("m_rm_nbm_customer"),
     forecast_note: gv("m_forecast_note"),
     commit: gv("m_commit"), likely: gv("m_likely"),
     upside: gv("m_upside"), nq_commit: gv("m_nq_commit"),
@@ -2106,7 +3074,10 @@ function mSubmitForm() {
       btn.disabled = false; btn.textContent = "\u2713 Save Recap";
       statusEl.style.cssText = "display:block;padding:10px 14px;border-radius:8px;font-size:13px;background:#d1fae5;color:#065f46;border:1px solid #6ee7b7;margin:0 0 12px;";
       statusEl.textContent = "\u2705 " + (result.message || "Saved!");
-      setTimeout(function() { closeEditModal(); location.reload(); }, 1500);
+      setTimeout(function() {
+        closeEditModal();
+        window.top.location.href = APP_EXEC_URL + "?page=dashboard&saved=1&v=" + Date.now();
+      }, 900);
     })
     .withFailureHandler(function(err) {
       btn.disabled = false; btn.textContent = "\u2713 Save Recap";

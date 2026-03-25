@@ -2,7 +2,9 @@
 // CONFIG — global constants and shared helpers
 // -----------------------------------------------------------------------
 var ADMIN_EMAIL         = "billy.schuett@glean.com";
+var TRACKER_SHEET_ID    = "1tK7hslM--NY0fU6z7zvDwjw3K63DOTayAyQ0KE20J14";
 var MAIN_SHEET_NAME    = "Main Sheet";
+var SUBMISSIONS_SHEET_NAME = MAIN_SHEET_NAME;
 var DEALS_SHEET_NAME    = "Billy WR - Total Pipe SF-data";
 var PIPELINE_SHEET_NAME = "Billy WR - Total Ent Stage 2 FY";
 var STAGE4_SHEET_NAME   = "Billy WR - Ent Stage 4+ CurrentQ/NQ";
@@ -10,6 +12,13 @@ var DISCO_SHEET_NAME    = "Billy - WR Disco Meetings CQ";
 var NBM_SHEET_NAME      = "Billy WR - Enterprise - NBM CQ";
 var POC_ACCOUNTS_SHEET  = "POC Accounts";
 var POC_ACTIONS_SHEET   = "POC Actions";
+var SUMMARY_ADMIN_SHEET = "Summary_Admin";
+var QUOTA_CONFIG_SHEET  = "Quota_Config";
+var CLOSED_WON_REPORT_SHEET_NAME = "SF_Closed_Won_CQ";
+var SUMMARY_NEXT_QUARTER_OVERRIDE = 8437800;
+var SUMMARY_TEAM_NAME   = "NorthCentral Enterprise";
+var SUMMARY_AI_SHEET    = "Summary_AI";
+var SUMMARY_AI_MODEL    = "gpt-5.1";
 
 var ACCT_BASES = [9, 15, 21, 27, 33, 39];
 
@@ -31,6 +40,16 @@ var NAME_MAP = {
   "billy.schuett@glean.com":    "Billy Schuett"
 };
 
+var NAME_ALIASES_MAP = {
+  "niko.argaez@glean.com":      ["Niko Argaez", "Nicolas Argaez"],
+  "taylor.lundberg@glean.com":  ["Taylor Lundberg"],
+  "james.demory@glean.com":     ["James DeMory", "James Demory"],
+  "johnny.hatch@glean.com":     ["Johnny Hatch", "John Hatch"],
+  "melissa.richards@glean.com": ["Melissa Richards"],
+  "daniel.broderick@glean.com": ["Daniel Broderick", "Dan Broderick"],
+  "billy.schuett@glean.com":    ["Billy Schuett", "William Schuett"]
+};
+
 var REP_EMAILS = [
   "niko.argaez@glean.com",
   "taylor.lundberg@glean.com",
@@ -40,10 +59,10 @@ var REP_EMAILS = [
   "daniel.broderick@glean.com"
 ];
 
-var _repStatsCache_ = null;
-
 var POC_ACCOUNTS_HEADERS = ["Account","Pilot Type","Status","Stage","Owner","SE","Champion","Pilot Start","Pilot End","Competitor","SFDC URL"];
 var POC_ACTIONS_HEADERS  = ["Account","Action Item","RAG","Signal Source","Notes","Last Updated","Updated By"];
+var SUMMARY_ADMIN_HEADERS = ["week_of","leader_note","shout_outs","weekly_ask","theme","footer_note"];
+var QUOTA_CONFIG_HEADERS  = ["quarter_key","quarter_label","team_name","team_quota","closed_to_date","manager_name","notes"];
 
 var RECAP_HEADERS = [
   "Timestamp","Email","Week Of",
@@ -57,7 +76,7 @@ var RECAP_HEADERS = [
   "Acct6 Name","Acct6 Stage","Acct6 ARR","Acct6 Engage","Acct6 Move","Acct6 Next",
   "Forecast Note","Commit","Most Likely","Best Case","NQ Commit",
   "Goal","Risk","Ask",
-  "Engagement Changes","Forecast Changes","SF Accurate"
+  "Engagement Changes","Forecast Changes","SF Accurate","NBM Scheduled This Week","NBM Scheduled Count"
 ];
 
 // -----------------------------------------------------------------------
@@ -69,14 +88,97 @@ function _propOrDefault_(key, fallback) {
 }
 
 function getRecapSheet_() {
-  var ss = SpreadsheetApp.openById("1tK7hslM--NY0fU6z7zvDwjw3K63DOTayAyQ0KE20J14");
-  var sheet = ss.getSheetByName(MAIN_SHEET_NAME);
-  if (!sheet) sheet = ss.getSheets()[0];
+  return getSubmissionsSheet_();
+}
+
+function getOrCreateSummaryAdminSheet() {
+  var ss = SpreadsheetApp.openById(TRACKER_SHEET_ID);
+  var sheet = ss.getSheetByName(SUMMARY_ADMIN_SHEET);
+  if (!sheet) {
+    sheet = ss.insertSheet(SUMMARY_ADMIN_SHEET, ss.getSheets().length);
+    sheet.appendRow(SUMMARY_ADMIN_HEADERS);
+    sheet.getRange(1, 1, 1, SUMMARY_ADMIN_HEADERS.length).setFontWeight("bold");
+    sheet.setFrozenRows(1);
+  }
   return sheet;
 }
 
+function getOrCreateQuotaConfigSheet() {
+  var ss = SpreadsheetApp.openById(TRACKER_SHEET_ID);
+  var sheet = ss.getSheetByName(QUOTA_CONFIG_SHEET);
+  if (!sheet) {
+    sheet = ss.insertSheet(QUOTA_CONFIG_SHEET, ss.getSheets().length);
+    sheet.appendRow(QUOTA_CONFIG_HEADERS);
+    sheet.getRange(1, 1, 1, QUOTA_CONFIG_HEADERS.length).setFontWeight("bold");
+    sheet.setFrozenRows(1);
+  }
+  return sheet;
+}
+
+function getSubmissionsSheet_() {
+  var ss = SpreadsheetApp.openById(TRACKER_SHEET_ID);
+
+  // 1) Exact configured sheet name first.
+  var byName = ss.getSheetByName(SUBMISSIONS_SHEET_NAME);
+  if (byName) return byName;
+
+  // 2) Fallback: resolve by expected header signature.
+  var sheets = ss.getSheets();
+  for (var i = 0; i < sheets.length; i++) {
+    var sh = sheets[i];
+    var lastCol = sh.getLastColumn();
+    if (lastCol < 3) continue;
+
+    var header = sh.getRange(1, 1, 1, Math.min(lastCol, RECAP_HEADERS.length)).getValues()[0];
+    var match = 0;
+    var checkLen = Math.min(header.length, RECAP_HEADERS.length);
+    for (var c = 0; c < checkLen; c++) {
+      if (String(header[c] || "").trim() === String(RECAP_HEADERS[c] || "").trim()) match++;
+    }
+
+    // Require a strong signature match to avoid accidental misrouting.
+    if (match >= 12) return sh;
+  }
+
+  throw new Error(
+    "Submissions sheet not found. Expected sheet name '" + SUBMISSIONS_SHEET_NAME +
+    "' or a matching recap header row."
+  );
+}
+
 function getUserNameFromEmail(email) {
-  return NAME_MAP[email.toLowerCase().trim()] || null;
+  var cleaned = String(email || "").toLowerCase().trim();
+  if (!cleaned) return null;
+  if (NAME_MAP[cleaned]) return NAME_MAP[cleaned];
+  var local = cleaned.split("@")[0] || "";
+  if (!local) return null;
+  var parts = local.split(".").filter(Boolean).map(function(part) {
+    return part.charAt(0).toUpperCase() + part.slice(1);
+  });
+  return parts.length ? parts.join(" ") : null;
+}
+
+function getUserNameCandidatesFromEmail(email) {
+  var cleaned = String(email || "").toLowerCase().trim();
+  if (!cleaned) return [];
+  var seen = {};
+  var out = [];
+
+  function push_(name) {
+    var s = String(name || "").trim();
+    if (!s) return;
+    var key = s.toLowerCase();
+    if (seen[key]) return;
+    seen[key] = true;
+    out.push(s);
+  }
+
+  push_(NAME_MAP[cleaned]);
+  var aliases = NAME_ALIASES_MAP[cleaned] || [];
+  for (var i = 0; i < aliases.length; i++) push_(aliases[i]);
+  push_(getUserNameFromEmail(cleaned));
+
+  return out;
 }
 
 function normalizeEngagement(v) {
@@ -117,9 +219,17 @@ function normalizeMoneyThousandsCapped_(rawVal) {
 
 function normalizeForecastFields_(formObject) {
   ["commit","likely","upside","nq_commit"].forEach(function(f) {
-    var n = normalizeMoneyThousandsCapped_(formObject[f]);
-    if (n === "") return;
-    formObject[f] = n;
+    var raw = formObject[f];
+    if (raw === null || raw === undefined || raw === "") {
+      formObject[f] = "";
+      return;
+    }
+    var n = parseMoneyish_(raw);
+    if (n === "") {
+      formObject[f] = "";
+      return;
+    }
+    formObject[f] = Math.min(Math.round(n), 9999999);
   });
 
   var rmOpp = normalizeRainmakerOpp_(formObject.rm_opp);
@@ -138,6 +248,9 @@ function getBlankStats() {
   return { disco_rank:"-", disco_amt:0, nbm_rank:"-", nbm_amt:0, pipe_rank:"-", pipe_amt:0, stg4_rank:"-", stg4_amt:0 };
 }
 
-function getRainmakerImageBase64() {
-  return "";
+// -----------------------------------------------------------------------
+// SHARED HELPER — used by Code.js and other server-side files
+// -----------------------------------------------------------------------
+function cleanEmail_(v) {
+  return String(v || "").replace(/^["']+|["']+$/g, "").trim().toLowerCase();
 }

@@ -31,3 +31,6 @@ coverage/
 *.bak
 *snapshot*.csv
 
+
+# Local sibling projects
+concert-finder/

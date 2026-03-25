@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html>
+<head>
+<base target="_top">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --ink: #1f2937;
+    --muted: #6b7280;
+    --bg: #f4efe8;
+    --card: #ffffff;
+    --border: #e5e7eb;
+    --navy: #1f2c3d;
+    --blue: #2563eb;
+    --green: #16a34a;
+    --yellow: #d97706;
+    --red: #dc2626;
+    --orange: #f97316;
+  }
+  body {
+    font-family: 'Inter', sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    padding: 12px;
+    -webkit-font-smoothing: antialiased;
+  }
+  .shell { max-width: 720px; margin: 0 auto; }
+  .topbar {
+    background: var(--navy);
+    color: #fff;
+    border-radius: 18px;
+    padding: 16px;
+    margin-bottom: 14px;
+    box-shadow: 0 10px 24px rgba(15,23,42,.14);
+  }
+  .eyebrow {
+    font-size: 11px;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,.68);
+    margin-bottom: 6px;
+  }
+  .title { font-size: 28px; font-weight: 800; line-height: 1.05; }
+  .subtitle { margin-top: 4px; font-size: 14px; color: rgba(255,255,255,.76); font-weight: 600; }
+  .mobile-pillbar {
+    display: flex;
+    gap: 8px;
+    margin-top: 14px;
+    flex-wrap: wrap;
+  }
+  .mobile-pillbar a {
+    text-decoration: none;
+    color: #fff;
+    border: 1px solid rgba(255,255,255,.24);
+    border-radius: 999px;
+    padding: 8px 12px;
+    font-size: 12px;
+    font-weight: 700;
+  }
+  .section {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 16px;
+    margin-bottom: 14px;
+    box-shadow: 0 8px 22px rgba(15,23,42,.06);
+  }
+  .section h2 {
+    font-size: 18px;
+    font-weight: 800;
+    margin-bottom: 12px;
+    color: var(--navy);
+  }
+  .helper {
+    font-size: 12px;
+    color: var(--muted);
+    margin-bottom: 12px;
+  }
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+  .stat-card {
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 14px 10px;
+    text-align: center;
+  }
+  .stat-value { font-size: 26px; font-weight: 800; }
+  .stat-label { font-size: 11px; font-weight: 700; color: #94a3b8; text-transform: uppercase; margin-top: 4px; }
+  .stat-sub { font-size: 11px; color: var(--muted); margin-top: 3px; }
+  .banner-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+  .banner-card {
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 12px;
+    background: #fff;
+  }
+  .banner-label { font-size: 10px; font-weight: 700; text-transform: uppercase; color: #94a3b8; }
+  .banner-value { font-size: 21px; font-weight: 800; margin-top: 4px; }
+  label {
+    display: block;
+    font-size: 12px;
+    font-weight: 700;
+    color: #374151;
+    margin-bottom: 5px;
+  }
+  input[type="text"], input[type="number"], textarea, select {
+    width: 100%;
+    padding: 12px 13px;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    font: inherit;
+    color: var(--ink);
+    background: #fff;
+    margin-bottom: 12px;
+  }
+  textarea { min-height: 88px; resize: vertical; }
+  input[readonly] { background: #f8fafc; color: #475569; }
+  .small-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+  .radio-row {
+    display: flex;
+    gap: 14px;
+    align-items: center;
+    flex-wrap: wrap;
+    margin-bottom: 12px;
+  }
+  .radio-row label { margin: 0; display: inline-flex; align-items: center; gap: 6px; font-weight: 600; }
+  .pulse-row { display: flex; align-items: center; gap: 14px; margin-bottom: 12px; }
+  .pulse-row input[type="range"] { width: 100%; }
+  .pulse-value { min-width: 32px; font-size: 28px; font-weight: 800; color: var(--blue); text-align: center; }
+  .account-card {
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 12px;
+    background: #fcfcfd;
+    margin-bottom: 10px;
+  }
+  .account-card h3 { font-size: 15px; font-weight: 800; margin-bottom: 10px; }
+  .submit-btn {
+    width: 100%;
+    border: none;
+    border-radius: 14px;
+    background: var(--orange);
+    color: #fff;
+    font-size: 16px;
+    font-weight: 800;
+    padding: 14px 16px;
+    box-shadow: 0 8px 18px rgba(249,115,22,.24);
+  }
+  .submit-btn:disabled { opacity: .6; }
+  .toast {
+    position: sticky;
+    top: 8px;
+    z-index: 20;
+    background: #111827;
+    color: #fff;
+    padding: 10px 12px;
+    border-radius: 12px;
+    margin-bottom: 12px;
+    display: none;
+    font-size: 13px;
+    box-shadow: 0 10px 26px rgba(0,0,0,.22);
+  }
+  .toast.show { display: block; }
+  .toast.error { background: #991b1b; }
+</style>
+</head>
+<body>
+<div class="shell">
+  <div id="toast" class="toast"></div>
+  <div class="topbar">
+    <div class="eyebrow">NorthCentral Enterprise</div>
+    <div class="title">Weekly Recap</div>
+    <div class="subtitle" id="repNameDisplay">Loading…</div>
+    <div class="mobile-pillbar">
+      <a href="#" onclick="goSummary();return false;">Summary</a>
+      <a href="#" onclick="goDashboard();return false;">Dashboard</a>
+      <a href="#" onclick="goPoc();return false;">POC Center</a>
+      <a href="#" onclick="goDesktop();return false;">Desktop View</a>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>Quarter Snapshot</h2>
+    <div class="stats-grid" id="statsGrid"></div>
+  </div>
+
+  <div class="section">
+    <h2>Salesforce Pipeline</h2>
+    <div class="banner-grid" id="sfGrid"></div>
+  </div>
+
+  <div class="section">
+    <h2>Today</h2>
+    <input type="text" id="weekOfDisplay" readonly>
+    <input type="hidden" id="weekOf">
+  </div>
+
+  <div class="section">
+    <h2>Pulse Check</h2>
+    <div class="helper">How was last week overall?</div>
+    <div class="pulse-row">
+      <input type="range" id="pulseScore" min="1" max="10" value="5" oninput="updatePulseDisplay()">
+      <div class="pulse-value" id="pulseDisplay">5</div>
+    </div>
+    <label for="pulseReason">Short snippet on last week's activities</label>
+    <textarea id="pulseReason" placeholder="Give a short recap of last week..."></textarea>
+  </div>
+
+  <div class="section">
+    <h2>Rainmaker Metrics</h2>
+    <div class="helper">What do you plan to accomplish this week?</div>
+    <div class="small-grid">
+      <div>
+        <label for="rm_disco">Discovery Meetings</label>
+        <input type="number" id="rm_disco" inputmode="numeric" value="0">
+      </div>
+      <div>
+        <label for="rm_nbm">NBMs</label>
+        <input type="number" id="rm_nbm" inputmode="numeric" value="0">
+      </div>
+    </div>
+    <label for="rm_nbm_customer">NBM Customer Name</label>
+    <input type="text" id="rm_nbm_customer" placeholder="Insert Customer Name">
+    <label for="rm_accts">Planned Channel Meetings</label>
+    <input type="number" id="rm_accts" inputmode="numeric" value="0">
+  </div>
+
+  <div class="section">
+    <h2>Account Updates</h2>
+    <div class="helper">Capture your top account changes. Fill as many as you need.</div>
+    <div id="accountsWrap"></div>
+  </div>
+
+  <div class="section">
+    <h2>Forecast</h2>
+    <div class="radio-row">
+      <span style="font-size:12px;font-weight:700;color:#374151;">Is SFDC up to date?</span>
+      <label><input type="radio" name="sf_accurate" value="Yes"> Yes</label>
+      <label><input type="radio" name="sf_accurate" value="No"> No</label>
+    </div>
+    <div class="small-grid">
+      <div>
+        <label for="commit">Commit ($)</label>
+        <input type="text" id="commit" inputmode="decimal">
+      </div>
+      <div>
+        <label for="likely">Most Likely ($)</label>
+        <input type="text" id="likely" inputmode="decimal">
+      </div>
+      <div>
+        <label for="upside">Best Case ($)</label>
+        <input type="text" id="upside" inputmode="decimal">
+      </div>
+      <div>
+        <label for="nq_commit">NQ Commit ($)</label>
+        <input type="text" id="nq_commit" inputmode="decimal">
+      </div>
+    </div>
+    <label for="forecast_note">Forecast Notes</label>
+    <textarea id="forecast_note" placeholder="What changed in your forecast?"></textarea>
+  </div>
+
+  <div class="section">
+    <h2>Goal / Risk / Ask</h2>
+    <label for="goal">Goal</label>
+    <textarea id="goal"></textarea>
+    <label for="risk">Risk</label>
+    <textarea id="risk"></textarea>
+    <label for="ask">Ask</label>
+    <textarea id="ask"></textarea>
+  </div>
+
+  <div class="section">
+    <button type="button" class="submit-btn" id="submitBtn" onclick="submitForm(event)">Submit Weekly Recap</button>
+  </div>
+</div>
+
+<script>
+  var __BOOT = {};
+  try {
+    __BOOT = JSON.parse(<?= JSON.stringify(typeof bootstrapJson === 'undefined' ? '{}' : bootstrapJson) ?>) || {};
+  } catch (bootErr) {
+    __BOOT = {};
+  }
+  var SESSION_EMAIL  = __BOOT.sessionEmail || "";
+  var SCRIPT_URL     = __BOOT.scriptUrl || "";
+  var LAST_DATA      = __BOOT.lastData || null;
+  var USER_STATS     = __BOOT.userStats || {};
+  var SF_DATA        = __BOOT.sfData || {};
+  var QBR_CALL       = __BOOT.qbrCall || {};
+  var IS_ADMIN       = !!__BOOT.isAdmin;
+  var APP_EXEC_URL   = "https://script.google.com/a/macros/glean.com/s/AKfycbxt9SVE3r4zf7PB0auoKaXODrnSWNm2p-Kh3ByoVWHw9YJzjkClEP8Shb2-embIfKJ5/exec";
+  var _submitInFlight = false;
+  var _submitWatchdog = null;
+  var NAME_MAP = {
+    "billy.schuett@glean.com":"Billy Schuett","niko.argaez@glean.com":"Niko Argaez",
+    "taylor.lundberg@glean.com":"Taylor Lundberg","james.demory@glean.com":"James DeMory",
+    "johnny.hatch@glean.com":"Johnny Hatch","melissa.richards@glean.com":"Melissa Richards",
+    "daniel.broderick@glean.com":"Daniel Broderick"
+  };
+  function goSummary() { window.top.location.href = APP_EXEC_URL + '?page=summary&v=' + Date.now(); }
+  function goDashboard() { window.top.location.href = APP_EXEC_URL + '?page=dashboard&v=' + Date.now(); }
+  function goPoc() { window.top.location.href = APP_EXEC_URL + '?page=poc&v=' + Date.now(); }
+  function goDesktop() { window.top.location.href = APP_EXEC_URL + '?page=recap&desktop=1&v=' + Date.now(); }
+  function getTodayDateISO() { return new Date().toISOString().slice(0, 10); }
+  function updatePulseDisplay() {
+    var v = document.getElementById('pulseScore').value || 5;
+    document.getElementById('pulseDisplay').textContent = v;
+  }
+  function showToast(msg, isError) {
+    var el = document.getElementById('toast');
+    el.textContent = msg || '';
+    el.className = 'toast show' + (isError ? ' error' : '');
+    clearTimeout(showToast._t);
+    showToast._t = setTimeout(function(){ el.className = 'toast'; }, 3500);
+  }
+  function parseMoneyishInput(val) {
+    if (val === null || val === undefined || val === '') return '';
+    if (typeof val === 'number') return isNaN(val) ? '' : val;
+    var s = String(val).toLowerCase().trim();
+    if (!s) return '';
+    var n = parseFloat(s.replace(/[^0-9.]/g, '')) || 0;
+    if (s.indexOf('m') !== -1) n = n * 1000000;
+    else if (s.indexOf('k') !== -1) n = n * 1000;
+    if (n === 0 && /^[$\s,0.]+$/.test(s)) return 0;
+    return n ? n : '';
+  }
+  function normalizeForecastInputAllowZero(val) {
+    if (val === null || val === undefined) return '';
+    var raw = String(val).trim();
+    if (raw === '') return '';
+    var n = parseMoneyishInput(raw);
+    if (n === '') {
+      var digits = raw.replace(/[^0-9.]/g, '');
+      if (digits === '0' || digits === '0.0' || digits === '0.00') return 0;
+      return '';
+    }
+    return Math.round(Number(n) || 0);
+  }
+  function normalizeMoneyThousandsInput(val) {
+    var n = parseMoneyishInput(val);
+    if (n === '') return '';
+    if (!/[mk]/i.test(String(val || '')) && Number(n) < 1000) n = Number(n) * 1000;
+    return Math.min(Math.round(Number(n) || 0), 9999999);
+  }
+  function fmtMoney(val) {
+    var n = parseMoneyishInput(val);
+    if (!n) return '$0';
+    return '$' + Math.round(n).toLocaleString('en-US');
+  }
+  function setVal(id, val) {
+    var el = document.getElementById(id);
+    if (el) el.value = (val === null || val === undefined) ? '' : val;
+  }
+  function getVal(id) {
+    var el = document.getElementById(id);
+    return el ? el.value : '';
+  }
+  function buildAccounts() {
+    var html = '';
+    for (var i = 1; i <= 6; i++) {
+      html += ''
+        + '<div class="account-card">'
+        + '  <h3>Account ' + i + '</h3>'
+        + '  <label for="acct' + i + '_name">Account Name</label><input type="text" id="acct' + i + '_name">'
+        + '  <label for="acct' + i + '_stage">Stage</label><input type="text" id="acct' + i + '_stage">'
+        + '  <label for="acct' + i + '_arr">ARR ($)</label><input type="text" id="acct' + i + '_arr" inputmode="decimal">'
+        + '  <div class="radio-row">'
+        + '    <span style="font-size:12px;font-weight:700;color:#374151;">Engagement</span>'
+        + '    <label><input type="radio" name="acct' + i + '_engage" value="Green"> Green</label>'
+        + '    <label><input type="radio" name="acct' + i + '_engage" value="Yellow"> Yellow</label>'
+        + '    <label><input type="radio" name="acct' + i + '_engage" value="Red"> Red</label>'
+        + '  </div>'
+        + '  <label for="acct' + i + '_move">What Changed?</label><textarea id="acct' + i + '_move"></textarea>'
+        + '  <label for="acct' + i + '_next">Next Step</label><textarea id="acct' + i + '_next"></textarea>'
+        + '</div>';
+    }
+    document.getElementById('accountsWrap').innerHTML = html;
+  }
+  function prefillFromLast(lastData) {
+    if (!lastData) return;
+    setVal('weekOf', lastData.weekOf || getTodayDateISO());
+    setVal('weekOfDisplay', lastData.weekOf || getTodayDateISO());
+    setVal('pulseScore', lastData.pulseScore || 5); updatePulseDisplay();
+    setVal('pulseReason', lastData.pulseReason || '');
+    setVal('rm_disco', 0);
+    setVal('rm_nbm', 0);
+    setVal('rm_nbm_customer', '');
+    setVal('rm_accts', 0);
+    setVal('forecast_note', lastData.forecast_note || '');
+    setVal('commit', lastData.commit || '');
+    setVal('likely', lastData.likely || '');
+    setVal('upside', lastData.upside || '');
+    setVal('nq_commit', lastData.nq_commit || '');
+    setVal('goal', lastData.goal || '');
+    setVal('risk', lastData.risk || '');
+    setVal('ask', lastData.ask || '');
+    if (lastData.sf_accurate) {
+      var radio = document.querySelector('input[name="sf_accurate"][value="' + lastData.sf_accurate + '"]');
+      if (radio) radio.checked = true;
+    }
+    for (var i = 1; i <= 6; i++) {
+      setVal('acct' + i + '_name', lastData['acct' + i + '_name'] || '');
+      setVal('acct' + i + '_stage', lastData['acct' + i + '_stage'] || '');
+      setVal('acct' + i + '_arr', lastData['acct' + i + '_arr'] || '');
+      setVal('acct' + i + '_move', lastData['acct' + i + '_move'] || '');
+      setVal('acct' + i + '_next', lastData['acct' + i + '_next'] || '');
+      var engage = lastData['acct' + i + '_engage'];
+      if (engage) {
+        var er = document.querySelector('input[name="acct' + i + '_engage"][value="' + engage + '"]');
+        if (er) er.checked = true;
+      }
+    }
+  }
+  function renderStats() {
+    var s = USER_STATS || {};
+    var cards = [
+      { label: 'CQ Disco Mtgs', value: s.disco_amt || 0, sub: 'CQ Rank #' + (s.disco_rank || '-') },
+      { label: 'CQ NBMs', value: s.nbm_amt || 0, sub: s.nbm_rank === 'dead_last' ? 'No CQ NBMs logged' : 'CQ Rank #' + (s.nbm_rank || '-') },
+      { label: 'CQ Pipeline', value: fmtMoney(s.pipe_amt), sub: 'CQ Rank #' + (s.pipe_rank || '-') },
+      { label: 'CQ Stage 4+', value: fmtMoney(s.stg4_amt), sub: 'CQ Rank #' + (s.stg4_rank || '-') }
+    ];
+    document.getElementById('statsGrid').innerHTML = cards.map(function(c) {
+      return '<div class="stat-card"><div class="stat-value">' + c.value + '</div><div class="stat-label">' + c.label + '</div><div class="stat-sub">' + c.sub + '</div></div>';
+    }).join('');
+  }
+  function renderSfBanner() {
+    var sf = SF_DATA || {}, qbr = QBR_CALL || {};
+    var cards = [
+      { label: 'SF Commit', value: fmtMoney(sf.commit) },
+      { label: 'SF Most Likely', value: fmtMoney(sf.mostLikely) },
+      { label: 'SF Best Case', value: fmtMoney(sf.bestCase) },
+      { label: 'QBR Commit', value: fmtMoney(qbr.commit) },
+      { label: 'QBR Most Likely', value: fmtMoney(qbr.mostLikely) },
+      { label: 'QBR Best Case', value: fmtMoney(qbr.bestCase) }
+    ];
+    document.getElementById('sfGrid').innerHTML = cards.map(function(c) {
+      return '<div class="banner-card"><div class="banner-label">' + c.label + '</div><div class="banner-value">' + c.value + '</div></div>';
+    }).join('');
+  }
+  function validateForm() {
+    if (!getVal('weekOf')) setVal('weekOf', getTodayDateISO());
+    if (!getVal('pulseReason').trim()) return { ok: false, message: 'Pulse reason is required.' };
+    if (normalizeForecastInputAllowZero(getVal('commit')) === '') return { ok: false, message: 'Commit is required.' };
+    if (normalizeForecastInputAllowZero(getVal('likely')) === '') return { ok: false, message: 'Most Likely is required.' };
+    if (normalizeForecastInputAllowZero(getVal('upside')) === '') return { ok: false, message: 'Best Case is required.' };
+    var rmNbm = parseInt(getVal('rm_nbm'), 10) || 0;
+    var rmNbmCustomer = getVal('rm_nbm_customer').trim();
+    if (rmNbm > 0 && !rmNbmCustomer) return { ok: false, message: 'If NBM is greater than zero, Insert Customer Name is required.' };
+    return { ok: true };
+  }
+  function submitForm(evt) {
+    if (evt && evt.preventDefault) evt.preventDefault();
+    if (_submitInFlight) return;
+    var validation = validateForm();
+    if (!validation.ok) { showToast(validation.message, true); return; }
+    var btn = document.getElementById('submitBtn');
+    btn.disabled = true;
+    btn.textContent = 'Submitting...';
+    _submitInFlight = true;
+    if (_submitWatchdog) clearTimeout(_submitWatchdog);
+    _submitWatchdog = setTimeout(function() {
+      _submitInFlight = false;
+      btn.disabled = false;
+      btn.textContent = 'Submit Weekly Recap';
+      showToast('Submission timed out. Please retry once.', true);
+    }, 25000);
+    var formData = {
+      weekOf: document.getElementById('weekOf').value,
+      pulseScore: document.getElementById('pulseScore').value,
+      pulseReason: document.getElementById('pulseReason').value,
+      rm_disco: document.getElementById('rm_disco').value,
+      rm_nbm: document.getElementById('rm_nbm').value,
+      rm_opp: '',
+      rm_accts: document.getElementById('rm_accts').value,
+      nbm_scheduled_count: document.getElementById('rm_nbm').value,
+      nbm_scheduled_week: document.getElementById('rm_nbm_customer').value,
+      forecast_note: document.getElementById('forecast_note').value,
+      commit: normalizeForecastInputAllowZero(document.getElementById('commit').value),
+      likely: normalizeForecastInputAllowZero(document.getElementById('likely').value),
+      upside: normalizeForecastInputAllowZero(document.getElementById('upside').value),
+      nq_commit: normalizeForecastInputAllowZero(document.getElementById('nq_commit').value),
+      goal: document.getElementById('goal').value,
+      risk: document.getElementById('risk').value,
+      ask: document.getElementById('ask').value,
+      sf_accurate: document.querySelector('input[name="sf_accurate"]:checked') ? document.querySelector('input[name="sf_accurate"]:checked').value : ''
+    };
+    for (var i = 1; i <= 6; i++) {
+      formData['acct' + i + '_name'] = getVal('acct' + i + '_name');
+      formData['acct' + i + '_stage'] = getVal('acct' + i + '_stage');
+      formData['acct' + i + '_arr'] = normalizeMoneyThousandsInput(getVal('acct' + i + '_arr'));
+      var engRadio = document.querySelector('input[name="acct' + i + '_engage"]:checked');
+      formData['acct' + i + '_engage'] = engRadio ? engRadio.value : '';
+      formData['acct' + i + '_move'] = getVal('acct' + i + '_move');
+      formData['acct' + i + '_next'] = getVal('acct' + i + '_next');
+      formData['acct' + i + '_nochange'] = 'No';
+    }
+    google.script.run
+      .withSuccessHandler(function(result) {
+        if (_submitWatchdog) clearTimeout(_submitWatchdog);
+        _submitInFlight = false;
+        btn.disabled = false;
+        btn.textContent = 'Submit Weekly Recap';
+        showToast((result && result.message) ? result.message : 'Saved!');
+      })
+      .withFailureHandler(function(err) {
+        if (_submitWatchdog) clearTimeout(_submitWatchdog);
+        _submitInFlight = false;
+        btn.disabled = false;
+        btn.textContent = 'Submit Weekly Recap';
+        showToast('Error: ' + ((err && err.message) || err), true);
+      })
+      .processForm(formData);
+  }
+  function loadLiveRepContext() {
+    var email = String(SESSION_EMAIL || '').trim().toLowerCase();
+    if (!email) return;
+    google.script.run
+      .withSuccessHandler(function(jsonStr) {
+        var d = (typeof jsonStr === 'string') ? JSON.parse(jsonStr) : jsonStr;
+        if (!d) return;
+        USER_STATS = d.userStats || {};
+        SF_DATA = d.sfData || {};
+        QBR_CALL = d.qbrCall || {};
+        if (d.lastData) {
+          LAST_DATA = d.lastData;
+          prefillFromLast(d.lastData);
+        }
+        renderStats();
+        renderSfBanner();
+      })
+      .withFailureHandler(function(){})
+      .getRepDataForRecap(email);
+  }
+  buildAccounts();
+  document.getElementById('repNameDisplay').textContent = NAME_MAP[SESSION_EMAIL] || SESSION_EMAIL || 'Weekly Recap';
+  setVal('weekOf', getTodayDateISO());
+  setVal('weekOfDisplay', new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }));
+  updatePulseDisplay();
+  if (LAST_DATA) prefillFromLast(LAST_DATA);
+  renderStats();
+  renderSfBanner();
+  loadLiveRepContext();
+</script>
+</body>
+</html>

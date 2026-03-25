@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+<base target="_top">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Opening Weekly Recap</title>
+<style>
+  body { margin: 0; font-family: Inter, Arial, sans-serif; background: #f4efe8; color: #1f2937; }
+  .wrap { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 24px; }
+  .card { background: #fff; border: 1px solid #e5e7eb; border-radius: 18px; padding: 24px; max-width: 440px; width: 100%; text-align: center; box-shadow: 0 10px 24px rgba(15,23,42,.08); }
+  .title { font-size: 24px; font-weight: 800; margin-bottom: 8px; }
+  .sub { font-size: 14px; color: #6b7280; margin-bottom: 14px; }
+  .link { display: inline-block; padding: 10px 14px; border-radius: 999px; border: 1px solid #d1d5db; color: #111827; text-decoration: none; font-size: 13px; font-weight: 700; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="card">
+    <div class="title">Opening Weekly Recap</div>
+    <div class="sub">Loading the best layout for this device…</div>
+    <a class="link" id="fallbackLink" href="#">Open manually</a>
+  </div>
+</div>
+<script>
+  (function () {
+    var baseUrl = 'https://script.google.com/a/macros/glean.com/s/AKfycbxt9SVE3r4zf7PB0auoKaXODrnSWNm2p-Kh3ByoVWHw9YJzjkClEP8Shb2-embIfKJ5/exec';
+    var isMobile = false;
+    try {
+      isMobile = (window.matchMedia && window.matchMedia('(max-width: 768px)').matches) || window.innerWidth <= 768;
+    } catch (_) {
+      isMobile = false;
+    }
+    var target = baseUrl + '?page=' + (isMobile ? 'recap-mobile' : 'recap') + '&v=' + Date.now();
+    var link = document.getElementById('fallbackLink');
+    if (link) link.href = target;
+    setTimeout(function () {
+      try { window.location.replace(target); } catch (_) {}
+      try { window.location.href = target; } catch (_) {}
+      try { window.top.location.href = target; } catch (_) {}
+    }, 10);
+  })();
+</script>
+</body>
+</html>

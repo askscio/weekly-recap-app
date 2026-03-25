@@ -1,0 +1,15 @@
+**/**
+!appsscript.json
+!Code.js
+!Config.gs
+!Data.js
+!Leaderboard.js
+!POC.js
+!SummaryAI.js
+!dashboard.html
+!index.html
+!poc.html
+!recap_mobile.html
+!rep_router.html
+!summary.html
+!.claspignore

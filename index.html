@@ -8,30 +8,37 @@
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
   :root {
-    --navy: #0f2238; --bg: #f4efe5; --accent: #1d3654;
+    --navy: #1e2a3a; --bg: #f0f2f5; --accent: #1d3654;
     --green: #16a34a; --yellow: #d97706; --red: #dc2626;
-    --purple: #6d28d9; --blue: #1d4ed8; --border: #d8cfbf;
-    --ink: #1f2937; --muted: #6b7280;
+    --purple: #6d28d9; --blue: #3b82f6; --border: #e2e8f0;
+    --ink: #1f2937; --muted: #6b7280; --ink2: #334155;
   }
   body {
-    font-family: 'Manrope', 'IBM Plex Sans', sans-serif;
-    background:
-      radial-gradient(980px 380px at 2% -8%, #e8dbc2 0%, rgba(232,219,194,0) 72%),
-      radial-gradient(860px 360px at 100% -12%, #dce4d5 0%, rgba(220,228,213,0) 72%),
-      var(--bg);
+    font-family: 'Inter', sans-serif;
+    background: #e8e2d8;
     color: var(--ink);
+    padding: 18px;
   }
+  .shell { max-width: 1040px; margin: 0 auto; }
   .top-bar {
-    background: linear-gradient(135deg, #0d1f33 0%, #163a60 100%);
-    color: white; padding: 16px 28px;
-    display: flex; justify-content: space-between; align-items: center;
-    position: sticky; top: 0; z-index: 100;
-    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.28);
-    border-bottom: 1px solid rgba(255,255,255,0.08);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 18px;
+    background: rgba(255,255,255,.8);
+    border: 1px solid rgba(0,0,0,.08);
+    border-radius: 10px;
+    padding: 9px 12px;
+    box-shadow: 0 8px 20px rgba(15,23,42,.08);
   }
   .top-bar .actions { display: inline-flex; gap: 8px; align-items: center; }
-  .top-bar h1 { font-size: 19px; font-weight: 800; letter-spacing: .2px; }
-  .top-bar .meta { font-size: 12px; color: #bfccde; margin-top: 3px; font-weight: 600; }
+  .top-bar h1 { font-size: 19px; font-weight: 800; letter-spacing: .2px; margin: 0; }
+  .top-bar .meta { font-size: 11px; color: #6b7280; margin-top: 0; font-weight: 600; }
+  .page { background: #faf8f5; border: 1px solid rgba(0,0,0,.05); box-shadow: 0 14px 34px rgba(26,22,18,.08); border-radius: 14px; padding: 0; margin-bottom: 20px; }
+  .page-header { padding: 30px; border-bottom: 1px solid #e8e0d4; }
+  .page-header h1 { font-family: 'Playfair Display', serif; font-size: 34px; margin: 0 0 8px; }
   .top-bar a {
     color: #fff; text-decoration: none; font-size: 12px; font-weight: 800;
     letter-spacing: .3px; text-transform: uppercase;
@@ -47,7 +54,7 @@
     transition: all .15s ease;
   }
   .guide-btn:hover { background: rgba(34,197,94,.34); transform: translateY(-1px); }
-  .page { max-width: 980px; margin: 0 auto; padding: 24px 20px 34px; }
+  .page { max-width: 1180px; margin: 0 auto; padding: 24px 20px 34px; }
 
   /* Stats row */
   .stats-row {
@@ -56,10 +63,10 @@
   }
   @media (max-width: 768px) { .stats-row { grid-template-columns: repeat(2, 1fr); } }
   .stat-card {
-    background: linear-gradient(180deg, #fffdf8 0%, #f8f4eb 100%);
+    background: #fff;
     border-radius: 12px; padding: 16px;
     text-align: center; border: 1px solid var(--border);
-    box-shadow: 0 10px 22px rgba(15, 23, 42, .07);
+    box-shadow: 0 8px 20px rgba(15, 23, 42, .06);
   }
   .stat-icon { font-size: 18px; margin-bottom: 2px; }
   .stat-value { font-size: 22px; font-weight: 800; margin: 2px 0; }
@@ -68,20 +75,23 @@
 
   /* SF / QBR banners */
   .banner {
-    background: linear-gradient(180deg, #fffefb 0%, #f8f3ea 100%);
+    background: #fff;
     border-radius: 12px; padding: 16px 20px;
     margin-bottom: 16px; border: 1px solid var(--border);
-    box-shadow: 0 10px 22px rgba(15, 23, 42, .07);
+    box-shadow: 0 8px 20px rgba(15, 23, 42, .06);
   }
   .banner-title {
     font-size: 12px; font-weight: 700; text-transform: uppercase;
     letter-spacing: .5px; margin-bottom: 10px; padding-bottom: 6px;
     border-bottom: 2px solid #f0f0f0;
   }
-  .banner-row { display: flex; gap: 20px; flex-wrap: wrap; }
-  .banner-item { text-align: center; }
+  .banner-row { display: grid; grid-template-columns: repeat(6, 1fr); gap: 14px; }
+  .banner-item { text-align: center; padding-right: 10px; border-right: 1px solid #edf2f7; }
+  .banner-item:last-child { border-right: none; padding-right: 0; }
   .banner-label { font-size: 10px; font-weight: 600; color: #6b7280; text-transform: uppercase; }
   .banner-val { font-size: 18px; font-weight: 700; }
+  @media (max-width: 900px) { .banner-row { grid-template-columns: repeat(3, 1fr); } }
+  @media (max-width: 520px) { .banner-row { grid-template-columns: repeat(2, 1fr); } .banner-item { border-right: none; padding-right: 0; } }
 
   /* NBM warnings */
   .nbm-block {
@@ -95,10 +105,10 @@
 
   /* Section card */
   .section {
-    background: linear-gradient(180deg, #fffefb 0%, #faf6ef 100%);
+    background: #fff;
     border-radius: 12px; padding: 22px;
     margin-bottom: 18px; border: 1px solid var(--border);
-    box-shadow: 0 12px 24px rgba(15, 23, 42, .07);
+    box-shadow: 0 10px 24px rgba(15, 23, 42, .06);
   }
   .section h2 {
     font-size: 13px; color: var(--accent); text-transform: uppercase;
@@ -111,8 +121,9 @@
   input[type="text"], input[type="number"], input[type="date"], textarea, select {
     width: 100%; padding: 10px 12px; font-size: 14px;
     border: 1px solid var(--border); border-radius: 9px;
-    font-family: 'IBM Plex Sans', sans-serif; background: #f9f5ee;
+    font-family: 'Inter', sans-serif; background: #fff;
     transition: border-color .15s, background .15s, box-shadow .15s;
+    color: var(--ink);
   }
   input:focus, textarea:focus, select:focus {
     outline: none; border-color: #1d4ed8; background: white;
@@ -146,19 +157,39 @@
   }
 
   /* Account card */
+  .accounts-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+  }
   .acct-card {
-    background: linear-gradient(180deg, #fffefb 0%, #f7f1e7 100%);
-    border: 1px solid #ded4c5; border-radius: 10px;
+    background: #fff;
+    border: 1px solid #dde5ee; border-radius: 10px;
     padding: 14px; margin-bottom: 12px;
-    box-shadow: inset 0 1px 0 rgba(255,255,255,.75);
+    box-shadow: 0 8px 20px rgba(15,23,42,.05);
+    transition: border-color .2s ease, box-shadow .2s ease;
   }
   .acct-card.acct-top {
-    background: linear-gradient(180deg, #f0fdf4 0%, #dcfce7 100%);
-    border-color: #86efac;
+    background: #fff;
+    border-top: 4px solid #10b981;
+    border-color: #d8f3e4;
   }
   .acct-card.acct-bottom {
-    background: linear-gradient(180deg, #eff6ff 0%, #dbeafe 100%);
-    border-color: #93c5fd;
+    background: #fff;
+    border-top: 4px solid #3b82f6;
+    border-color: #dbeafe;
+  }
+  .acct-card.engage-green {
+    border: 2px solid #10b981;
+    box-shadow: 0 10px 22px rgba(16,185,129,.15);
+  }
+  .acct-card.engage-yellow {
+    border: 2px solid #f59e0b;
+    box-shadow: 0 10px 22px rgba(245,158,11,.16);
+  }
+  .acct-card.engage-red {
+    border: 2px solid #ef4444;
+    box-shadow: 0 10px 22px rgba(239,68,68,.15);
   }
   .acct-card .acct-header {
     display: flex; justify-content: space-between; align-items: center;
@@ -208,6 +239,9 @@
   .acct-card .acct-prev {
     font-size: 11px; color: #9ca3af; font-style: italic;
   }
+  @media (max-width: 860px) {
+    .accounts-grid { grid-template-columns: 1fr; }
+  }
 
   /* Engage radio group */
   .engage-group { display: flex; gap: 0; }
@@ -231,6 +265,38 @@
   /* Forecast */
   .forecast-grid {
     display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px;
+  }
+  .nbm-week-callout {
+    margin: 0 0 14px;
+    padding: 10px 12px;
+    border: 2px solid #8ab4f8;
+    border-radius: 14px;
+    background: linear-gradient(180deg, #eef6ff 0%, #ddeeff 100%);
+  }
+  .nbm-week-callout label {
+    color: #214e87;
+    text-align: center;
+    display: block;
+  }
+  .nbm-week-count {
+    text-align: center;
+    font-size: 30px !important;
+    font-weight: 800 !important;
+    color: #163b66;
+    background: rgba(255,255,255,0.94);
+  }
+  .nbm-week-sub {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: .8px;
+    color: #6783a6;
+    text-align: center;
+    margin: 8px 0 6px;
+    font-weight: 700;
+  }
+  .nbm-week-customer {
+    text-align: center;
+    background: rgba(255,255,255,0.94);
   }
   @media (max-width: 600px) { .forecast-grid { grid-template-columns: 1fr 1fr; } }
   .forecast-item { text-align: center; }
@@ -288,11 +354,11 @@
   .save-meta { margin-top: 10px; font-size: 12px; color: #16a34a; font-weight: 600; }
   .field-error { border-color: #dc2626 !important; background: #fef2f2 !important; }
   .submit-btn {
-    background: linear-gradient(135deg, #16a34a 0%, #0f8f3f 100%);
+    background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
     color: white; border: none;
     padding: 14px 48px; font-size: 16px; font-weight: 700;
     border-radius: 10px; cursor: pointer; transition: all .15s;
-    box-shadow: 0 10px 20px rgba(22,163,74,.28);
+    box-shadow: 0 10px 20px rgba(249,115,22,.24);
   }
   .submit-btn:hover { filter: brightness(1.03); transform: translateY(-1px); }
   .submit-btn:disabled { background: #9ca3af; cursor: not-allowed; transform: none; box-shadow: none; }
@@ -384,6 +450,12 @@
     margin-bottom: 12px;
     font-weight: 700;
   }
+  .success-actions {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
   .success-btn {
     border: 1px solid #16a34a;
     background: #16a34a;
@@ -393,6 +465,10 @@
     font-size: 13px;
     font-weight: 700;
     cursor: pointer;
+  }
+  .success-btn.secondary {
+    background: #fff;
+    color: #166534;
   }
 
   /* Admin preview bar */
@@ -501,6 +577,16 @@
     font-weight: 700;
   }
   .guide-launch .msg strong { color: #14532d; }
+  .guide-launch.active {
+    border-color: #60a5fa;
+    background: linear-gradient(180deg, #eff6ff 0%, #dbeafe 100%);
+  }
+  .guide-launch.active .msg {
+    color: #1d4ed8;
+  }
+  .guide-launch.active .msg strong {
+    color: #1e3a8a;
+  }
   .guide-card .g-step { font-size: 11px; text-transform: uppercase; letter-spacing: .5px; font-weight: 800; color: #166534; margin-bottom: 4px; }
   .guide-card .g-title { font-size: 18px; font-weight: 800; color: #1f2937; margin-bottom: 4px; }
   .guide-card .g-msg { font-size: 14px; color: #374151; line-height: 1.4; margin-bottom: 10px; }
@@ -590,7 +676,7 @@
     color: #9CA3AF !important;
     font-weight: 500 !important;
   }
-  .stat-value, .pulse-val, .banner-val, #weekOf, .forecast-compare, #rm_disco, #rm_nbm, #rm_opp, #rm_accts, .acct-mode .mode-opts label {
+  .stat-value, .pulse-val, .banner-val, #weekOf, #weekOfDisplay, .forecast-compare, #rm_disco, #rm_nbm, #rm_accts, .acct-mode .mode-opts label {
     font-family: 'Space Mono', monospace !important;
   }
 
@@ -685,7 +771,7 @@
     border-color: #3B82F6 !important;
     box-shadow: 0 0 0 3px rgba(59,130,246,.15) !important;
   }
-  #weekOf {
+  #weekOf, #weekOfDisplay {
     font-family: 'Space Mono', monospace !important;
     border: 1px solid #E5E7EB !important;
     border-radius: 6px !important;
@@ -694,7 +780,7 @@
   }
 
   #secRainmaker .form-grid-4 {
-    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
     gap: 16px !important;
   }
   #secRainmaker input[type="number"], #secRainmaker input[type="text"] {
@@ -797,7 +883,7 @@
   @media (max-width: 860px) {
     .banner-row { grid-template-columns: repeat(3, 1fr) !important; }
     .forecast-grid { grid-template-columns: repeat(2, 1fr) !important; }
-    #secRainmaker .form-grid-4 { grid-template-columns: repeat(2, 1fr) !important; }
+    #secRainmaker .form-grid-4 { grid-template-columns: 1fr !important; }
     .stats-row { grid-template-columns: repeat(2, 1fr) !important; }
   }
 </style>
@@ -828,10 +914,10 @@
   var _guide = { active: false, step: 0 };
   var GUIDE_STEPS = [
     { id: "secTopReview", title: "Top Metrics Review", message: "", manualOnly: true, done: function() { return false; } },
-    { id: "secWeek", title: "Week Of", message: "Set the recap week date.", done: function() { return !!getVal("weekOf"); } },
-    { id: "secPulse", title: "Pulse Check", message: "Set pulse and add a Why reason.", done: function() { return getVal("pulseReason").trim().length > 0; } },
-    { id: "secRainmaker", title: "Rainmaker Metrics", message: "Review and confirm Rainmaker metrics. Update if needed, then click Next.", manualOnly: true, done: function() {
-      return (parseFloat(getVal("rm_disco")) > 0) || (parseFloat(getVal("rm_nbm")) > 0) || (parseMoneyishInput(getVal("rm_opp")) > 0) || (getVal("rm_accts").trim().length > 0);
+    { id: "secWeek", title: "Today", message: "Today's date is auto-filled for this recap.", done: function() { return !!getVal("weekOf"); } },
+    { id: "secPulse", title: "Pulse Check — Last Week", message: "How was last week? Set pulse and add a short recap snippet.", done: function() { return getVal("pulseReason").trim().length > 0; } },
+    { id: "secRainmaker", title: "Rainmaker Metrics — This Week Plan", message: "Enter what you plan to accomplish this week.", manualOnly: true, done: function() {
+      return (parseFloat(getVal("rm_disco")) > 0) || (parseFloat(getVal("rm_nbm")) > 0) || (parseFloat(getVal("rm_accts")) > 0);
     } },
     { id: "secAccounts", title: "Account Updates (2x4)", message: "", manualOnly: true, done: function() {
       var complete = 0;
@@ -844,10 +930,10 @@
       return complete >= 2;
     } },
     { id: "secForecast", title: "Forecast", message: "Enter Commit, Most Likely, Best Case, and NQ Commit.", done: function() {
-      return (normalizeMoneyThousandsInput(getVal("commit")) > 0) &&
-             (normalizeMoneyThousandsInput(getVal("likely")) > 0) &&
-             (normalizeMoneyThousandsInput(getVal("upside")) > 0) &&
-             (normalizeMoneyThousandsInput(getVal("nq_commit")) > 0);
+      return normalizeForecastInputAllowZero(getVal("commit")) !== "" &&
+             normalizeForecastInputAllowZero(getVal("likely")) !== "" &&
+             normalizeForecastInputAllowZero(getVal("upside")) !== "" &&
+             normalizeForecastInputAllowZero(getVal("nq_commit")) !== "";
     } },
     { id: "secGRA", title: "Goal / Risk / Ask", message: "Fill all three text areas.", done: function() {
       return getVal("goal").trim().length > 0 && getVal("risk").trim().length > 0 && getVal("ask").trim().length > 0;
@@ -893,18 +979,19 @@
 
   function parseMoneyishInput(val) {
     if (val === null || val === undefined || val === "") return "";
-    if (typeof val === "number") return val;
+    if (typeof val === "number") return isNaN(val) ? "" : val;
     var s = String(val).toLowerCase().trim();
     if (!s) return "";
     var n = parseFloat(s.replace(/[^0-9.]/g, "")) || 0;
     if (s.indexOf("m") !== -1) n = n * 1000000;
     else if (s.indexOf("k") !== -1) n = n * 1000;
+    if (n === 0 && /^[$\s,0.]+$/.test(s)) return 0;
     return n ? n : "";
   }
 
   function formatCurrencyInput(val) {
     var n = parseMoneyishInput(val);
-    if (!n) return "";
+    if (n === "") return "";
     return "$" + Math.round(n).toLocaleString("en-US");
   }
 
@@ -924,22 +1011,47 @@
     return n;
   }
 
+  function normalizeForecastInputAllowZero(rawVal) {
+    if (rawVal === null || rawVal === undefined || rawVal === "") return "";
+    var raw = String(rawVal).toLowerCase().trim();
+    if (!raw) return "";
+
+    var n = parseMoneyishInput(rawVal);
+    if (n === 0) return 0;
+    if (!(n > 0)) return "";
+
+    n = Math.min(Math.round(n), 9999999);
+    return n;
+  }
+
   function normalizeSelfForecastInput(rawSelf, sfVal, qbrVal) {
-    return normalizeMoneyThousandsInput(rawSelf);
+    return normalizeForecastInputAllowZero(rawSelf);
   }
 
   function normalizeRainmakerOppInput(rawVal) {
     return normalizeMoneyThousandsInput(rawVal);
   }
 
-  function normalizeRainmakerOppInputDisplay() {
-    var norm = normalizeRainmakerOppInput(getVal('rm_opp'));
-    if (norm) setVal('rm_opp', formatCurrencyInput(norm));
-  }
-
   function pulseColor(score) {
     var n = parseFloat(score) || 0;
     return n >= 8 ? "#16a34a" : n >= 5 ? "#d97706" : "#dc2626";
+  }
+
+  function getTodayDateISO() {
+    var fmt = new Intl.DateTimeFormat('en-CA', {
+      timeZone: 'America/Chicago',
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit'
+    });
+    return fmt.format(new Date()); // YYYY-MM-DD
+  }
+
+  function formatDateForDisplay(iso) {
+    if (!iso) return "";
+    var d = new Date(iso + "T00:00:00");
+    if (isNaN(d)) return iso;
+    return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
   }
 
   function getCurrentWeekOf() {
@@ -1050,14 +1162,11 @@
       updateQaBanner();
     }
 
-    // Set week
+    // Set today (auto-filled, read-only for reps)
     var weekOfEl = document.getElementById('weekOf');
-    if (weekOfEl) weekOfEl.value = getCurrentWeekOf();
-
-    var rmOppEl = document.getElementById('rm_opp');
-    if (rmOppEl) {
-      rmOppEl.addEventListener('blur', normalizeRainmakerOppInputDisplay);
-    }
+    var weekOfDisplayEl = document.getElementById('weekOfDisplay');
+    if (weekOfEl) weekOfEl.value = getTodayDateISO();
+    if (weekOfDisplayEl) weekOfDisplayEl.value = formatDateForDisplay(weekOfEl ? weekOfEl.value : "");
     ["commit","likely","upside","nq_commit"].forEach(function(id) {
       var el = document.getElementById(id);
       if (!el) return;
@@ -1141,6 +1250,7 @@
     var allowed = isGuidePilotActiveUser();
     if (launch) launch.style.display = allowed ? "flex" : "none";
     if (!allowed && _guide.active) stopGuidedMode();
+    syncGuideLaunchState();
   }
 
   function setupGuideListeners() {
@@ -1148,9 +1258,26 @@
     document.addEventListener("change", function() { if (_guide.active) evaluateGuideProgress(); }, true);
   }
 
+  function syncGuideLaunchState() {
+    var launch = document.getElementById("guideLaunch");
+    var msg = document.getElementById("guideLaunchMsg");
+    var btn = document.getElementById("guideLaunchBtn");
+    if (!launch || !msg || !btn) return;
+    if (_guide.active) {
+      launch.classList.add("active");
+      msg.innerHTML = "<strong>Guided Mode is active.</strong> Step " + (_guide.step + 1) + " of " + GUIDE_STEPS.length + " is highlighted for you.";
+      btn.textContent = "Resume Guide";
+    } else {
+      launch.classList.remove("active");
+      msg.innerHTML = "<strong>Guided Mode:</strong> Use the 8-step walkthrough to move through your recap in order.";
+      btn.textContent = "Start Guided Mode";
+    }
+  }
+
   function startGuidedMode() {
     _guide.active = true;
     _guide.step = 0;
+    syncGuideLaunchState();
     renderGuideCard();
     focusGuideStep();
   }
@@ -1160,18 +1287,26 @@
     clearGuideHighlights();
     var overlay = document.getElementById("guideOverlay");
     if (overlay) overlay.style.display = "none";
+    syncGuideLaunchState();
   }
 
   function nextGuideStep() {
     if (!_guide.active) return;
-    if (_guide.step < GUIDE_STEPS.length - 1) _guide.step++;
-    renderGuideCard();
-    focusGuideStep();
+    if (_guide.step < GUIDE_STEPS.length - 1) {
+      _guide.step++;
+      syncGuideLaunchState();
+      renderGuideCard();
+      focusGuideStep();
+      return;
+    }
+    stopGuidedMode();
+    showToast("Guided mode complete. You're ready to submit.");
   }
 
   function prevGuideStep() {
     if (!_guide.active) return;
     if (_guide.step > 0) _guide.step--;
+    syncGuideLaunchState();
     renderGuideCard();
     focusGuideStep();
   }
@@ -1183,6 +1318,7 @@
     if (st.manualOnly) return;
     if (st.done && st.done() && _guide.step < GUIDE_STEPS.length - 1) {
       _guide.step++;
+      syncGuideLaunchState();
       renderGuideCard();
       focusGuideStep();
     }
@@ -1276,10 +1412,10 @@
     if (!statsEl) return;
 
     var cards = [
-      { icon: "&#128269;", label: "Disco Mtgs", value: s.disco_amt || 0, sub: "Rank #" + (s.disco_rank || "-") },
-      { icon: "&#128197;", label: "NBMs", value: s.nbm_amt || 0, sub: s.nbm_rank === "dead_last" ? "No NBMs logged" : "Rank #" + (s.nbm_rank || "-") },
-      { icon: "&#128176;", label: "Pipeline", value: fmtMoney(s.pipe_amt), sub: "Rank #" + (s.pipe_rank || "-") },
-      { icon: "&#127942;", label: "Stage 4+", value: fmtMoney(s.stg4_amt), sub: "Rank #" + (s.stg4_rank || "-") }
+      { icon: "&#128269;", label: "CQ Disco Mtgs", value: s.disco_amt || 0, sub: "CQ Rank #" + (s.disco_rank || "-") },
+      { icon: "&#128197;", label: "CQ NBMs", value: s.nbm_amt || 0, sub: s.nbm_rank === "dead_last" ? "No CQ NBMs logged" : "CQ Rank #" + (s.nbm_rank || "-") },
+      { icon: "&#128176;", label: "CQ Pipeline", value: fmtMoney(s.pipe_amt), sub: "CQ Rank #" + (s.pipe_rank || "-") },
+      { icon: "&#127942;", label: "CQ Stage 4+", value: fmtMoney(s.stg4_amt), sub: "CQ Rank #" + (s.stg4_rank || "-") }
     ];
 
     statsEl.innerHTML = cards.map(function(c) {
@@ -1350,11 +1486,10 @@
 
   function prefillFromLast(d) {
     setVal('pulseReason', d.pulseReason);
-    setVal('rm_disco', d.rm_disco);
-    setVal('rm_nbm', d.rm_nbm);
-    var rmOpp = normalizeRainmakerOppInput(d.rm_opp);
-    setVal('rm_opp', rmOpp ? formatCurrencyInput(rmOpp) : formatCurrencyInput(d.rm_opp));
-    setVal('rm_accts', d.rm_accts);
+    setVal('rm_disco', 0);
+    setVal('rm_nbm', 0);
+    setVal('rm_nbm_customer', '');
+    setVal('rm_accts', 0);
     if (d.pulseScore) {
       var slider = document.getElementById('pulseScore');
       if (slider) { slider.value = d.pulseScore; updatePulseDisplay(); }
@@ -1381,10 +1516,10 @@
     var u = normalizeSelfForecastInput(d.upside, SF_DATA && SF_DATA.bestCase, QBR_CALL && QBR_CALL.bestCase);
     var nq = parseMoneyishInput(d.nq_commit);
     // Ensure inputs display full dollar formatting (e.g. $260,000)
-    setVal('commit', c ? formatCurrencyInput(c) : formatCurrencyInput(d.commit));
-    setVal('likely', l ? formatCurrencyInput(l) : formatCurrencyInput(d.likely));
-    setVal('upside', u ? formatCurrencyInput(u) : formatCurrencyInput(d.upside));
-    setVal('nq_commit', nq ? formatCurrencyInput(nq) : formatCurrencyInput(d.nq_commit));
+    setVal('commit', c !== "" ? formatCurrencyInput(c) : formatCurrencyInput(d.commit));
+    setVal('likely', l !== "" ? formatCurrencyInput(l) : formatCurrencyInput(d.likely));
+    setVal('upside', u !== "" ? formatCurrencyInput(u) : formatCurrencyInput(d.upside));
+    setVal('nq_commit', nq !== "" ? formatCurrencyInput(nq) : formatCurrencyInput(d.nq_commit));
     setVal('forecast_note', d.forecast_note);
     setVal('goal', d.goal);
     setVal('risk', d.risk);
@@ -1415,10 +1550,10 @@
     var u = normalizeMoneyThousandsInput(getVal('upside'));
     var nq = normalizeMoneyThousandsInput(getVal('nq_commit'));
 
-    if (c) setVal('commit', formatCurrencyInput(c));
-    if (l) setVal('likely', formatCurrencyInput(l));
-    if (u) setVal('upside', formatCurrencyInput(u));
-    if (nq) setVal('nq_commit', formatCurrencyInput(nq));
+    if (c !== "") setVal('commit', formatCurrencyInput(c));
+    if (l !== "") setVal('likely', formatCurrencyInput(l));
+    if (u !== "") setVal('upside', formatCurrencyInput(u));
+    if (nq !== "") setVal('nq_commit', formatCurrencyInput(nq));
   }
 
   function setForecastEditable(editable) {
@@ -1449,11 +1584,19 @@
   function onSfAccuracyChange() {
     var val = getSfAccurateSelection();
     var note = document.getElementById("sfAccurateNote");
+    var sf = SF_DATA || {};
+    var hasNonZeroSf = parseMoneyishInput(sf.commit) > 0 ||
+      parseMoneyishInput(sf.mostLikely) > 0 ||
+      parseMoneyishInput(sf.bestCase) > 0;
     if (val === "Yes") {
       fillForecastFromSf();
       normalizeForecastInputsUsingContext();
-      setForecastEditable(false);
-      if (note) note.textContent = "Using Salesforce values for Commit / Most Likely / Best Case.";
+      setForecastEditable(!hasNonZeroSf);
+      if (note) {
+        note.textContent = hasNonZeroSf
+          ? "Using Salesforce values for Commit / Most Likely / Best Case."
+          : "Salesforce values are $0. You can type over Commit / Most Likely / Best Case.";
+      }
     } else if (val === "No") {
       setForecastEditable(true);
       if (note) note.textContent = "Please manually enter values and include one sentence in Forecast Notes explaining the difference.";
@@ -1481,6 +1624,18 @@
     display.style.color = pulseColor(v);
   }
 
+  function setAccountEngageStyle(card, value) {
+    if (!card) return;
+    card.classList.remove('engage-green', 'engage-yellow', 'engage-red');
+    if (value === 'Green') {
+      card.classList.add('engage-green');
+    } else if (value === 'Yellow') {
+      card.classList.add('engage-yellow');
+    } else if (value === 'Red') {
+      card.classList.add('engage-red');
+    }
+  }
+
   function highlightEngageGroup(radio) {
     var group = radio.closest('.engage-group');
     if (!group) return;
@@ -1491,6 +1646,8 @@
     var parentLabel = radio.closest('label');
     if (!parentLabel) return;
     parentLabel.classList.add('selected');
+    var card = radio.closest('.acct-card');
+    if (card) setAccountEngageStyle(card, radio.value);
   }
 
   function onEngageChange(radio) {
@@ -1581,13 +1738,15 @@
       pulseReason: document.getElementById('pulseReason').value,
       rm_disco: document.getElementById('rm_disco').value,
       rm_nbm: document.getElementById('rm_nbm').value,
-      rm_opp: normalizeRainmakerOppInput(document.getElementById('rm_opp').value),
+      rm_opp: "",
       rm_accts: document.getElementById('rm_accts').value,
+      nbm_scheduled_count: document.getElementById('rm_nbm').value,
+      nbm_scheduled_week: document.getElementById('rm_nbm_customer').value,
       forecast_note: document.getElementById('forecast_note').value,
-      commit: normalizeMoneyThousandsInput(document.getElementById('commit').value),
-      likely: normalizeMoneyThousandsInput(document.getElementById('likely').value),
-      upside: normalizeMoneyThousandsInput(document.getElementById('upside').value),
-      nq_commit: normalizeMoneyThousandsInput(document.getElementById('nq_commit').value),
+      commit: normalizeForecastInputAllowZero(document.getElementById('commit').value),
+      likely: normalizeForecastInputAllowZero(document.getElementById('likely').value),
+      upside: normalizeForecastInputAllowZero(document.getElementById('upside').value),
+      nq_commit: normalizeForecastInputAllowZero(document.getElementById('nq_commit').value),
       goal: document.getElementById('goal').value,
       risk: document.getElementById('risk').value,
       ask: document.getElementById('ask').value,
@@ -1627,8 +1786,29 @@
           }
           var meta = document.getElementById('saveMeta');
           if (meta) meta.textContent = "Last saved: " + new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', second: '2-digit' });
-          showSubmitSuccess((result && result.message) ? result.message : 'Submission received.');
-          stabilizeAfterSubmit_();
+          var submitMsg = (result && result.message) ? result.message : 'Submission received.';
+          var qaEmail = getSelectedQaEmail();
+          if (IS_ADMIN && qaEmail) {
+            showSubmitSuccess(submitMsg, {
+              closeLabel: 'Keep Reviewing',
+              primaryLabel: 'Back To Team Dashboard',
+              primaryAction: goToDashboard_,
+              secondaryLabel: 'Reopen This Rep',
+              secondaryAction: function() { goToRepQa_(qaEmail); }
+            });
+          } else if (IS_ADMIN && ON_BEHALF) {
+            showSubmitSuccess(submitMsg, {
+              closeLabel: 'Keep Reviewing',
+              primaryLabel: 'Back To Team Dashboard',
+              primaryAction: goToDashboard_,
+              secondaryLabel: 'Reopen This Rep',
+              secondaryAction: function() { goToRepQa_(ON_BEHALF); }
+            });
+          } else {
+            showSubmitSuccess(submitMsg, {
+              closeLabel: 'Stay Here'
+            });
+          }
         } catch (submitUiErr) {
           showFatalError(submitUiErr, "submit success handler");
         }
@@ -1645,16 +1825,7 @@
     return false;
   }
 
-  function stabilizeAfterSubmit_() {
-    // For admin QA submissions, hard-reload the same rep page using canonical URL.
-    var sel = document.getElementById("previewEmail");
-    var qaEmail = sel ? String(sel.value || "").trim().toLowerCase() : "";
-    if (IS_ADMIN && qaEmail) {
-      setTimeout(function() {
-        window.top.location.href = APP_EXEC_URL + "?page=rep&email=" + encodeURIComponent(qaEmail) + "&saved=1&v=" + Date.now();
-      }, 350);
-    }
-  }
+  function stabilizeAfterSubmit_() {}
 
   function clearValidationErrors() {
     var errs = document.querySelectorAll('.field-error');
@@ -1667,9 +1838,8 @@
   }
 
   function validateForm() {
-    var week = getVal('weekOf');
     var reason = getVal('pulseReason').trim();
-    if (!week) { markFieldError('weekOf'); return { ok: false, message: 'Week Of is required.' }; }
+    if (!getVal('weekOf')) setVal('weekOf', getTodayDateISO());
     if (!reason) { markFieldError('pulseReason'); return { ok: false, message: 'Pulse reason is required.' }; }
 
     var complete = 0;
@@ -1690,16 +1860,16 @@
     if (!sfAcc) {
       return { ok: false, message: 'Please answer whether Salesforce is up to date in the Forecast section.' };
     }
-    var commit = normalizeMoneyThousandsInput(getVal('commit'));
-    var likely = normalizeMoneyThousandsInput(getVal('likely'));
-    var upside = normalizeMoneyThousandsInput(getVal('upside'));
-    if (!(commit > 0)) { markFieldError('commit'); return { ok: false, message: 'Commit must be greater than $0.' }; }
-    if (!(likely > 0)) { markFieldError('likely'); return { ok: false, message: 'Most Likely must be greater than $0.' }; }
-    if (!(upside > 0)) { markFieldError('upside'); return { ok: false, message: 'Best Case must be greater than $0.' }; }
-    var nq = normalizeMoneyThousandsInput(getVal('nq_commit'));
-    if (!(nq > 0)) {
+    var commit = normalizeForecastInputAllowZero(getVal('commit'));
+    var likely = normalizeForecastInputAllowZero(getVal('likely'));
+    var upside = normalizeForecastInputAllowZero(getVal('upside'));
+    if (commit === "") { markFieldError('commit'); return { ok: false, message: 'Commit is required.' }; }
+    if (likely === "") { markFieldError('likely'); return { ok: false, message: 'Most Likely is required.' }; }
+    if (upside === "") { markFieldError('upside'); return { ok: false, message: 'Best Case is required.' }; }
+    var nq = normalizeForecastInputAllowZero(getVal('nq_commit'));
+    if (nq === "") {
       markFieldError('nq_commit');
-      return { ok: false, message: 'Nobody commits $0.' };
+      return { ok: false, message: 'NQ Commit is required.' };
     }
     if (sfAcc === "No") {
       var note = getVal('forecast_note').trim();
@@ -1707,6 +1877,12 @@
         markFieldError('forecast_note');
         return { ok: false, message: 'If SFDC is not up to date, add one sentence in Forecast Notes on why the numbers differ.' };
       }
+    }
+    var rmNbm = parseInt(getVal('rm_nbm'), 10) || 0;
+    var rmNbmCustomer = getVal('rm_nbm_customer').trim();
+    if (rmNbm > 0 && !rmNbmCustomer) {
+      markFieldError('rm_nbm_customer');
+      return { ok: false, message: 'If NBM is greater than zero, Insert Customer Name is required.' };
     }
     return { ok: true };
   }
@@ -1743,15 +1919,49 @@
     setTimeout(function() { toast.classList.remove('show'); }, 4000);
   }
 
-  function showSubmitSuccess(message) {
+  function goToDashboard_() {
+    window.top.location.href = APP_EXEC_URL + '?page=dashboard&v=' + Date.now();
+  }
+
+  function goToRepQa_(email) {
+    if (!email) return;
+    window.top.location.href = APP_EXEC_URL + '?page=rep&email=' + encodeURIComponent(email) + '&v=' + Date.now();
+  }
+
+  function showSubmitSuccess(message, options) {
+    options = options || {};
     var overlay = document.getElementById("successOverlay");
     var body = document.getElementById("successBody");
     var timeEl = document.getElementById("successTime");
+    var closeBtn = document.getElementById("successCloseBtn");
+    var primaryBtn = document.getElementById("successPrimaryBtn");
+    var secondaryBtn = document.getElementById("successSecondaryBtn");
     if (!overlay || !body || !timeEl) return;
     body.textContent = message || "Your weekly recap was submitted successfully.";
     timeEl.textContent = "Saved at " + new Date().toLocaleTimeString("en-US", {
       hour: "numeric", minute: "2-digit", second: "2-digit"
     });
+    if (closeBtn) closeBtn.textContent = options.closeLabel || "Stay Here";
+    if (primaryBtn) {
+      if (options.primaryLabel && typeof options.primaryAction === "function") {
+        primaryBtn.style.display = "";
+        primaryBtn.textContent = options.primaryLabel;
+        primaryBtn.onclick = options.primaryAction;
+      } else {
+        primaryBtn.style.display = "none";
+        primaryBtn.onclick = null;
+      }
+    }
+    if (secondaryBtn) {
+      if (options.secondaryLabel && typeof options.secondaryAction === "function") {
+        secondaryBtn.style.display = "";
+        secondaryBtn.textContent = options.secondaryLabel;
+        secondaryBtn.onclick = options.secondaryAction;
+      } else {
+        secondaryBtn.style.display = "none";
+        secondaryBtn.onclick = null;
+      }
+    }
     overlay.style.display = "flex";
   }
 
@@ -1935,6 +2145,10 @@
         USER_STATS = d.userStats || {};
         SF_DATA = d.sfData || {};
         QBR_CALL = d.qbrCall || {};
+        if (d.lastData) {
+          LAST_DATA = d.lastData;
+          prefillFromLast(d.lastData);
+        }
         if (d.latestForecast) applyForecastFallback(d.latestForecast);
         normalizeForecastInputsUsingContext();
         onSfAccuracyChange();
@@ -1963,7 +2177,8 @@
       if (noChangeNo) noChangeNo.checked = true;
       onAccountChangeMode(i, false);
     }
-    ["commit","likely","upside","nq_commit","goal","risk","ask"].forEach(function(id) { setVal(id, ""); });
+    ["commit","likely","upside","nq_commit","goal","risk","ask","rm_nbm_customer"].forEach(function(id) { setVal(id, ""); });
+    ["rm_disco","rm_nbm","rm_accts"].forEach(function(id) { setVal(id, 0); });
     var sfRadios = document.querySelectorAll('input[name="sf_accurate"]');
     for (var s = 0; s < sfRadios.length; s++) sfRadios[s].checked = false;
     var note = document.getElementById("sfAccurateNote");
@@ -1974,22 +2189,23 @@
 </head>
 
 <body>
-<!-- TOP BAR -->
-<div class="top-bar">
-  <div>
-    <h1>Q4 Weekly Recap</h1>
-    <div class="meta" id="repNameDisplay">Loading...</div>
+<div class="shell">
+  <!-- TOP BAR -->
+  <div class="top-bar">
+    <div>
+      <h1>Q4 Weekly Recap</h1>
+      <div class="meta" id="repNameDisplay">Loading...</div>
+    </div>
+    <div class="actions">
+      <a id="pocLink" href="#">POC Command Center</a>
+      <a id="dashLink" href="#" style="display:none;">Team Dashboard</a>
+    </div>
   </div>
-  <div class="actions">
-    <a id="pocLink" href="#">POC Command Center</a>
-    <a id="dashLink" href="#" style="display:none;">Team Dashboard</a>
-  </div>
-</div>
 
-<div class="page">
+  <div class="page">
   <div id="guideLaunch" class="guide-launch" style="display:flex;">
-    <div class="msg"><strong>Guided Mode:</strong> Click to start the step-by-step recap guide.</div>
-    <button class="guide-btn" onclick="startGuidedMode()">Click Here to Start</button>
+    <div class="msg" id="guideLaunchMsg"><strong>Guided Mode:</strong> Use the 8-step walkthrough to move through your recap in order.</div>
+    <button class="guide-btn" id="guideLaunchBtn" onclick="startGuidedMode()">Start Guided Mode</button>
   </div>
 
   <!-- ADMIN PREVIEW BAR -->
@@ -2022,17 +2238,18 @@
 
   <!-- WEEK OF -->
   <div class="section" id="secWeek">
-    <h2>Week Of</h2>
+    <h2>Today's Date</h2>
     <div class="form-row">
-      <input type="date" id="weekOf">
+      <input type="text" id="weekOfDisplay" readonly>
+      <input type="hidden" id="weekOf">
     </div>
   </div>
 
   <!-- PULSE CHECK -->
   <div class="section" id="secPulse">
-    <h2>Pulse Check</h2>
+    <h2>Pulse Check — How Was Last Week?</h2>
     <div class="form-row">
-      <label>How are you feeling this week? (1 = rough, 10 = crushing it)</label>
+      <label>How was last week overall? (1 = rough, 10 = crushing it)</label>
       <div class="pulse-wrap">
         <div class="pulse-slider">
           <input type="range" id="pulseScore" min="1" max="10" value="5" oninput="updatePulseDisplay()">
@@ -2041,14 +2258,14 @@
       </div>
     </div>
     <div class="form-row">
-      <label for="pulseReason">Why?</label>
-      <textarea id="pulseReason" placeholder="What's driving your energy this week?"></textarea>
+      <label for="pulseReason">Short snippet on last week's activities</label>
+      <textarea id="pulseReason" placeholder="Give a short recap of last week..."></textarea>
     </div>
   </div>
 
   <!-- RAINMAKER METRICS -->
   <div class="section" id="secRainmaker">
-    <h2>Rainmaker Metrics</h2>
+    <h2>Rainmaker Metrics — What Do You Plan To Accomplish This Week?</h2>
     <div class="form-grid form-grid-4">
       <div class="form-row">
         <label for="rm_disco">Discovery Meetings</label>
@@ -2059,12 +2276,12 @@
         <input type="number" id="rm_nbm" min="0" value="0">
       </div>
       <div class="form-row">
-        <label for="rm_opp">New Opp ARR ($)</label>
-        <input type="text" id="rm_opp" placeholder="e.g. 150k or 1.2M">
+        <label for="rm_nbm_customer">NBM Customer Name</label>
+        <input type="text" id="rm_nbm_customer" placeholder="Insert Customer Name">
       </div>
       <div class="form-row">
-        <label for="rm_accts">Target Accounts</label>
-        <input type="text" id="rm_accts" placeholder="# of active accounts">
+        <label for="rm_accts">Planned Channel Meetings</label>
+        <input type="number" id="rm_accts" min="0" value="0" placeholder="0">
       </div>
     </div>
   </div>
@@ -2072,7 +2289,7 @@
   <!-- ACCOUNTS (6 slots) -->
   <div class="section" id="secAccounts">
     <h2>Account Updates (2x4)</h2>
-    <div id="accountCards"></div>
+    <div id="accountCards" class="accounts-grid"></div>
   </div>
   <script>
     (function() {
@@ -2205,6 +2422,7 @@
     <div class="save-meta" id="saveMeta"></div>
   </div>
 
+  </div>
 </div>
 
 <!-- TOAST -->
@@ -2214,7 +2432,11 @@
     <div class="success-title">Recap Submitted</div>
     <div class="success-body" id="successBody">Your weekly recap was submitted successfully.</div>
     <div class="success-time" id="successTime"></div>
-    <button class="success-btn" type="button" onclick="hideSubmitSuccess()">Close</button>
+    <div class="success-actions">
+      <button class="success-btn secondary" type="button" id="successSecondaryBtn" style="display:none;"></button>
+      <button class="success-btn secondary" type="button" id="successCloseBtn" onclick="hideSubmitSuccess()">Close</button>
+      <button class="success-btn" type="button" id="successPrimaryBtn" style="display:none;"></button>
+    </div>
   </div>
 </div>
 <div class="fatal-overlay" id="fatalOverlay">
@@ -2236,6 +2458,5 @@
     </div>
   </div>
 </div>
-
 </body>
 </html>
