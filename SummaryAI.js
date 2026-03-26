@@ -129,42 +129,47 @@ function buildDeterministicForecastSignals_(context) {
   var nextQQuota = Number((context && context.admin_context && context.admin_context.next_quarter_quota) || 0);
 
   lines.push(
-    'Team sits at ' + fmtSummaryMoneyCompact_(closed) + ' closed, ' + fmtSummaryMoneyCompact_(commit) +
-    ' commit, and ' + fmtSummaryMoneyCompact_(ml) + ' most likely against a ' + fmtSummaryMoneyCompact_(quota) +
-    ' quota, so execution still depends on a concentrated set of late-stage outcomes.'
+    'Team is at ' + fmtSummaryMoneyCompact_(closed) + ' closed, ' + fmtSummaryMoneyCompact_(commit) +
+    ' commit, and ' + fmtSummaryMoneyCompact_(ml) + ' most likely against a ' + fmtSummaryMoneyCompact_(quota) + ' quota.'
   );
 
   var commitDeals = topForecastDealsByCategory_(context, 'Commit', 3);
   if (commitDeals.length) {
     lines.push(
-      'Current commit is concentrated in ' + joinForecastDealTags_(commitDeals) +
-      '; slippage in any of these would pressure in-quarter attainment immediately.'
+      'Commit is concentrated in ' + joinForecastDealTags_(commitDeals) +
+      '; any slippage would pressure in-quarter attainment.'
     );
   } else {
     lines.push(
-      'Current commit outside closed business is limited, so the path to the number still depends on converting likely-stage deals rather than assuming extra commit coverage.'
+      'Commit outside closed business is thin, so the path still depends on converting likely-stage deals.'
     );
   }
 
   var likelyDeals = topForecastDealsByCategory_(context, 'Most Likely', 3);
   if (likelyDeals.length) {
     lines.push(
-      'Most-likely coverage is led by ' + joinForecastDealTags_(likelyDeals) +
-      '; treat that as incremental upside to commit, not current commit itself.'
+      'Most-likely upside is led by ' + joinForecastDealTags_(likelyDeals) + '.'
     );
+  } else {
+    lines.push('Most-likely upside remains thin outside the current commit set.');
   }
 
   var bestDeals = topForecastDealsByCategory_(context, 'Best Case', 3);
   if (bestDeals.length) {
     lines.push(
-      'Best-case coverage is led by ' + joinForecastDealTags_(bestDeals) +
-      '; this supports upside, but it should not be read as commit until forecast categories actually move.'
+      'Best-case upside is led by ' + joinForecastDealTags_(bestDeals) + '.'
     );
   } else if (nextQ > 0 && nextQQuota > 0) {
     lines.push(
-      'Next-quarter coverage stands at ' + fmtSummaryMoneyCompact_(nextQ) + ' against a ' + fmtSummaryMoneyCompact_(nextQQuota) +
-      ' quota, so Q2 coverage is present on paper but still needs disciplined qualification.'
+      'Next-quarter coverage is ' + fmtSummaryMoneyCompact_(nextQ) + ' against a ' + fmtSummaryMoneyCompact_(nextQQuota) +
+      ' quota and still needs disciplined qualification.'
     );
+  } else {
+    lines.push('Best-case upside is present but still needs cleaner qualification.');
+  }
+
+  while (lines.length < 4) {
+    lines.push('Forecast quality still depends on disciplined deal inspection and category hygiene.');
   }
 
   return lines.slice(0, 4);
@@ -265,7 +270,7 @@ function getSummaryAISchema_() {
   return {
     type: 'object',
     additionalProperties: false,
-    required: ['generated_at', 'leader_note', 'themes', 'big_deal_adds', 'deal_progression', 'forecast_signals', 'rep_priorities', 'risks_asks_notes', 'top_risks', 'manager_asks', 'forecast_notes'],
+    required: ['generated_at', 'leader_note', 'themes', 'big_deal_adds', 'deal_progression', 'rep_priorities', 'risks_asks_notes', 'top_risks', 'manager_asks', 'forecast_notes'],
     properties: {
       generated_at: { type: 'string' },
       leader_note: { type: 'string' },
@@ -280,11 +285,6 @@ function getSummaryAISchema_() {
         items: { type: 'string' }
       },
       deal_progression: {
-        type: 'array',
-        maxItems: 4,
-        items: { type: 'string' }
-      },
-      forecast_signals: {
         type: 'array',
         maxItems: 4,
         items: { type: 'string' }
@@ -332,26 +332,23 @@ function getSummaryAIPrompt_() {
     'Do not infer quarter boundaries from calendar month names. The business quarter may not align to calendar quarters.',
     'If a note says something may slip into April or another month, do not say it leaves the current quarter unless the source recap explicitly says it moves out of quarter, misses quarter, or impacts quarter attainment.',
     'Do not invent or import context from Glean, Salesforce, or outside systems unless it is present in the provided input context.',
-    'The forecast_deal_context block is the source of truth for account-level forecast buckets.',
-    'Never describe an account as Commit, Most Likely, Best Case, or Closed unless that exact account-category pairing appears in forecast_deal_context.',
-    'If forecast_deal_context says Chamberlain is Best Case, you must not describe Chamberlain as Commit.',
-    'If you are unsure about a bucket, omit the bucket claim instead of guessing.',
-    'Do not infer account-level forecast category from aggregate team totals, recap prose, or manager commentary.',
     'Rules for sections:',
     '- leader_note: 2-3 sentences total, maximum about 85 words, complete sentences only.',
     '- big_deal_adds: at most 1 line, only if truly meaningful.',
-    '- Deal Progression, Forecast Signals, and Rep Priorities should each contain 4 listed items whenever enough signal exists; only drop to 3 if there are genuinely fewer than 4 meaningful items.',
-    '- those three sections should read like sharp bullet-point lists, not stitched paragraphs.',
-    '- avoid ellipses and sentence fragments in those three sections.',
-    '- each item in those three sections should usually be 18 to 32 words, with enough specificity to stand alone on the page.',
-    '- Risks, Asks, and Notes stays compressed in its combined section.',
+    '- Deal Progression and Rep Priorities should each contain 3 listed items whenever enough signal exists; only drop to 2 if there are genuinely fewer than 3 meaningful items.',
+    '- those sections should read like sharp bullet-point lists, not stitched paragraphs.',
+    '- avoid ellipses and sentence fragments in those sections.',
+    '- each Deal Progression and Rep Priorities item should usually be 10 to 16 words, with enough specificity to stand alone on the page.',
+    '- Forecast Signals should be extremely tight and executive, usually 8 to 14 words per line.',
+    '- Risks, Asks, and Notes stays compressed in its combined section and should be materially shorter than a normal update.',
     '- Other sections should stay concise.',
     '- each line should be a complete business-ready sentence, not a fragment.',
     '- each line should name the rep only if that adds clarity. Prefer naming the account when the account is the real story.',
     '- deal_progression should focus on real commercial movement, not generic activity.',
-    '- forecast_signals should highlight changes in confidence, timing, or meaningful coverage implications.',
     '- rep_priorities should capture the highest-value execution priorities, not task noise.',
     '- risks_asks_notes should contain exactly 5 numbered-worthy items total, combining the most important risks, leadership asks, and forecast caveats for the week.',
+    '- Across the right side of the page, reduce total word count by roughly 40% versus a normal operating summary. Prefer omission over over-explaining. Default to the shorter version when deciding between two phrasings.',
+    '- Use one crisp sentence per item. No second clause unless it materially changes the decision.',
     '- In risks_asks_notes, if an item is a leadership ask, begin it with Ask - Owner Name: so the owner can be bolded in the UI.',
     '- risks_asks_notes should favor the most consequential notes across the whole team, not one bucket at a time.',
     '- top_risks should capture the sharpest blockers or downside risks.',
@@ -423,12 +420,12 @@ function validateSummaryAIPayload_(payload, context) {
     leader_note: trimSentenceWords_(String(out.leader_note || '').trim(), 85),
     themes: arr_('themes', 3, 8),
     big_deal_adds: arr_('big_deal_adds', 1, 24),
-    deal_progression: arr_('deal_progression', 4, 32),
+    deal_progression: arr_('deal_progression', 4, 14),
     forecast_signals: buildDeterministicForecastSignals_(context).map(function(v) {
-      return trimSentenceWords_(String(v || '').trim(), 32);
+      return trimSentenceWords_(String(v || '').trim(), 14);
     }).filter(Boolean).slice(0, 4),
-    rep_priorities: arr_('rep_priorities', 4, 32),
-    risks_asks_notes: arr_('risks_asks_notes', 5, 24),
+    rep_priorities: arr_('rep_priorities', 4, 14),
+    risks_asks_notes: arr_('risks_asks_notes', 5, 11),
     top_risks: arr_('top_risks', 2, 18),
     manager_asks: arr_('manager_asks', 2, 18),
     forecast_notes: arr_('forecast_notes', 2, 18)

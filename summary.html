@@ -440,6 +440,7 @@ body {
   line-height: 1.34;
   color: var(--ink-mid);
   margin-bottom: 4px;
+  text-align: left;
 }
 .nbm-metric-list li:last-child,
 .nbm-scheduled-list li:last-child {
@@ -705,7 +706,7 @@ function renderNumberedList(items) {
 
 function renderNumberedSection(title, items) {
   if (!items || !items.length) return '';
-  var limited = takeTopItems(items, 5, 200);
+  var limited = takeTopItems(items, 5, 150);
   return '<div class="fullwidth-card">'
     + '<div class="fullwidth-header"><div class="fullwidth-title">' + escHtml(title) + '</div></div>'
     + '<div class="fullwidth-body">' + renderNumberedList(limited) + '</div>'
@@ -715,11 +716,11 @@ function renderNumberedSection(title, items) {
 function renderFullWidthSection(title, items) {
   if (!items || !items.length) return '';
   var limited = items;
-  if (title === 'Big Deal Adds') limited = takeTopItems(items, 1, 230);
-  else if (title === 'Deal Progression') limited = takeTopItems(items, 4, 300);
-  else if (title === 'Forecast Signals') limited = takeTopItems(items, 4, 300);
-  else if (title === 'Rep Priorities') limited = takeTopItems(items, 4, 300);
-  else if (title === 'Notes') limited = takeTopItems(items, 2, 180);
+  if (title === 'Big Deal Adds') limited = takeTopItems(items, 1, 190);
+  else if (title === 'Deal Progression') limited = takeTopItems(items, 4, 170);
+  else if (title === 'Forecast Signals') limited = takeTopItems(items, 4, 150);
+  else if (title === 'Rep Priorities') limited = takeTopItems(items, 4, 165);
+  else if (title === 'Notes') limited = takeTopItems(items, 2, 150);
   return '<div class="fullwidth-card">'
     + '<div class="fullwidth-header"><div class="fullwidth-title">' + escHtml(title) + '</div></div>'
     + '<div class="fullwidth-body">' + renderNamedList(limited, 'named-list') + '</div>'
@@ -762,12 +763,29 @@ function renderCountList(items, emptyText) {
   return html;
 }
 
+function renderNBMRollupList(items, emptyText) {
+  if (!items || !items.length) return '<ul class="nbm-scheduled-list"><li>' + escHtml(emptyText || 'No NBMs entered this week.') + '</li></ul>';
+  var html = '<ul class="nbm-scheduled-list">';
+  for (var i = 0; i < items.length; i++) {
+    var item = items[i] || {};
+    var currentCount = Number(item.currentCount) || 0;
+    var weeklyCount = Number(item.count) || 0;
+    var note = String(item.note || '').trim();
+    var label = '<strong>' + escHtml(item.rep || '') + '</strong>'
+      + escHtml(' — current: ' + currentCount + ' | this week: ' + weeklyCount);
+    if (weeklyCount > 0 && note) label += escHtml(' (' + note + ')');
+    html += '<li>' + label + '</li>';
+  }
+  html += '</ul>';
+  return html;
+}
+
 function renderRainmakerSummarySection(summary) {
   if (!summary) return '';
   return '<div class="section">'
     + '<div class="section-label">Rainmaker Metrics · ' + escHtml(summary.weekLabel || '') + '</div>'
     + '<div class="rainmaker-three-up">'
-    +   '<div class="nbm-subcard featured-green"><div class="nbm-subtitle">NBMs</div>' + renderCountList(summary.nbms, 'No NBMs entered this week.') + '</div>'
+    +   '<div class="nbm-subcard featured-green"><div class="nbm-subtitle">NBMs (Current + This Week)</div>' + renderNBMRollupList(summary.nbms, 'No NBMs entered this week.') + '</div>'
     +   '<div class="nbm-subcard"><div class="nbm-subtitle">Discovery Meetings</div>' + renderCountList(summary.discovery, 'No discovery meetings entered this week.') + '</div>'
     +   '<div class="nbm-subcard"><div class="nbm-subtitle">Planned Channel Meetings</div>' + renderCountList(summary.channelMeetings, 'No channel meetings entered this week.') + '</div>'
     + '</div>'
@@ -833,14 +851,6 @@ function renderSummary(data) {
     leftHtml += wrapPanel('<div class="body">' + renderRainmakerSummarySection(data.rainmakerSummary) + '</div>');
   }
 
-  leftHtml += wrapPanel('<div class="body"><div class="section">'
-    +   '<div class="section-label">Quarter View · ' + escHtml(data.quarterLabel || data.quarterKey || '') + '</div>'
-    +   '<div class="summary-pair">'
-    +     '<div class="summary-card"><div class="card-label">Most Likely vs Quota</div><div class="card-val">' + escHtml(fmtMoneyShort(m.mostLikely)) + '</div><div class="card-sub">Gap: ' + escHtml(fmtMoneyShort(m.likelyGap)) + ' · ' + escHtml(fmtPct(m.likelyPct || 0)) + '</div></div>'
-    +     '<div class="summary-card"><div class="card-label">Best Case vs Quota</div><div class="card-val">' + escHtml(fmtMoneyShort(m.bestCase)) + '</div><div class="card-sub">Gap: ' + escHtml(fmtMoneyShort(m.bestCaseGap)) + ' · ' + escHtml(fmtPct(m.bestCasePct || 0)) + '</div></div>'
-    +   '</div>'
-    + '</div></div>');
-
   var rightHtml = '';
 
   rightHtml += wrapPanel('<div class="body"><div class="section">'
@@ -868,6 +878,18 @@ function renderSummary(data) {
   rightHtml += '<div class="doc-footer"><span>' + escHtml(data.footerNote || 'Confidential · Team Only') + '</span><span>' + escHtml(data.managerName || 'Billy Schuett') + '</span></div>';
 
   root.innerHTML = '<div class="summary-grid"><div class="summary-col left">' + leftHtml + '</div><div class="summary-col right">' + rightHtml + '</div></div>';
+  var labels = root.querySelectorAll('.section-label');
+  for (var i = 0; i < labels.length; i++) {
+    var text = String(labels[i].textContent || '').toLowerCase();
+    if (text.indexOf('quarter view') !== -1) {
+      var panel = labels[i].closest('.summary-panel');
+      if (panel) panel.remove();
+      else {
+        var section = labels[i].closest('.section');
+        if (section) section.remove();
+      }
+    }
+  }
 }
 window.addEventListener('load', function() {
   try { renderSummary(parseSummaryData(SUMMARY_DATA)); }

@@ -65,9 +65,9 @@ function isBlankVal_(v) {
 
 function fillMissingFieldsFromHistory_(rows, email, startIdx, target) {
   var keys = [
-    "weekOf", "pulseReason", "rm_disco", "rm_nbm", "rm_opp", "rm_accts",
+    "weekOf", "pulseReason",
     "forecast_note", "commit", "likely", "upside", "nq_commit",
-    "goal", "risk", "ask", "sf_accurate", "nbm_scheduled_week", "nbm_scheduled_count"
+    "goal", "risk", "ask", "sf_accurate"
   ];
   for (var a = 1; a <= 6; a++) {
     keys.push("acct" + a + "_name");
@@ -1244,7 +1244,9 @@ function summarizeTeamRecapsEditorial_(latestRecaps) {
     themeItems: themeLabels,
     newDealItems: renderEditorialSection_('big_deal_adds', selectedBigDealAdds),
     dealProgressItems: renderEditorialSection_('deal_progression', selectedDealProgress),
-    forecastItems: renderEditorialSection_('forecast_signals', selectedForecastSignals),
+    // Forecast signals intentionally omitted in heuristic fallback path to prevent category hallucination.
+    // The deterministic forecast signals require context.metrics and context.forecast_deal_context which are not available here.
+    forecastItems: [],
     priorityItems: renderEditorialSection_('rep_priorities', selectedPriorities),
     riskItems: renderEditorialSection_('top_risks', selectedRisks),
     askItems: renderEditorialSection_('manager_asks', selectedAsks),
@@ -1734,7 +1736,7 @@ function getExecutiveSummaryDataBase_(forcedQuarterKey) {
   var quota = Number(quotaCfg.team_quota) || 0;
   var rollup = buildExecutiveTeamRollup_(teamData, teamRecap);
   var nbmSummary = getSummaryNBMData_(reportingDate);
-  var rainmakerSummary = getSummaryRainmakerData_(teamData, reportingDate);
+  var rainmakerSummary = getSummaryRainmakerData_(teamData, reportingDate, nbmSummary);
 
   return {
     generatedAt: new Date().toISOString(),
@@ -1935,7 +1937,7 @@ function getLatestRecapNBMScheduled_() {
   return out;
 }
 
-function getSummaryRainmakerData_(teamData, reportingDate) {
+function getSummaryRainmakerData_(teamData, reportingDate, nbmSummary) {
   var out = {
     weekLabel: "",
     discovery: [],
@@ -1952,6 +1954,15 @@ function getSummaryRainmakerData_(teamData, reportingDate) {
     + "–"
     + Utilities.formatDate(weekEnd, Session.getScriptTimeZone(), "MMM d");
 
+  var currentNbmByRep = {};
+  var completedQtd = (nbmSummary && Array.isArray(nbmSummary.completedQtd)) ? nbmSummary.completedQtd : [];
+  for (var c = 0; c < completedQtd.length; c++) {
+    var completedItem = completedQtd[c] || {};
+    var completedRep = String(completedItem.rep || "").trim();
+    if (!completedRep) continue;
+    currentNbmByRep[completedRep] = Number(completedItem.count) || 0;
+  }
+
   var reps = Array.isArray(teamData) ? teamData : [];
   for (var i = 0; i < reps.length; i++) {
     var rep = reps[i] || {};
@@ -1962,13 +1973,14 @@ function getSummaryRainmakerData_(teamData, reportingDate) {
     var nbm = Number(rep.rm_nbm) || 0;
     var channel = Number(rep.rm_accts) || 0;
     var nbmCustomer = String(rep.nbm_scheduled_week || "").trim();
+    var currentNbm = Number(currentNbmByRep[repName] || 0);
 
     out.totals.discovery += disco;
     out.totals.nbms += nbm;
     out.totals.channelMeetings += channel;
 
     out.discovery.push({ rep: repName, count: disco });
-    out.nbms.push({ rep: repName, count: nbm, note: nbmCustomer });
+    out.nbms.push({ rep: repName, count: nbm, note: nbmCustomer, currentCount: currentNbm });
     out.channelMeetings.push({ rep: repName, count: channel });
   }
 
@@ -1977,35 +1989,64 @@ function getSummaryRainmakerData_(teamData, reportingDate) {
 
 function getExecutiveSummaryData() {
   var base = getExecutiveSummaryDataBase_();
+  function mergeSectionItems_(primary, fallbackA, fallbackB, maxItems) {
+    var out = [];
+    var seen = {};
+    function addAll_(list) {
+      list = Array.isArray(list) ? list : [];
+      for (var i = 0; i < list.length && out.length < maxItems; i++) {
+        var item = String(list[i] || '').trim();
+        var key = item.toLowerCase();
+        if (!item || seen[key]) continue;
+        seen[key] = true;
+        out.push(item);
+      }
+    }
+    addAll_(primary);
+    addAll_(fallbackA);
+    addAll_(fallbackB);
+    return out.slice(0, maxItems);
+  }
   var ai = getJsonCache_("summary_ai_" + String(base.quarterKey || ""), null) || getLatestSummaryAISnapshot_(base.quarterKey);
+  var fallbackRecap = base.teamRecap || {};
+  var fallbackRollup = base.teamRollup || {};
   if (ai) {
-    base.leaderNote = ai.leader_note || base.leaderNote || "";
-    if (ai.themes && ai.themes.length) base.teamRollup.themes = ai.themes;
-    var combinedRAN = ai.risks_asks_notes || [].concat(ai.top_risks || [], ai.manager_asks || [], ai.forecast_notes || []).slice(0, 5);
-    base.teamRollup.priorities = ai.rep_priorities || [];
-    base.teamRollup.risks = ai.top_risks || [];
-    base.teamRollup.asks = ai.manager_asks || [];
-    base.teamRollup.notes = ai.forecast_notes || [];
+    var normalizedAi = ai;
+    try {
+      if (typeof buildSummaryAiInputContext_ === 'function' && typeof validateSummaryAIPayload_ === 'function') {
+        normalizedAi = validateSummaryAIPayload_(ai, buildSummaryAiInputContext_(base.quarterKey));
+      }
+    } catch (err) {
+      Logger.log("AI payload normalization failed, using raw payload: " + err.message);
+      normalizedAi = ai;
+    }
+    base.leaderNote = normalizedAi.leader_note || base.leaderNote || "";
+    if (normalizedAi.themes && normalizedAi.themes.length) base.teamRollup.themes = normalizedAi.themes;
+    var combinedRAN = normalizedAi.risks_asks_notes || [].concat(normalizedAi.top_risks || [], normalizedAi.manager_asks || [], normalizedAi.forecast_notes || []).slice(0, 5);
+    base.teamRollup.priorities = mergeSectionItems_(normalizedAi.rep_priorities || [], fallbackRollup.priorities || [], fallbackRecap.priorityItems || [], 4);
+    base.teamRollup.risks = normalizedAi.top_risks || [];
+    base.teamRollup.asks = normalizedAi.manager_asks || [];
+    base.teamRollup.notes = normalizedAi.forecast_notes || [];
     base.teamRollup.risksAsksNotes = combinedRAN;
     base.teamRecap = {
       success: true,
       note: "",
-      generatedAt: ai.generated_at || "",
+      generatedAt: normalizedAi.generated_at || "",
       recapsUsed: base.teamRollup.repsSubmitted || 0,
       avgPulse: base.teamRollup.avgPulse || "—",
-      themeItems: ai.themes || [],
-      newDealItems: ai.big_deal_adds || [],
-      dealProgressItems: ai.deal_progression || [],
-      forecastItems: ai.forecast_signals || [],
-      priorityItems: ai.rep_priorities || [],
-      riskItems: ai.top_risks || [],
-      askItems: ai.manager_asks || [],
-      noteItems: ai.forecast_notes || [],
+      themeItems: normalizedAi.themes || [],
+      newDealItems: normalizedAi.big_deal_adds || [],
+      dealProgressItems: mergeSectionItems_(normalizedAi.deal_progression || [], fallbackRecap.dealProgressItems || [], normalizedAi.big_deal_adds || [], 4),
+      forecastItems: mergeSectionItems_(normalizedAi.forecast_signals || [], fallbackRecap.forecastItems || [], [], 4),
+      priorityItems: mergeSectionItems_(normalizedAi.rep_priorities || [], fallbackRollup.priorities || [], fallbackRecap.priorityItems || [], 4),
+      riskItems: normalizedAi.top_risks || [],
+      askItems: normalizedAi.manager_asks || [],
+      noteItems: normalizedAi.forecast_notes || [],
       risksAsksNotesItems: combinedRAN,
       source: "openai"
     };
     base.diagnostics.summarySource = "openai";
-    base.diagnostics.summaryGeneratedAt = ai.generated_at || "";
+    base.diagnostics.summaryGeneratedAt = normalizedAi.generated_at || "";
   } else {
     base.diagnostics.summarySource = "heuristic_fallback";
   }

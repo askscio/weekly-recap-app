@@ -189,31 +189,51 @@ function normalizeEngagement(v) {
   if (s === "red")    return "Red";
   return v.toString().trim();
 }
+// Canonical strict currency/number parser
+// Rules:
+// - Accepts plain numbers, optional leading '$' and comma separators, optional one-letter suffixes 'k' or 'm' (case-insensitive).
+// - Does NOT silently scale plain small numbers. '1000' -> 1000. '1' -> 1. '1k' -> 1000 only when suffix present.
+// - Returns null for ambiguous / invalid inputs.
+function parseCurrencyCanonical_(val) {
+  if (val === null || val === undefined || val === "") return null;
+  if (typeof val === 'number' && !isNaN(val)) return Number(val);
+  var s = String(val).trim();
+  if (!s) return null;
+
+  // Remove leading currency symbol(s) and surrounding whitespace
+  var cleaned = s.replace(/^\$+/, '').trim();
+
+  // Accept formats like: 1234, 1,234, 1,234.56, 1234.56, 1k, 1.5M, -2,345
+  var m = cleaned.match(/^(-)?(?:([0-9]{1,3}(?:,[0-9]{3})*)|([0-9]+))(\.[0-9]+)?\s*([kKmM])?$/);
+  if (!m) return null;
+
+  var sign = m[1] ? -1 : 1;
+  var intPart = m[2] || m[3] || '0';
+  intPart = intPart.replace(/,/g, '');
+  var frac = m[4] || '';
+  var suffix = (m[5] || '').toLowerCase();
+  var num = parseFloat((sign === -1 ? '-' : '') + intPart + frac);
+  if (isNaN(num)) return null;
+  if (suffix === 'k') num = num * 1000;
+  if (suffix === 'm') num = num * 1000000;
+  return num;
+}
 
 function parseMoneyish_(val) {
-  if (val === null || val === undefined || val === "") return "";
-  if (typeof val === "number") return val;
-  var s = String(val).toLowerCase().trim();
-  if (!s) return "";
-  var n = parseFloat(s.replace(/[^0-9.]/g, "")) || 0;
-  if (s.indexOf("m") !== -1) n = n * 1000000;
-  else if (s.indexOf("k") !== -1) n = n * 1000;
-  return n ? n : "";
+  var n = parseCurrencyCanonical_(val);
+  // Keep legacy return types: empty-string for missing/invalid, numeric for valid values
+  return n === null ? "" : n;
 }
 
 function normalizeRainmakerOpp_(rawVal) {
-  var raw = (rawVal === null || rawVal === undefined) ? "" : String(rawVal).toLowerCase().trim();
-  var n = parseMoneyish_(rawVal);
+  var n = parseCurrencyCanonical_(rawVal);
   if (!(n > 0)) return "";
-  if (!/[mk]/.test(raw) && n < 1000) n = n * 1000;
   return Math.min(Math.round(n), 9999999);
 }
 
 function normalizeMoneyThousandsCapped_(rawVal) {
-  var raw = (rawVal === null || rawVal === undefined) ? "" : String(rawVal).toLowerCase().trim();
-  var n = parseMoneyish_(rawVal);
+  var n = parseCurrencyCanonical_(rawVal);
   if (!(n > 0)) return "";
-  if (!/[mk]/.test(raw) && n < 1000) n = n * 1000;
   return Math.min(Math.round(n), 9999999);
 }
 
@@ -224,11 +244,13 @@ function normalizeForecastFields_(formObject) {
       formObject[f] = "";
       return;
     }
-    var n = parseMoneyish_(raw);
-    if (n === "") {
+    var n = parseCurrencyCanonical_(raw);
+    if (n === null) {
+      // Keep explicit empty string to indicate invalid/missing to caller; server validation will enforce if necessary
       formObject[f] = "";
       return;
     }
+    // Accept zero as explicit input
     formObject[f] = Math.min(Math.round(n), 9999999);
   });
 
