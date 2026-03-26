@@ -168,10 +168,10 @@ a:hover { text-decoration: underline; }
 .summary-card {
   border: 1px solid #e1e7ef;
   border-radius: 12px;
-  padding: 18px 12px;
+  padding: 22px 14px;
   background: linear-gradient(135deg, #ffffff 0%, #f8fafb 100%);
   text-align: center;
-  min-height: 90px;
+  min-height: 110px;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -179,8 +179,8 @@ a:hover { text-decoration: underline; }
   transition: transform .15s ease, box-shadow .15s ease;
 }
 .summary-card:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(15,23,42,.08), inset 0 1px 0 rgba(255,255,255,.9); }
-.summary-card .label { font-size: 10px; color: #64748b; text-transform: uppercase; letter-spacing: .08em; font-weight: 700; margin-bottom: 8px; }
-.summary-card .value { font-size: 1.75rem !important; font-weight: 800 !important; color: #0f172a !important; font-family: 'Space Mono', monospace !important; line-height: 1 !important; white-space: nowrap !important; overflow: hidden !important; text-overflow: ellipsis !important; display: inline-block !important; max-width: 100% !important; min-width: 0 !important; }
+.summary-card .label { font-size: 10px; color: #64748b; text-transform: uppercase; letter-spacing: .08em; font-weight: 700; margin-bottom: 10px; }
+.summary-card .value { font-size: 2.25rem !important; font-weight: 800 !important; color: #0f172a !important; font-family: 'Space Mono', monospace !important; line-height: 1 !important; white-space: nowrap !important; overflow: hidden !important; text-overflow: ellipsis !important; display: inline-block !important; max-width: 100% !important; min-width: 0 !important; }
 .summary-card .value.pulse-green { color: #059669 !important; }
 .summary-card .value.pulse-yellow { color: #d97706 !important; }
 .summary-card .value.pulse-red { color: #dc2626 !important; }
@@ -246,6 +246,40 @@ a:hover { text-decoration: underline; }
 
 .rep-details { display: none; margin-top: 16px; }
 .rep-details.open { display: block; }
+
+.rep-inline-metrics {
+  display: flex;
+  gap: 12px;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid #e5e7eb;
+  flex-wrap: wrap;
+}
+.rep-inline-metric {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #475569;
+}
+.rep-inline-metric .metric-label {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  color: #64748b;
+}
+.rep-inline-metric .metric-value {
+  font-family: 'Space Mono', monospace;
+  font-weight: 700;
+  font-size: 13px;
+  color: #0f172a;
+}
 
 .detail-section { margin-bottom: 16px; }
 .detail-section h4 {
@@ -1944,6 +1978,14 @@ function buildRepCard(rep, idx) {
   h += '<span style="background:transparent !important;border:none !important;padding:0 !important">' + engageDots + '</span>';
   h += '</div></div>'; // close rep-meta & rep-header
   h += '<div style="text-align:right;margin-top:10px;"><button class="edit-recap-btn" data-email="' + escHtml(rep.email) + '" data-name="' + escHtml(rep.name || rep.email) + '">&#9998; Edit Recap</button></div>';
+
+  // Inline metrics (visible when collapsed)
+  h += '<div class="rep-inline-metrics">';
+  h += '<div class="rep-inline-metric"><span class="metric-label">NBMs:</span><span class="metric-value">' + (Number(rep.rm_nbm) || 0) + '</span></div>';
+  h += '<div class="rep-inline-metric"><span class="metric-label">Disco:</span><span class="metric-value">' + (Number(rep.rm_disco) || 0) + '</span></div>';
+  h += '<div class="rep-inline-metric"><span class="metric-label">Pipeline Rank:</span><span class="metric-value">' + escHtml(rep.pipe_rank || '—') + '</span></div>';
+  h += '<div class="rep-inline-metric"><span class="metric-label">Commit:</span><span class="metric-value">' + fmtK(rep.commit) + '</span></div>';
+  h += '</div>';
 
   // Details (collapsed by default)
   h += '<div class="rep-details" id="repDetails_' + idx + '">';
