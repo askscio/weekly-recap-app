@@ -549,6 +549,31 @@ body {
   letter-spacing: .1em;
   text-transform: uppercase;
   color: var(--ink-soft);
+  align-items: center;
+}
+.provenance-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 9px;
+  padding: 3px 8px;
+  border-radius: 6px;
+  background: #f1f5f9;
+  border: 1px solid #cbd5e1;
+  color: #475569;
+  font-weight: 700;
+  letter-spacing: .02em;
+  text-transform: none;
+}
+.provenance-badge.verified {
+  background: #ecfdf5;
+  border-color: #a7f3d0;
+  color: #047857;
+}
+.provenance-badge.heuristic {
+  background: #fef3c7;
+  border-color: #fde68a;
+  color: #b45309;
 }
 .empty {
   padding: 60px 28px;
@@ -875,7 +900,19 @@ function renderSummary(data) {
     +   '<div class="banner"><div class="banner-label">Team Rollup</div><div class="banner-val">' + escHtml(String(t.repsSubmitted || 0)) + ' reps submitted · Pulse ' + escHtml(String(t.avgPulse || recap.avgPulse || '—')) + '/10</div><div class="banner-note">Themes: ' + escHtml(truncateText(themeText, 72)) + '. Accounts: <span style="color:#2d6a4f;font-weight:700">' + escHtml(String(t.greenAccounts || 0)) + ' Green</span> · <span style="color:#b8860b;font-weight:700">' + escHtml(String(t.yellowAccounts || 0)) + ' Yellow</span> · <span style="color:#c0392b;font-weight:700">' + escHtml(String(t.redAccounts || 0)) + ' Red</span>.</div></div>'
     + '</div></div>');
 
-  rightHtml += '<div class="doc-footer"><span>' + escHtml(data.footerNote || 'Confidential · Team Only') + '</span><span>' + escHtml(data.managerName || 'Billy Schuett') + '</span></div>';
+  var provenanceBadge = '';
+  if (recap.provenance) {
+    var prov = recap.provenance;
+    if (prov.forecastSignalsDeterministic && prov.validationPassed) {
+      provenanceBadge = '<span class="provenance-badge verified" title="Forecast signals are deterministic, AI validation passed">✓ Verified Deterministic</span>';
+    } else if (prov.forecastSignalsDeterministic && !prov.aiGenerated) {
+      provenanceBadge = '<span class="provenance-badge heuristic" title="Generated from heuristic analysis">Heuristic Analysis</span>';
+    } else if (prov.aiGenerated && !prov.validationPassed) {
+      provenanceBadge = '<span class="provenance-badge" title="AI-generated but validation incomplete">AI Partial</span>';
+    }
+  }
+
+  rightHtml += '<div class="doc-footer"><span>' + escHtml(data.footerNote || 'Confidential · Team Only') + '</span><span style="display:inline-flex;gap:8px;align-items:center;">' + provenanceBadge + '<span>' + escHtml(data.managerName || 'Billy Schuett') + '</span></span></div>';
 
   root.innerHTML = '<div class="summary-grid"><div class="summary-col left">' + leftHtml + '</div><div class="summary-col right">' + rightHtml + '</div></div>';
   var labels = root.querySelectorAll('.section-label');

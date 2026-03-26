@@ -961,15 +961,35 @@ body {
 .summary-card .value.pulse-yellow { color: #b45309 !important; }
 .summary-card .value.pulse-red { color: #dc2626 !important; }
 
+.section-divider {
+  border-top: 2px solid #e2e8f0;
+  margin: 32px 0 20px;
+  position: relative;
+}
+.section-divider-label {
+  position: absolute;
+  top: -12px;
+  left: 0;
+  background: var(--surface);
+  padding: 0 12px;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: #64748b;
+}
 .team-tools-row {
   display: flex !important;
   align-items: center !important;
   justify-content: space-between !important;
   gap: 14px !important;
   flex-wrap: wrap !important;
-  margin: 6px 0 18px !important;
-  padding-bottom: 14px !important;
-  border-bottom: 1px solid #e8e0d4 !important;
+  margin: 0 0 24px !important;
+  padding: 16px 20px !important;
+  background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%) !important;
+  border: 1px solid #cbd5e1 !important;
+  border-radius: 12px !important;
+  box-shadow: 0 2px 8px rgba(15,23,42,.04) !important;
 }
 .team-tools-left,
 .team-tools-actions {
@@ -1650,6 +1670,8 @@ function renderDashboard(data) {
   html += '</div>';
   html += '</div>';
 
+  html += '<div class="section-divider"><div class="section-divider-label">Team Controls</div></div>';
+
   html += '<div class="team-tools-row">';
   html += '<div class="team-tools-left">';
   html += '<label for="repSelector" style="font-weight:600;font-size:14px;margin-right:8px;">Jump to Rep:</label>';
@@ -1666,6 +1688,8 @@ function renderDashboard(data) {
   html += '</div>';
 
   html += renderTeamRecapNotePanel();
+
+  html += '<div class="section-divider"><div class="section-divider-label">Individual Recaps (' + data.length + ')</div></div>';
 
   // --- Rep cards ---
   for (var i = 0; i < data.length; i++) {
