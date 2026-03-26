@@ -2032,44 +2032,51 @@ function getExecutiveSummaryData() {
       Logger.log("AI payload normalization failed, falling back to heuristic: " + err.message);
       ai = null;
     }
-    base.leaderNote = normalizedAi.leader_note || base.leaderNote || "";
-    if (normalizedAi.themes && normalizedAi.themes.length) base.teamRollup.themes = normalizedAi.themes;
-    var combinedRAN = normalizedAi.risks_asks_notes || [].concat(normalizedAi.top_risks || [], normalizedAi.manager_asks || [], normalizedAi.forecast_notes || []).slice(0, 5);
-    base.teamRollup.priorities = mergeSectionItems_(normalizedAi.rep_priorities || [], fallbackRollup.priorities || [], fallbackRecap.priorityItems || [], 4);
-    base.teamRollup.risks = normalizedAi.top_risks || [];
-    base.teamRollup.asks = normalizedAi.manager_asks || [];
-    base.teamRollup.notes = normalizedAi.forecast_notes || [];
-    base.teamRollup.risksAsksNotes = combinedRAN;
-    base.teamRecap = {
-      success: true,
-      note: "",
-      generatedAt: normalizedAi.generated_at || "",
-      recapsUsed: base.teamRollup.repsSubmitted || 0,
-      avgPulse: base.teamRollup.avgPulse || "—",
-      themeItems: normalizedAi.themes || [],
-      newDealItems: normalizedAi.big_deal_adds || [],
-      dealProgressItems: mergeSectionItems_(normalizedAi.deal_progression || [], fallbackRecap.dealProgressItems || [], normalizedAi.big_deal_adds || [], 4),
-      forecastItems: mergeSectionItems_(normalizedAi.forecast_signals || [], fallbackRecap.forecastItems || [], [], 4),
-      priorityItems: mergeSectionItems_(normalizedAi.rep_priorities || [], fallbackRollup.priorities || [], fallbackRecap.priorityItems || [], 4),
-      riskItems: normalizedAi.top_risks || [],
-      askItems: normalizedAi.manager_asks || [],
-      noteItems: normalizedAi.forecast_notes || [],
-      risksAsksNotesItems: combinedRAN,
-      source: "openai",
-      provenance: {
-        aiGenerated: true,
-        forecastSignalsDeterministic: true,
-        model: SUMMARY_AI_MODEL || "unknown",
-        generatedAt: normalizedAi.generated_at || new Date().toISOString(),
-        recapCount: base.teamRollup.repsSubmitted || 0,
-        validationPassed: aiValidationPassed
-      }
-    };
-    base.diagnostics.summarySource = "openai";
-    base.diagnostics.summaryGeneratedAt = normalizedAi.generated_at || "";
-    base.diagnostics.forecastSignalsSource = "deterministic";
-    base.diagnostics.aiModel = SUMMARY_AI_MODEL || "unknown";
-  } else {
+
+    // Only consume AI data if validation passed (ai still non-null after catch)
+    if (ai) {
+      base.leaderNote = normalizedAi.leader_note || base.leaderNote || "";
+      if (normalizedAi.themes && normalizedAi.themes.length) base.teamRollup.themes = normalizedAi.themes;
+      var combinedRAN = normalizedAi.risks_asks_notes || [].concat(normalizedAi.top_risks || [], normalizedAi.manager_asks || [], normalizedAi.forecast_notes || []).slice(0, 5);
+      base.teamRollup.priorities = mergeSectionItems_(normalizedAi.rep_priorities || [], fallbackRollup.priorities || [], fallbackRecap.priorityItems || [], 4);
+      base.teamRollup.risks = normalizedAi.top_risks || [];
+      base.teamRollup.asks = normalizedAi.manager_asks || [];
+      base.teamRollup.notes = normalizedAi.forecast_notes || [];
+      base.teamRollup.risksAsksNotes = combinedRAN;
+      base.teamRecap = {
+        success: true,
+        note: "",
+        generatedAt: normalizedAi.generated_at || "",
+        recapsUsed: base.teamRollup.repsSubmitted || 0,
+        avgPulse: base.teamRollup.avgPulse || "—",
+        themeItems: normalizedAi.themes || [],
+        newDealItems: normalizedAi.big_deal_adds || [],
+        dealProgressItems: mergeSectionItems_(normalizedAi.deal_progression || [], fallbackRecap.dealProgressItems || [], normalizedAi.big_deal_adds || [], 4),
+        forecastItems: mergeSectionItems_(normalizedAi.forecast_signals || [], fallbackRecap.forecastItems || [], [], 4),
+        priorityItems: mergeSectionItems_(normalizedAi.rep_priorities || [], fallbackRollup.priorities || [], fallbackRecap.priorityItems || [], 4),
+        riskItems: normalizedAi.top_risks || [],
+        askItems: normalizedAi.manager_asks || [],
+        noteItems: normalizedAi.forecast_notes || [],
+        risksAsksNotesItems: combinedRAN,
+        source: "openai",
+        provenance: {
+          aiGenerated: true,
+          forecastSignalsDeterministic: true,
+          model: SUMMARY_AI_MODEL || "unknown",
+          generatedAt: normalizedAi.generated_at || new Date().toISOString(),
+          recapCount: base.teamRollup.repsSubmitted || 0,
+          validationPassed: aiValidationPassed
+        }
+      };
+      base.diagnostics.summarySource = "openai";
+      base.diagnostics.generatedAt = normalizedAi.generated_at || "";
+      base.diagnostics.forecastSignalsSource = "deterministic";
+      base.diagnostics.aiModel = SUMMARY_AI_MODEL || "unknown";
+    }
+  }
+
+  // Set fallback diagnostics and provenance if AI was not consumed
+  if (!ai || !aiValidationPassed) {
     base.diagnostics.summarySource = "heuristic_fallback";
     base.diagnostics.forecastSignalsSource = "none_in_fallback";
     base.diagnostics.aiModel = "n/a";
