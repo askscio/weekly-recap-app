@@ -158,57 +158,63 @@ a:hover { text-decoration: underline; }
 .summary-row {
   display: grid;
   grid-template-columns: repeat(6, minmax(110px, 1fr));
-  gap: 8px;
-  margin-bottom: 8px;
-  padding: 8px;
-  border-radius: 10px;
-  background: #fff;
-  border: 1px solid #e2e8f0;
+  gap: 12px;
+  margin-bottom: 24px;
+  padding: 0;
+  border-radius: 0;
+  background: transparent;
+  border: none;
 }
 .summary-card {
-  border: 1px solid #e5e7eb;
-  border-radius: 10px;
-  padding: 8px 6px;
-  background: #f9fafc;
+  border: 1px solid #e1e7ef;
+  border-radius: 12px;
+  padding: 18px 12px;
+  background: linear-gradient(135deg, #ffffff 0%, #f8fafb 100%);
   text-align: center;
-  min-height: 64px;
+  min-height: 90px;
   display: flex;
   flex-direction: column;
   justify-content: center;
+  box-shadow: 0 2px 8px rgba(15,23,42,.04), inset 0 1px 0 rgba(255,255,255,.9);
+  transition: transform .15s ease, box-shadow .15s ease;
 }
-.summary-card .label { font-size: 9px; color: #6b7280; text-transform: uppercase; letter-spacing: .12em; font-weight: 700; margin-bottom: 4px; }
-.summary-card .value { font-size: 0.95rem !important; font-weight: 800 !important; color: #111827 !important; font-family: 'Space Mono', monospace !important; line-height: 1.1 !important; white-space: nowrap !important; overflow: hidden !important; text-overflow: ellipsis !important; display: inline-block !important; max-width: 100% !important; min-width: 0 !important; }
-.summary-card .value.pulse-green { color: #047857 !important; }
-.summary-card .value.pulse-yellow { color: #b45309 !important; }
+.summary-card:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(15,23,42,.08), inset 0 1px 0 rgba(255,255,255,.9); }
+.summary-card .label { font-size: 10px; color: #64748b; text-transform: uppercase; letter-spacing: .08em; font-weight: 700; margin-bottom: 8px; }
+.summary-card .value { font-size: 1.75rem !important; font-weight: 800 !important; color: #0f172a !important; font-family: 'Space Mono', monospace !important; line-height: 1 !important; white-space: nowrap !important; overflow: hidden !important; text-overflow: ellipsis !important; display: inline-block !important; max-width: 100% !important; min-width: 0 !important; }
+.summary-card .value.pulse-green { color: #059669 !important; }
+.summary-card .value.pulse-yellow { color: #d97706 !important; }
 .summary-card .value.pulse-red { color: #dc2626 !important; }
 .rainmaker-rollup {
-  border: 1px solid #dbe6f2;
-  background: linear-gradient(180deg, #f8fbff 0%, #eef5fc 100%);
-  border-radius: 12px;
-  padding: 8px;
-  margin-bottom: 12px;
+  border: 1px solid #cbd5e1;
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  border-radius: 14px;
+  padding: 20px;
+  margin-bottom: 24px;
+  box-shadow: 0 4px 12px rgba(15,23,42,.06), inset 0 1px 0 rgba(255,255,255,.8);
 }
 .rainmaker-rollup-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(120px, 1fr));
-  gap: 8px;
+  gap: 12px;
   margin-bottom: 0;
-  border: 1px solid #e2e8f0;
-  background: #fff;
-  border-radius: 10px;
-  padding: 8px;
+  border: none;
+  background: transparent;
+  border-radius: 0;
+  padding: 0;
 }
 .rainmaker-rollup .summary-card {
-  background: #fff !important;
-  border-color: #d6e2f0 !important;
+  background: linear-gradient(135deg, #ffffff 0%, #fafbfc 100%) !important;
+  border-color: #cbd5e1 !important;
+  min-height: 80px !important;
+  padding: 16px 12px !important;
 }
 .rainmaker-rollup-title {
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 800;
-  letter-spacing: .16em;
+  letter-spacing: .12em;
   text-transform: uppercase;
-  color: #5b6b80;
-  margin: 0 0 8px 2px;
+  color: #475569;
+  margin: 0 0 14px 2px;
 }
 
 /* ===== REP CARD ===== */
@@ -1617,7 +1623,7 @@ function renderDashboard(data) {
     qm = rawQm && typeof rawQm === 'object' ? rawQm : {};
   } catch (eQm) { qm = {}; }
 
-  html += '<div class="summary-row" style="display:grid;grid-template-columns:repeat(6,minmax(120px,1fr));gap:8px;margin-bottom:10px;border:1px solid #e2e8f0;background:#fff;border-radius:10px;padding:8px;">';
+  html += '<div class="summary-row">';
   html += summaryCard('Reps Submitted', data.length);
   html += summaryCard('Avg Pulse', avgPulse, pulseClass);
   if (qm.closed !== undefined) {
@@ -1866,9 +1872,9 @@ function runSheetCleanup() {
 }
 
 function summaryCard(label, value, cls) {
-  return '<div class="summary-card" style="border:1px solid #e5e7eb;background:#f9fafc;border-radius:10px;padding:8px 6px;min-height:66px;display:flex;flex-direction:column;justify-content:center;text-align:center;">'
-    + '<div class="label" style="font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#6b7280;margin-bottom:4px;">' + label + '</div>'
-    + '<div class="value ' + (cls || '') + '" style="font-size:1.2rem;font-weight:800;font-family:\'Space Mono\',monospace;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.1;">' + value + '</div>'
+  return '<div class="summary-card">'
+    + '<div class="label">' + label + '</div>'
+    + '<div class="value ' + (cls || '') + '">' + value + '</div>'
     + '</div>';
 }
 

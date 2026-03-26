@@ -482,10 +482,53 @@ function generateExecutiveSummaryAI() {
   ensureAdminCaller_();
   var quarterKey = quarterKeyFromDate_(new Date());
   var context = buildSummaryAiInputContext_(quarterKey);
-  var ai = callOpenAISummary_(context);
-  writeSummaryAISnapshot_(quarterKey, SUMMARY_AI_MODEL, ai, 'openai_responses', 'ok');
-  putJsonCache_('summary_ai_' + quarterKey, ai, 60);
-  return { success: true, quarterKey: quarterKey, generatedAt: ai.generated_at, model: SUMMARY_AI_MODEL };
+
+  try {
+    var ai = callOpenAISummary_(context);
+
+    // Validate AI output before publishing
+    if (!ai || !ai.generated_at || !ai.leader_note) {
+      throw new Error('AI output validation failed: missing required fields');
+    }
+
+    // Only write snapshot and cache if validation passed
+    writeSummaryAISnapshot_(quarterKey, SUMMARY_AI_MODEL, ai, 'openai_responses', 'ok');
+    putJsonCache_('summary_ai_' + quarterKey, ai, 60);
+
+    return {
+      success: true,
+      quarterKey: quarterKey,
+      generatedAt: ai.generated_at,
+      model: SUMMARY_AI_MODEL,
+      source: 'openai_validated'
+    };
+  } catch (err) {
+    // Log failure but don't overwrite good cache/snapshot with bad data
+    var errorMsg = err.message || String(err);
+    Logger.log('generateExecutiveSummaryAI failed: ' + errorMsg);
+    writeSummaryAISnapshot_(quarterKey, SUMMARY_AI_MODEL, { error: errorMsg, timestamp: new Date().toISOString() }, 'openai_responses', 'failed');
+
+    // Check if we have a previous good snapshot to fall back to
+    var existingSnapshot = getLatestSummaryAISnapshot_(quarterKey);
+    if (existingSnapshot) {
+      Logger.log('AI generation failed, but existing snapshot available. Keeping existing snapshot.');
+      return {
+        success: false,
+        quarterKey: quarterKey,
+        error: errorMsg,
+        fallbackAvailable: true,
+        source: 'cached_fallback'
+      };
+    }
+
+    return {
+      success: false,
+      quarterKey: quarterKey,
+      error: errorMsg,
+      fallbackAvailable: false,
+      source: 'generation_failed'
+    };
+  }
 }
 
 function setupExecutiveSummaryAI() {

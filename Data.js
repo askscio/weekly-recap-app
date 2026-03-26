@@ -236,6 +236,14 @@ function processForm(formObject) {
     ? String(formObject.previewEmail).trim().toLowerCase()
     : resolveEmail_();
   formObject = normalizeForecastFields_(formObject);
+
+  // Server-side validation: if NBM count > 0, customer name is required
+  var rmNbm = Number(formObject.rm_nbm) || 0;
+  var nbmCustomer = String(formObject.nbm_scheduled_week || "").trim();
+  if (rmNbm > 0 && !nbmCustomer) {
+    throw new Error("If NBM count is greater than 0, customer name is required. Please enter the customer name(s) for your scheduled NBMs.");
+  }
+
   var lastData = getLastDataForUser(submitEmail);
   var engagementSummary = buildEngagementSummary(lastData, formObject);
   var forecastSummary = buildForecastSummary(lastData, formObject);
@@ -2043,12 +2051,34 @@ function getExecutiveSummaryData() {
       askItems: normalizedAi.manager_asks || [],
       noteItems: normalizedAi.forecast_notes || [],
       risksAsksNotesItems: combinedRAN,
-      source: "openai"
+      source: "openai",
+      provenance: {
+        aiGenerated: true,
+        forecastSignalsDeterministic: true,
+        model: SUMMARY_AI_MODEL || "unknown",
+        generatedAt: normalizedAi.generated_at || new Date().toISOString(),
+        recapCount: base.teamRollup.repsSubmitted || 0,
+        validationPassed: true
+      }
     };
     base.diagnostics.summarySource = "openai";
     base.diagnostics.summaryGeneratedAt = normalizedAi.generated_at || "";
+    base.diagnostics.forecastSignalsSource = "deterministic";
+    base.diagnostics.aiModel = SUMMARY_AI_MODEL || "unknown";
   } else {
     base.diagnostics.summarySource = "heuristic_fallback";
+    base.diagnostics.forecastSignalsSource = "none_in_fallback";
+    base.diagnostics.aiModel = "n/a";
+    if (base.teamRecap && base.teamRecap.source !== "openai") {
+      base.teamRecap.provenance = {
+        aiGenerated: false,
+        forecastSignalsDeterministic: false,
+        model: "heuristic",
+        generatedAt: new Date().toISOString(),
+        recapCount: base.teamRollup.repsSubmitted || 0,
+        validationPassed: true
+      };
+    }
   }
   return base;
 }
