@@ -92,24 +92,26 @@ body {
   overflow: auto;
 }
 
-/* ===== EXECUTIVE SUMMARY LAYOUT ===== */
+/* ===== VISUAL INFOGRAPHIC LAYOUT ===== */
 .summary-doc {
-  max-width: 1200px;
+  max-width: 1400px;
   margin: 0 auto;
-  padding: 48px 64px 64px;
+  padding: 40px 56px 56px;
 }
 
-/* Header */
+/* Header - Visual Impact */
 .doc-header {
-  margin-bottom: 56px;
-  border-bottom: 1px solid var(--warm-rule);
-  padding-bottom: 32px;
+  margin-bottom: 40px;
+  padding: 32px;
+  background: linear-gradient(135deg, rgba(26,74,122,.04) 0%, rgba(42,106,79,.04) 100%);
+  border-radius: 16px;
+  border: 1px solid rgba(0,0,0,.04);
 }
 .doc-meta {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 24px;
+  margin-bottom: 20px;
   font-size: 10px;
   font-weight: 700;
   letter-spacing: .16em;
@@ -118,12 +120,12 @@ body {
 }
 .headline {
   font-family: 'Playfair Display', serif;
-  font-size: 56px;
+  font-size: 48px;
   font-weight: 800;
-  line-height: 1.1;
-  letter-spacing: -.03em;
+  line-height: 1.12;
+  letter-spacing: -.02em;
   color: var(--ink);
-  margin-bottom: 12px;
+  margin-bottom: 10px;
 }
 .date-line {
   font-size: 13px;
@@ -131,191 +133,246 @@ body {
   font-weight: 500;
 }
 
-/* KPIs - Clean Sparse Row */
-.kpi-row {
-  display: flex;
-  gap: 48px;
-  margin-bottom: 64px;
-  padding-bottom: 48px;
-  border-bottom: 1px solid var(--warm-rule);
-  flex-wrap: wrap;
+/* KPI Cards - Visual Data Viz */
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+  margin-bottom: 40px;
 }
-.kpi-metric {
-  flex: 0 1 auto;
-  text-align: left;
+.kpi-card {
+  background: white;
+  border-radius: 12px;
+  padding: 24px 20px;
+  box-shadow: 0 2px 12px rgba(26,22,18,.06);
+  border: 1px solid rgba(0,0,0,.05);
+  position: relative;
+  overflow: hidden;
+  transition: transform .2s ease, box-shadow .2s ease;
 }
-.kpi-metric.hero {
-  flex: 0 1 auto;
+.kpi-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(26,22,18,.1);
+}
+.kpi-card.hero {
+  background: linear-gradient(135deg, #f0f7f4 0%, #ffffff 100%);
+  border-color: rgba(42,106,79,.15);
+}
+.kpi-card.hero.commit {
+  background: linear-gradient(135deg, #eff6ff 0%, #ffffff 100%);
+  border-color: rgba(26,74,122,.15);
+}
+.kpi-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: var(--ink-soft);
+  opacity: 0.2;
+}
+.kpi-card.hero::before {
+  background: var(--green);
+  opacity: 1;
+}
+.kpi-card.hero.commit::before {
+  background: var(--blue);
+  opacity: 1;
 }
 .kpi-label {
-  font-size: 9px;
+  font-size: 10px;
   font-weight: 700;
-  letter-spacing: .18em;
+  letter-spacing: .16em;
   text-transform: uppercase;
   color: var(--ink-soft);
-  margin-bottom: 8px;
+  margin-bottom: 12px;
 }
 .kpi-value {
-  font-family: 'Playfair Display', serif;
-  font-size: 42px;
+  font-family: 'Space Mono', monospace;
+  font-size: 36px;
   font-weight: 700;
   color: var(--ink);
   line-height: 1;
-  margin-bottom: 4px;
+  margin-bottom: 8px;
 }
-.kpi-metric.hero .kpi-value {
-  font-size: 52px;
+.kpi-card.hero .kpi-value {
+  font-size: 44px;
   color: var(--green);
 }
-.kpi-metric.hero.commit .kpi-value {
+.kpi-card.hero.commit .kpi-value {
   color: var(--blue);
 }
 .kpi-sub {
-  font-size: 11px;
+  font-size: 12px;
   color: var(--ink-soft);
   font-weight: 500;
 }
 
-/* Leader Note */
+/* Leader Note - Visual Callout */
 .leader-note {
-  margin-bottom: 56px;
-  padding-left: 24px;
+  background: rgba(26,22,18,.02);
   border-left: 4px solid var(--ink);
+  padding: 28px 32px;
+  margin-bottom: 40px;
+  border-radius: 0 8px 8px 0;
 }
 .leader-note-label {
   font-size: 9px;
-  font-weight: 700;
-  letter-spacing: .18em;
-  text-transform: uppercase;
-  color: var(--ink-soft);
-  margin-bottom: 16px;
-}
-.leader-note-content {
-  font-size: 16px;
-  line-height: 1.7;
-  color: var(--ink-mid);
-  font-weight: 400;
-}
-
-/* Content Sections */
-.content-section {
-  margin-bottom: 48px;
-}
-.section-title {
-  font-size: 10px;
   font-weight: 800;
   letter-spacing: .2em;
   text-transform: uppercase;
   color: var(--ink-soft);
-  margin-bottom: 20px;
+  margin-bottom: 14px;
 }
-.section-title::after {
-  content: '';
-  display: inline-block;
-  width: 32px;
-  height: 2px;
-  background: var(--warm-rule);
-  margin-left: 16px;
-  vertical-align: middle;
+.leader-note-content {
+  font-size: 15px;
+  line-height: 1.75;
+  color: var(--ink-mid);
+  font-weight: 400;
 }
 
-/* Lists - Clean Flow */
-.content-list {
+/* Content Grid - Visual Hierarchy */
+.content-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  margin-bottom: 40px;
+}
+.content-card {
+  background: white;
+  border-radius: 12px;
+  padding: 28px;
+  box-shadow: 0 2px 12px rgba(26,22,18,.05);
+  border: 1px solid rgba(0,0,0,.04);
+}
+.content-card.featured {
+  grid-column: 1 / -1;
+  background: linear-gradient(135deg, rgba(42,106,79,.05) 0%, rgba(255,255,255,1) 100%);
+  border-color: rgba(42,106,79,.12);
+}
+.content-card.wide {
+  grid-column: 1 / -1;
+}
+.card-title {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  margin-bottom: 20px;
+  padding-bottom: 12px;
+  border-bottom: 2px solid var(--warm-rule);
+}
+.content-card.featured .card-title {
+  color: var(--green);
+  border-bottom-color: rgba(42,106,79,.2);
+}
+
+/* Lists - Visual Flow */
+.visual-list {
   list-style: none;
   padding: 0;
   margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
 }
-.content-list li {
-  font-size: 14px;
-  line-height: 1.7;
+.visual-list li {
+  font-size: 13px;
+  line-height: 1.65;
   color: var(--ink-mid);
-  margin-bottom: 16px;
-  padding-left: 20px;
+  padding-left: 24px;
   position: relative;
 }
-.content-list li::before {
-  content: '—';
+.visual-list li::before {
+  content: '';
   position: absolute;
   left: 0;
-  color: var(--ink-soft);
-  font-weight: 700;
+  top: 8px;
+  width: 6px;
+  height: 6px;
+  background: var(--ink-soft);
+  border-radius: 50%;
 }
-.content-list.numbered {
+.visual-list.numbered {
   counter-reset: item;
 }
-.content-list.numbered li {
-  padding-left: 32px;
-}
-.content-list.numbered li::before {
-  content: counter(item) ".";
+.visual-list.numbered li::before {
+  content: counter(item);
   counter-increment: item;
-  font-family: 'Playfair Display', serif;
-  font-size: 15px;
-  font-weight: 700;
-  color: var(--ink);
-  left: 0;
-  width: 24px;
-}
-
-/* Featured Callout */
-.featured-callout {
-  background: rgba(42,106,79,.03);
-  border-left: 3px solid var(--green);
-  padding: 20px 24px;
-  margin-bottom: 40px;
-}
-.featured-callout .section-title {
-  margin-bottom: 16px;
-}
-.featured-callout .section-title::after {
-  display: none;
-}
-
-/* Two-Column Layout for Dense Content */
-.two-col-flow {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 48px;
-  margin-bottom: 48px;
-}
-
-/* Rainmaker Summary */
-.rainmaker-summary {
-  background: rgba(255,255,255,.4);
-  padding: 32px;
-  margin-bottom: 56px;
-  border-radius: 8px;
-}
-.rainmaker-summary .section-title {
-  margin-bottom: 24px;
-}
-.rainmaker-metrics {
-  display: flex;
-  gap: 40px;
-  flex-wrap: wrap;
-}
-.rainmaker-metric {
-  flex: 0 1 auto;
-}
-.rainmaker-metric-label {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--ink);
+  color: white;
   font-size: 10px;
   font-weight: 700;
-  letter-spacing: .14em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  top: 3px;
+}
+
+/* Rainmaker - Visual Data Section */
+.rainmaker-section {
+  background: linear-gradient(135deg, rgba(26,74,122,.04) 0%, rgba(255,255,255,1) 100%);
+  border-radius: 12px;
+  padding: 32px;
+  margin-bottom: 40px;
+  border: 1px solid rgba(26,74,122,.1);
+}
+.rainmaker-section .card-title {
+  border-bottom-color: rgba(26,74,122,.2);
+  color: var(--blue);
+}
+.rainmaker-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+}
+.rainmaker-metric {
+  background: white;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 1px 8px rgba(26,22,18,.04);
+  border: 1px solid rgba(0,0,0,.04);
+}
+.rainmaker-metric-label {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: .16em;
   text-transform: uppercase;
   color: var(--ink-soft);
-  margin-bottom: 6px;
+  margin-bottom: 10px;
 }
 .rainmaker-metric-value {
-  font-family: 'Playfair Display', serif;
-  font-size: 28px;
+  font-family: 'Space Mono', monospace;
+  font-size: 32px;
   font-weight: 700;
-  color: var(--ink);
+  color: var(--blue);
   line-height: 1;
+  margin-bottom: 12px;
+}
+.rainmaker-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.rainmaker-list li {
+  font-size: 12px;
+  line-height: 1.6;
+  color: var(--ink-mid);
+  margin-bottom: 6px;
+}
+.rainmaker-list strong {
+  color: var(--ink);
+  font-weight: 700;
 }
 
 /* Footer */
 .doc-footer {
-  margin-top: 64px;
+  margin-top: 48px;
   padding-top: 24px;
   border-top: 1px solid var(--warm-rule);
   display: flex;
@@ -323,6 +380,8 @@ body {
   align-items: center;
   font-size: 10px;
   color: var(--ink-soft);
+  flex-wrap: wrap;
+  gap: 12px;
 }
 .provenance-badge {
   display: inline-flex;
@@ -336,7 +395,6 @@ body {
   color: #475569;
   font-weight: 600;
   letter-spacing: .02em;
-  text-transform: none;
   transition: all .15s ease;
 }
 .provenance-badge:hover {
@@ -348,16 +406,10 @@ body {
   border-color: #a7f3d0;
   color: #047857;
 }
-.provenance-badge.verified:hover {
-  box-shadow: 0 2px 6px rgba(4,120,87,.2);
-}
 .provenance-badge.heuristic {
   background: #fef3c7;
   border-color: #fde68a;
   color: #b45309;
-}
-.provenance-badge.heuristic:hover {
-  box-shadow: 0 2px 6px rgba(180,83,9,.2);
 }
 
 .empty {
@@ -365,38 +417,72 @@ body {
   text-align: center;
   color: var(--ink-soft);
 }
+.loading-shell {
+  min-height: calc(100vh - 160px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.loading-card {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  padding: 24px 28px;
+  border-radius: 16px;
+  background: rgba(255,255,255,.7);
+  border: 1px solid rgba(0,0,0,.05);
+  box-shadow: 0 12px 28px rgba(26,22,18,.06);
+}
+.loading-spinner {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 3px solid rgba(26,74,122,.15);
+  border-top-color: var(--blue);
+  animation: summary-spin .8s linear infinite;
+}
+.loading-copy {
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: .04em;
+  color: var(--ink-mid);
+}
+@keyframes summary-spin {
+  to { transform: rotate(360deg); }
+}
 
 /* Responsive */
 @media (max-width: 1100px) {
   .summary-doc {
-    padding: 40px 48px 56px;
+    padding: 36px 40px 48px;
   }
-  .kpi-row {
-    gap: 32px;
-  }
-  .two-col-flow {
+  .content-grid {
     grid-template-columns: 1fr;
-    gap: 32px;
+  }
+  .content-card.featured,
+  .content-card.wide {
+    grid-column: 1;
   }
 }
 @media (max-width: 760px) {
   .summary-doc {
-    padding: 32px 24px 48px;
+    padding: 28px 20px 40px;
   }
   .headline {
-    font-size: 40px;
+    font-size: 36px;
   }
-  .kpi-row {
-    gap: 24px;
+  .kpi-grid {
+    grid-template-columns: 1fr;
   }
   .kpi-value {
     font-size: 32px;
   }
-  .kpi-metric.hero .kpi-value {
-    font-size: 40px;
+  .kpi-card.hero .kpi-value {
+    font-size: 38px;
   }
-  .two-col-flow {
-    gap: 24px;
+  .rainmaker-grid {
+    grid-template-columns: 1fr;
   }
 }
 </style>
@@ -413,7 +499,14 @@ body {
   </div>
 
   <div class="page">
-    <div id="summaryRoot" class="empty">Loading summary…</div>
+    <div id="summaryRoot" class="empty">
+      <div class="loading-shell">
+        <div class="loading-card">
+          <div class="loading-spinner" aria-hidden="true"></div>
+          <div class="loading-copy">Loading summary…</div>
+        </div>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -464,9 +557,38 @@ function takeTopItems(items, maxItems, maxLen) {
   }
   return out;
 }
-function goSummary() { window.top.location.href = APP_EXEC_URL + "?page=summary&v=" + Date.now(); }
-function goDashboard() { window.top.location.href = APP_EXEC_URL + "?page=dashboard&v=" + Date.now(); }
-function goPoc() { window.top.location.href = APP_EXEC_URL + "?page=poc&v=" + Date.now(); }
+function renderRainmakerList_(items, formatter) {
+  var html = '<ul class="rainmaker-list">';
+  var list = Array.isArray(items) ? items : [];
+  for (var i = 0; i < list.length; i++) {
+    var line = formatter(list[i] || {});
+    if (!line) continue;
+    html += '<li>' + line + '</li>';
+  }
+  html += '</ul>';
+  return html;
+}
+function showPageNavLoading_(label) {
+  var existing = document.getElementById('pageNavLoading');
+  if (existing) existing.remove();
+  var overlay = document.createElement('div');
+  overlay.id = 'pageNavLoading';
+  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(250,248,245,.78);backdrop-filter:blur(2px);display:flex;align-items:center;justify-content:center;z-index:9999;';
+  overlay.innerHTML = '<div class="loading-card"><div class="loading-spinner" aria-hidden="true"></div><div class="loading-copy">' + escHtml(label || 'Loading…') + '</div></div>';
+  document.body.appendChild(overlay);
+}
+function goSummary() {
+  showPageNavLoading_('Opening summary…');
+  window.top.location.href = APP_EXEC_URL + "?page=summary&v=" + Date.now();
+}
+function goDashboard() {
+  showPageNavLoading_('Opening dashboard…');
+  window.top.location.href = APP_EXEC_URL + "?page=dashboard&v=" + Date.now();
+}
+function goPoc() {
+  showPageNavLoading_('Opening POC Center…');
+  window.top.location.href = APP_EXEC_URL + "?page=poc&v=" + Date.now();
+}
 
 function renderSummary(data) {
   var root = document.getElementById('summaryRoot');
@@ -481,7 +603,7 @@ function renderSummary(data) {
 
   var html = '<div class="summary-doc">';
 
-  // Header
+  // Header with Visual Impact
   html += '<div class="doc-header">';
   html += '<div class="doc-meta">';
   html += '<span>' + escHtml(data.teamName || 'NorthCentral Enterprise') + '</span>';
@@ -491,36 +613,34 @@ function renderSummary(data) {
   html += '<div class="date-line">Week of ' + escHtml(fmtDateShort(data.reportingWeek)) + ' · ' + escHtml(data.quarterLabel || data.quarterKey || '') + '</div>';
   html += '</div>';
 
-  // KPI Row - Clean Sparse Layout
-  html += '<div class="kpi-row">';
+  // KPI Cards Grid - Visual Data Viz
+  html += '<div class="kpi-grid">';
 
-  // Hero metrics first
-  html += '<div class="kpi-metric hero">';
+  html += '<div class="kpi-card hero">';
   html += '<div class="kpi-label">Closed</div>';
   html += '<div class="kpi-value">' + escHtml(fmtMoneyShort(m.closed)) + '</div>';
   html += '<div class="kpi-sub">' + escHtml(fmtPct(m.attainmentPct || 0)) + ' to quota</div>';
   html += '</div>';
 
-  html += '<div class="kpi-metric hero commit">';
+  html += '<div class="kpi-card hero commit">';
   html += '<div class="kpi-label">Commit</div>';
   html += '<div class="kpi-value">' + escHtml(fmtMoneyShort(m.commit)) + '</div>';
   html += '<div class="kpi-sub">' + escHtml(fmtPct(m.commitPct || 0)) + ' to quota</div>';
   html += '</div>';
 
-  // Supporting metrics
-  html += '<div class="kpi-metric">';
+  html += '<div class="kpi-card">';
   html += '<div class="kpi-label">Most Likely</div>';
   html += '<div class="kpi-value">' + escHtml(fmtMoneyShort(m.mostLikely)) + '</div>';
   html += '<div class="kpi-sub">' + escHtml(fmtPct(m.likelyPct || 0)) + ' to quota</div>';
   html += '</div>';
 
-  html += '<div class="kpi-metric">';
+  html += '<div class="kpi-card">';
   html += '<div class="kpi-label">Best Case</div>';
   html += '<div class="kpi-value">' + escHtml(fmtMoneyShort(m.bestCase)) + '</div>';
   html += '<div class="kpi-sub">' + escHtml(fmtPct(m.bestCasePct || 0)) + ' to quota</div>';
   html += '</div>';
 
-  html += '<div class="kpi-metric">';
+  html += '<div class="kpi-card">';
   html += '<div class="kpi-label">Next Quarter</div>';
   html += '<div class="kpi-value">' + escHtml(fmtMoneyShort(m.nextQuarter)) + '</div>';
   var nextQSub = (m.nextQuarterCoverageX && m.nextQuarterCoverageX > 0)
@@ -540,12 +660,15 @@ function renderSummary(data) {
     html += '</div>';
   }
 
-  // Big Deal Adds - Featured Callout
+  // Content Grid
+  html += '<div class="content-grid">';
+
+  // Big Deal Adds - Featured
   var bigDeals = recap.newDealItems || [];
   if (bigDeals.length > 0) {
-    html += '<div class="featured-callout">';
-    html += '<div class="section-title">Big Deal Adds</div>';
-    html += '<ul class="content-list">';
+    html += '<div class="content-card featured">';
+    html += '<div class="card-title">Big Deal Adds</div>';
+    html += '<ul class="visual-list">';
     var limited = takeTopItems(bigDeals, 2, 200);
     for (var i = 0; i < limited.length; i++) {
       html += '<li>' + escHtml(limited[i]) + '</li>';
@@ -554,18 +677,12 @@ function renderSummary(data) {
     html += '</div>';
   }
 
-  // Two-Column Content Flow
-  html += '<div class="two-col-flow">';
-
-  // Left Column
-  html += '<div>';
-
   // Deal Progression
   var dealProg = recap.dealProgressItems || [];
   if (dealProg.length > 0) {
-    html += '<div class="content-section">';
-    html += '<div class="section-title">Deal Progression</div>';
-    html += '<ul class="content-list">';
+    html += '<div class="content-card">';
+    html += '<div class="card-title">Deal Progression</div>';
+    html += '<ul class="visual-list">';
     var limited = takeTopItems(dealProg, 4, 170);
     for (var i = 0; i < limited.length; i++) {
       html += '<li>' + escHtml(limited[i]) + '</li>';
@@ -577,9 +694,9 @@ function renderSummary(data) {
   // Forecast Signals
   var forecastSig = recap.forecastItems || [];
   if (forecastSig.length > 0) {
-    html += '<div class="content-section">';
-    html += '<div class="section-title">Forecast Signals</div>';
-    html += '<ul class="content-list">';
+    html += '<div class="content-card">';
+    html += '<div class="card-title">Forecast Signals</div>';
+    html += '<ul class="visual-list">';
     var limited = takeTopItems(forecastSig, 4, 150);
     for (var i = 0; i < limited.length; i++) {
       html += '<li>' + escHtml(limited[i]) + '</li>';
@@ -588,17 +705,12 @@ function renderSummary(data) {
     html += '</div>';
   }
 
-  html += '</div>';
-
-  // Right Column
-  html += '<div>';
-
   // Rep Priorities
   var priorities = (t.priorities && t.priorities.length) ? t.priorities : (recap.priorityItems || []);
   if (priorities.length > 0) {
-    html += '<div class="content-section">';
-    html += '<div class="section-title">Rep Priorities</div>';
-    html += '<ul class="content-list">';
+    html += '<div class="content-card">';
+    html += '<div class="card-title">Rep Priorities</div>';
+    html += '<ul class="visual-list">';
     var limited = takeTopItems(priorities, 4, 165);
     for (var i = 0; i < limited.length; i++) {
       html += '<li>' + escHtml(limited[i]) + '</li>';
@@ -612,9 +724,9 @@ function renderSummary(data) {
     ? recap.risksAsksNotesItems
     : [].concat(t.risks || [], t.asks || [], t.notes || []).slice(0, 5);
   if (combinedRAN && combinedRAN.length) {
-    html += '<div class="content-section">';
-    html += '<div class="section-title">Risks, Asks & Notes</div>';
-    html += '<ol class="content-list numbered">';
+    html += '<div class="content-card">';
+    html += '<div class="card-title">Risks, Asks & Notes</div>';
+    html += '<ol class="visual-list numbered">';
     var limited = takeTopItems(combinedRAN, 5, 150);
     for (var i = 0; i < limited.length; i++) {
       html += '<li>' + escHtml(limited[i]) + '</li>';
@@ -623,32 +735,46 @@ function renderSummary(data) {
     html += '</div>';
   }
 
-  html += '</div>';
-  html += '</div>'; // end two-col-flow
+  html += '</div>'; // end content-grid
 
-  // Rainmaker Summary (if exists)
+  // Rainmaker Summary
   if (data.rainmakerSummary) {
     var rm = data.rainmakerSummary;
-    html += '<div class="rainmaker-summary">';
-    html += '<div class="section-title">Rainmaker Activity</div>';
-    html += '<div class="rainmaker-metrics">';
+    html += '<div class="rainmaker-section">';
+    html += '<div class="card-title">Rainmaker Activity</div>';
+    html += '<div class="rainmaker-grid">';
 
-    if (rm.disco) {
+    if (rm.discovery) {
       html += '<div class="rainmaker-metric">';
       html += '<div class="rainmaker-metric-label">Discovery Meetings</div>';
-      html += '<div class="rainmaker-metric-value">' + escHtml(String(rm.disco.totalCompleted || 0)) + '</div>';
+      html += '<div class="rainmaker-metric-value">' + escHtml(String((rm.totals && rm.totals.discovery) || 0)) + '</div>';
+      html += renderRainmakerList_(rm.discovery, function(item) {
+        if (!item || !item.rep) return '';
+        return '<strong>' + escHtml(item.rep) + '</strong>: ' + escHtml(String(item.count || 0));
+      });
       html += '</div>';
     }
 
-    if (rm.nbm) {
+    if (rm.nbmCompleted) {
       html += '<div class="rainmaker-metric">';
       html += '<div class="rainmaker-metric-label">NBMs Completed</div>';
-      html += '<div class="rainmaker-metric-value">' + escHtml(String(rm.nbm.totalCompleted || 0)) + '</div>';
+      html += '<div class="rainmaker-metric-value">' + escHtml(String((rm.totals && rm.totals.nbmCompleted) || 0)) + '</div>';
+      html += renderRainmakerList_(rm.nbmCompleted, function(item) {
+        if (!item || !item.rep) return '';
+        return '<strong>' + escHtml(item.rep) + '</strong>: ' + escHtml(String(item.count || 0));
+      });
       html += '</div>';
+    }
 
+    if (rm.nbmScheduled) {
       html += '<div class="rainmaker-metric">';
       html += '<div class="rainmaker-metric-label">NBMs Scheduled</div>';
-      html += '<div class="rainmaker-metric-value">' + escHtml(String(rm.nbm.totalScheduled || 0)) + '</div>';
+      html += '<div class="rainmaker-metric-value">' + escHtml(String((rm.totals && rm.totals.nbmScheduled) || 0)) + '</div>';
+      html += renderRainmakerList_(rm.nbmScheduled, function(item) {
+        if (!item || !item.customer) return '';
+        var rep = item.rep ? ' (' + item.rep + ')' : '';
+        return '<strong>' + escHtml(item.customer) + '</strong>' + escHtml(rep);
+      });
       html += '</div>';
     }
 
@@ -656,15 +782,15 @@ function renderSummary(data) {
     html += '</div>';
   }
 
-  // Weekly Ask (if exists)
+  // Weekly Ask
   if (data.weeklyAsk) {
-    html += '<div class="content-section">';
-    html += '<div class="section-title">This Week's Ask</div>';
+    html += '<div class="content-card wide">';
+    html += '<div class="card-title">This Week's Ask</div>';
     html += '<div class="leader-note-content">' + escHtml(data.weeklyAsk) + '</div>';
     html += '</div>';
   }
 
-  // Footer with Provenance
+  // Footer
   html += '<div class="doc-footer">';
   html += '<span>' + escHtml(data.footerNote || 'Confidential · Team Only') + '</span>';
   html += '<span style="display:inline-flex;gap:8px;align-items:center;">';
