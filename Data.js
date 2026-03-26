@@ -238,10 +238,12 @@ function processForm(formObject) {
   formObject = normalizeForecastFields_(formObject);
 
   // Server-side validation: if NBM count > 0, customer name is required
-  var rmNbm = Number(formObject.rm_nbm) || 0;
-  var nbmCustomer = String(formObject.nbm_scheduled_week || "").trim();
-  if (rmNbm > 0 && !nbmCustomer) {
-    throw new Error("If NBM count is greater than 0, customer name is required. Please enter the customer name(s) for your scheduled NBMs.");
+  // Note: rm_nbm is already normalized by normalizeForecastFields_() to a non-negative integer
+  if (formObject.rm_nbm > 0) {
+    var nbmCustomer = String(formObject.nbm_scheduled_week || "").trim();
+    if (!nbmCustomer) {
+      throw new Error("If NBM count is greater than 0, customer name is required. Please enter the customer name(s) for your scheduled NBMs.");
+    }
   }
 
   var lastData = getLastDataForUser(submitEmail);
@@ -2018,15 +2020,17 @@ function getExecutiveSummaryData() {
   var ai = getJsonCache_("summary_ai_" + String(base.quarterKey || ""), null) || getLatestSummaryAISnapshot_(base.quarterKey);
   var fallbackRecap = base.teamRecap || {};
   var fallbackRollup = base.teamRollup || {};
+  var aiValidationPassed = false;
   if (ai) {
     var normalizedAi = ai;
     try {
       if (typeof buildSummaryAiInputContext_ === 'function' && typeof validateSummaryAIPayload_ === 'function') {
         normalizedAi = validateSummaryAIPayload_(ai, buildSummaryAiInputContext_(base.quarterKey));
+        aiValidationPassed = true;
       }
     } catch (err) {
-      Logger.log("AI payload normalization failed, using raw payload: " + err.message);
-      normalizedAi = ai;
+      Logger.log("AI payload normalization failed, falling back to heuristic: " + err.message);
+      ai = null;
     }
     base.leaderNote = normalizedAi.leader_note || base.leaderNote || "";
     if (normalizedAi.themes && normalizedAi.themes.length) base.teamRollup.themes = normalizedAi.themes;
@@ -2058,7 +2062,7 @@ function getExecutiveSummaryData() {
         model: SUMMARY_AI_MODEL || "unknown",
         generatedAt: normalizedAi.generated_at || new Date().toISOString(),
         recapCount: base.teamRollup.repsSubmitted || 0,
-        validationPassed: true
+        validationPassed: aiValidationPassed
       }
     };
     base.diagnostics.summarySource = "openai";

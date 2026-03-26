@@ -237,6 +237,13 @@ function normalizeMoneyThousandsCapped_(rawVal) {
   return Math.min(Math.round(n), 9999999);
 }
 
+function normalizeRainmakerCount_(rawVal) {
+  if (rawVal === null || rawVal === undefined || rawVal === "") return 0;
+  var n = Number(rawVal);
+  if (isNaN(n) || n < 0) return 0;
+  return Math.min(Math.round(n), 9999);
+}
+
 function normalizeForecastFields_(formObject) {
   ["commit","likely","upside","nq_commit"].forEach(function(f) {
     var raw = formObject[f];
@@ -256,6 +263,11 @@ function normalizeForecastFields_(formObject) {
 
   var rmOpp = normalizeRainmakerOpp_(formObject.rm_opp);
   formObject.rm_opp = (rmOpp === "") ? "" : rmOpp;
+
+  // Normalize rainmaker count fields (non-negative integers)
+  formObject.rm_disco = normalizeRainmakerCount_(formObject.rm_disco);
+  formObject.rm_nbm = normalizeRainmakerCount_(formObject.rm_nbm);
+  formObject.rm_accts = normalizeRainmakerCount_(formObject.rm_accts);
 
   for (var i = 1; i <= 6; i++) {
     var key = "acct" + i + "_arr";
