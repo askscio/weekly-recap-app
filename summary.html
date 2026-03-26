@@ -144,9 +144,10 @@ body {
 }
 .headline {
   font-family: 'Playfair Display', serif;
-  font-size: 28px;
+  font-size: 32px;
   font-weight: 800;
   line-height: 1.12;
+  letter-spacing: -.02em;
   color: var(--ink);
   margin-bottom: 4px;
 }
@@ -298,6 +299,8 @@ body {
   border: 1px solid var(--warm-rule);
   padding: 10px;
   background: rgba(255,255,255,.35);
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(26,22,18,.04);
 }
 .card-label {
   font-size: 9px;
@@ -324,6 +327,7 @@ body {
   border-left: 4px solid var(--blue);
   padding: 10px 12px;
   margin-bottom: 8px;
+  border-radius: 8px;
 }
 .banner-label {
   font-size: 9px;
@@ -359,6 +363,8 @@ body {
   background: rgba(255,255,255,.45);
   border: 1px solid var(--warm-rule);
   padding: 0;
+  border-radius: 8px;
+  overflow: hidden;
 }
 .bullet-title {
   font-size: 9px;
@@ -460,6 +466,8 @@ body {
   width: 100%;
   background: rgba(255,255,255,.55);
   border: 1px solid var(--warm-rule);
+  border-radius: 8px;
+  overflow: hidden;
 }
 .fullwidth-header {
   padding: 7px 12px;
@@ -522,6 +530,7 @@ body {
 .ask-block {
   background: var(--ink);
   padding: 12px 14px;
+  border-radius: 8px;
 }
 .ask-label {
   font-size: 9px;
@@ -555,25 +564,36 @@ body {
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  font-size: 9px;
-  padding: 3px 8px;
-  border-radius: 6px;
+  font-size: 10px;
+  padding: 4px 10px;
+  border-radius: 8px;
   background: #f1f5f9;
   border: 1px solid #cbd5e1;
   color: #475569;
   font-weight: 700;
   letter-spacing: .02em;
   text-transform: none;
+  transition: all .15s ease;
+}
+.provenance-badge:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 6px rgba(0,0,0,.12);
 }
 .provenance-badge.verified {
   background: #ecfdf5;
   border-color: #a7f3d0;
   color: #047857;
 }
+.provenance-badge.verified:hover {
+  box-shadow: 0 2px 6px rgba(4,120,87,.2);
+}
 .provenance-badge.heuristic {
   background: #fef3c7;
   border-color: #fde68a;
   color: #b45309;
+}
+.provenance-badge.heuristic:hover {
+  box-shadow: 0 2px 6px rgba(180,83,9,.2);
 }
 .empty {
   padding: 60px 28px;
