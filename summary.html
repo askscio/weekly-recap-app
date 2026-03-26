@@ -88,489 +88,253 @@ body {
   background: var(--page);
   box-shadow: 0 14px 34px rgba(26,22,18,.08);
   border: 1px solid rgba(0,0,0,.05);
-  height: calc(100vh - 74px);
-  overflow: hidden;
+  min-height: calc(100vh - 74px);
+  overflow: auto;
 }
-.summary-grid {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-  gap: 0;
-  width: 100%;
-  height: 100%;
+
+/* ===== EXECUTIVE SUMMARY LAYOUT ===== */
+.summary-doc {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 48px 64px 64px;
 }
-.summary-col {
-  min-width: 0;
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
-}
-.summary-col.left {
-  border-right: 1px solid var(--warm-rule);
-}
-.summary-panel {
+
+/* Header */
+.doc-header {
+  margin-bottom: 56px;
   border-bottom: 1px solid var(--warm-rule);
+  padding-bottom: 32px;
 }
-.summary-col .header,
-.summary-col .number-strip,
-.summary-col .progress-section,
-.summary-col .body,
-.summary-col .doc-footer {
-  padding-left: 14px;
-  padding-right: 14px;
-}
-.summary-col .number-strip {
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  row-gap: 22px;
-}
-.summary-col .number-cell:nth-child(3n) { border-right: none; }
-.summary-col .doc-footer {
-  border-top: none;
-}
-.header {
-  padding: 16px 12px 10px;
-  border-bottom: 1px solid var(--warm-rule);
-}
-.header-top {
+.doc-meta {
   display: flex;
   justify-content: space-between;
-  gap: 10px;
-  flex-wrap: wrap;
-  font-size: 9px;
+  align-items: center;
+  margin-bottom: 24px;
+  font-size: 10px;
   font-weight: 700;
-  letter-spacing: .18em;
+  letter-spacing: .16em;
   text-transform: uppercase;
   color: var(--ink-soft);
-  margin-bottom: 10px;
 }
 .headline {
   font-family: 'Playfair Display', serif;
-  font-size: 32px;
+  font-size: 56px;
   font-weight: 800;
-  line-height: 1.12;
-  letter-spacing: -.02em;
+  line-height: 1.1;
+  letter-spacing: -.03em;
   color: var(--ink);
-  margin-bottom: 4px;
+  margin-bottom: 12px;
 }
 .date-line {
-  font-size: 12px;
-  color: var(--ink-soft);
+  font-size: 13px;
+  color: var(--ink-mid);
+  font-weight: 500;
 }
-.number-strip {
-  display: grid;
-  grid-template-columns: repeat(6, minmax(0, 1fr));
-  gap: 0;
-  padding: 14px 8px;
-  border-bottom: 1px solid var(--warm-rule);
-}
-.number-cell {
-  text-align: center;
-  padding: 0 10px;
-  border-right: 1px solid var(--warm-rule);
-}
-.number-cell:last-child { border-right: none; }
-.number-label {
-  font-size: 9px;
-  font-weight: 700;
-  letter-spacing: .14em;
-  text-transform: uppercase;
-  color: var(--ink-soft);
-  margin-bottom: 6px;
-}
-.number-val {
-  font-family: 'Playfair Display', serif;
-  font-size: 26px;
-  font-weight: 700;
-  color: var(--ink);
-}
-.number-cell.closed .number-val { color: var(--green); }
-.number-cell.best .number-val { color: var(--gold); }
-.number-sub {
-  font-size: 9px;
-  color: var(--ink-soft);
-  margin-top: 2px;
-}
-.progress-section {
-  padding: 10px 12px 10px;
-  border-bottom: 1px solid var(--warm-rule);
-}
-.progress-row { margin-bottom: 9px; }
-.progress-row:last-child { margin-bottom: 0; }
-.progress-header {
+
+/* KPIs - Clean Sparse Row */
+.kpi-row {
   display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-  gap: 12px;
-  flex-wrap: wrap;
-  margin-bottom: 3px;
-}
-.progress-label {
-  font-size: 10px;
-  font-weight: 700;
-  color: var(--ink);
-}
-.progress-note {
-  font-size: 9px;
-  font-weight: 700;
-  color: var(--ink-soft);
-}
-.progress-note.red { color: var(--red); }
-.progress-note.gold { color: var(--gold); }
-.progress-note.green { color: var(--green); }
-.progress-track {
-  position: relative;
-  height: 10px;
-  background: var(--warm-rule);
-  border-radius: 999px;
-  overflow: hidden;
-}
-.progress-fill-base {
-  position: absolute;
-  left: 0;
-  top: 0;
-  height: 100%;
-  border-radius: 999px;
-  background: var(--ink);
-}
-.progress-fill-base.accent { background: var(--green); }
-.progress-fill-base.gold { background: var(--gold); }
-.progress-fill-base.blue { background: var(--blue); }
-.progress-target-line {
-  position: absolute;
-  top: -2px;
-  bottom: -2px;
-  width: 2px;
-  left: calc(84% - 1px);
-  background: rgba(26,22,18,.45);
-  border-radius: 999px;
-  z-index: 3;
-}
-.progress-overflow {
-  position: absolute;
-  top: 1px;
-  left: 84%;
-  height: 9px;
-  border-radius: 999px;
-  background: linear-gradient(90deg, #2d6a4f, #3d8b68);
-  box-shadow: inset 0 0 0 1px rgba(45,106,79,.18);
-}
-.body { padding: 0 14px; }
-.section {
-  padding: 14px 0;
+  gap: 48px;
+  margin-bottom: 64px;
+  padding-bottom: 48px;
   border-bottom: 1px solid var(--warm-rule);
+  flex-wrap: wrap;
 }
-.section:last-child { border-bottom: none; }
-.section-label {
+.kpi-metric {
+  flex: 0 1 auto;
+  text-align: left;
+}
+.kpi-metric.hero {
+  flex: 0 1 auto;
+}
+.kpi-label {
   font-size: 9px;
   font-weight: 700;
   letter-spacing: .18em;
   text-transform: uppercase;
   color: var(--ink-soft);
-  margin-bottom: 12px;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-.section-label::after {
-  content: '';
-  flex: 1;
-  height: 1px;
-  background: var(--warm-rule);
-}
-.section h2 {
-  font-family: 'Playfair Display', serif;
-  font-size: 20px;
-  font-weight: 700;
-  margin-bottom: 10px;
-}
-.section p {
-  font-size: 13px;
-  line-height: 1.7;
-  color: var(--ink-mid);
-  margin-bottom: 10px;
-}
-.section p:last-child { margin-bottom: 0; }
-.summary-pair {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 6px;
   margin-bottom: 8px;
 }
-.summary-card {
-  border: 1px solid var(--warm-rule);
-  padding: 10px;
-  background: rgba(255,255,255,.35);
-  border-radius: 8px;
-  box-shadow: 0 1px 3px rgba(26,22,18,.04);
-}
-.card-label {
-  font-size: 9px;
+.kpi-value {
+  font-family: 'Playfair Display', serif;
+  font-size: 42px;
   font-weight: 700;
-  letter-spacing: .14em;
-  text-transform: uppercase;
-  color: var(--ink-soft);
+  color: var(--ink);
+  line-height: 1;
   margin-bottom: 4px;
 }
-.card-val {
-  font-family: 'Playfair Display', serif;
-  font-size: 21px;
-  font-weight: 700;
-  color: var(--ink);
-}
-.card-sub {
-  font-size: 10px;
-  color: var(--ink-soft);
-  margin-top: 4px;
-}
-.banner {
-  background: var(--blue-bg);
-  border: 1px solid #bfdbfe;
-  border-left: 4px solid var(--blue);
-  padding: 10px 12px;
-  margin-bottom: 8px;
-  border-radius: 8px;
-}
-.banner-label {
-  font-size: 9px;
-  font-weight: 700;
-  letter-spacing: .14em;
-  text-transform: uppercase;
-  color: var(--blue);
-  margin-bottom: 4px;
-}
-.banner-val {
-  font-family: 'Playfair Display', serif;
-  font-size: 18px;
-  font-weight: 700;
-  color: var(--ink);
-}
-.banner-note {
-  margin-top: 4px;
-  font-size: 11px;
-  color: var(--ink-mid);
-  line-height: 1.6;
-}
-.bullet-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 16px;
-}
-.stack-grid {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-.bullet-block {
-  background: rgba(255,255,255,.45);
-  border: 1px solid var(--warm-rule);
-  padding: 0;
-  border-radius: 8px;
-  overflow: hidden;
-}
-.bullet-title {
-  font-size: 9px;
-  font-weight: 700;
-  letter-spacing: .16em;
-  text-transform: uppercase;
-  color: var(--ink-soft);
-  margin: 0;
-  padding: 9px 12px;
-  border-bottom: 1px solid var(--warm-rule);
-  background: rgba(255,255,255,.65);
-}
-.bullet-list {
-  list-style: none;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  padding: 12px 14px;
-  text-align: left;
-  align-items: flex-start;
-}
-.bullet-list li {
-  font-size: 13px;
-  line-height: 1.6;
-  color: var(--ink-mid);
-  overflow-wrap: anywhere;
-  width: 100%;
-  text-align: left;
-}
-.bullet-list li strong {
-  color: var(--ink);
-  font-weight: 700;
-}
-.nbm-panel {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 10px;
-}
-.rainmaker-three-up {
-  display: flex;
-  gap: 10px;
-  flex-wrap: nowrap;
-  align-items: stretch;
-}
-.rainmaker-three-up .nbm-subcard {
-  flex: 1 1 0;
-  min-width: 0;
-}
-.nbm-subcard {
-  border: 1px solid var(--warm-rule);
-  background: rgba(255,255,255,.45);
-  padding: 9px 10px;
-}
-.nbm-subcard.featured-green {
-  background: linear-gradient(180deg, #f2faf5 0%, #e7f5ec 100%);
-  border-color: #b8dcc7;
-  box-shadow: inset 0 0 0 1px rgba(45,106,79,.05);
-}
-.nbm-subcard.featured-green .nbm-subtitle {
+.kpi-metric.hero .kpi-value {
+  font-size: 52px;
   color: var(--green);
 }
-.nbm-subtitle {
+.kpi-metric.hero.commit .kpi-value {
+  color: var(--blue);
+}
+.kpi-sub {
+  font-size: 11px;
+  color: var(--ink-soft);
+  font-weight: 500;
+}
+
+/* Leader Note */
+.leader-note {
+  margin-bottom: 56px;
+  padding-left: 24px;
+  border-left: 4px solid var(--ink);
+}
+.leader-note-label {
   font-size: 9px;
+  font-weight: 700;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  margin-bottom: 16px;
+}
+.leader-note-content {
+  font-size: 16px;
+  line-height: 1.7;
+  color: var(--ink-mid);
+  font-weight: 400;
+}
+
+/* Content Sections */
+.content-section {
+  margin-bottom: 48px;
+}
+.section-title {
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: .2em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  margin-bottom: 20px;
+}
+.section-title::after {
+  content: '';
+  display: inline-block;
+  width: 32px;
+  height: 2px;
+  background: var(--warm-rule);
+  margin-left: 16px;
+  vertical-align: middle;
+}
+
+/* Lists - Clean Flow */
+.content-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.content-list li {
+  font-size: 14px;
+  line-height: 1.7;
+  color: var(--ink-mid);
+  margin-bottom: 16px;
+  padding-left: 20px;
+  position: relative;
+}
+.content-list li::before {
+  content: '—';
+  position: absolute;
+  left: 0;
+  color: var(--ink-soft);
+  font-weight: 700;
+}
+.content-list.numbered {
+  counter-reset: item;
+}
+.content-list.numbered li {
+  padding-left: 32px;
+}
+.content-list.numbered li::before {
+  content: counter(item) ".";
+  counter-increment: item;
+  font-family: 'Playfair Display', serif;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--ink);
+  left: 0;
+  width: 24px;
+}
+
+/* Featured Callout */
+.featured-callout {
+  background: rgba(42,106,79,.03);
+  border-left: 3px solid var(--green);
+  padding: 20px 24px;
+  margin-bottom: 40px;
+}
+.featured-callout .section-title {
+  margin-bottom: 16px;
+}
+.featured-callout .section-title::after {
+  display: none;
+}
+
+/* Two-Column Layout for Dense Content */
+.two-col-flow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 48px;
+  margin-bottom: 48px;
+}
+
+/* Rainmaker Summary */
+.rainmaker-summary {
+  background: rgba(255,255,255,.4);
+  padding: 32px;
+  margin-bottom: 56px;
+  border-radius: 8px;
+}
+.rainmaker-summary .section-title {
+  margin-bottom: 24px;
+}
+.rainmaker-metrics {
+  display: flex;
+  gap: 40px;
+  flex-wrap: wrap;
+}
+.rainmaker-metric {
+  flex: 0 1 auto;
+}
+.rainmaker-metric-label {
+  font-size: 10px;
   font-weight: 700;
   letter-spacing: .14em;
   text-transform: uppercase;
   color: var(--ink-soft);
   margin-bottom: 6px;
 }
-.nbm-metric-list,
-.nbm-scheduled-list {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-}
-.nbm-metric-list li,
-.nbm-scheduled-list li {
-  font-size: 10px;
-  line-height: 1.34;
-  color: var(--ink-mid);
-  margin-bottom: 4px;
-  text-align: left;
-}
-.nbm-metric-list li:last-child,
-.nbm-scheduled-list li:last-child {
-  margin-bottom: 0;
-}
-.nbm-metric-list strong,
-.nbm-scheduled-list strong {
-  color: var(--ink);
-  font-weight: 700;
-}
-.fullwidth-stack {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-.fullwidth-card {
-  width: 100%;
-  background: rgba(255,255,255,.55);
-  border: 1px solid var(--warm-rule);
-  border-radius: 8px;
-  overflow: hidden;
-}
-.fullwidth-header {
-  padding: 7px 12px;
-  border-bottom: 1px solid var(--warm-rule);
-  background: linear-gradient(180deg, rgba(255,255,255,.96), rgba(248,244,238,.92));
-  text-align: center;
-}
-.fullwidth-title {
+.rainmaker-metric-value {
   font-family: 'Playfair Display', serif;
-  font-size: 17px;
+  font-size: 28px;
   font-weight: 700;
-  line-height: 1.15;
   color: var(--ink);
+  line-height: 1;
 }
-.fullwidth-body {
-  padding: 7px 12px;
-  text-align: left;
-}
-.named-list {
-  list-style: disc;
-  display: flex;
-  flex-direction: column;
-  gap: 7px;
-  padding-left: 28px;
-  padding-right: 6px;
-  text-align: left;
-  align-items: flex-start;
-}
-.named-list li {
-  font-size: 11.5px;
-  line-height: 1.5;
-  color: var(--ink-mid);
-  overflow-wrap: anywhere;
-  width: 100%;
-  text-align: left;
-}
-.named-list li strong {
-  color: var(--ink);
-  font-weight: 700;
-}
-.numbered-list {
-  list-style: decimal;
-  margin: 0;
-  padding-left: 26px;
-  padding-right: 6px;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-.numbered-list li {
-  font-size: 11.5px;
-  line-height: 1.5;
-  color: var(--ink-mid);
-  overflow-wrap: anywhere;
-}
-.numbered-list li strong {
-  color: var(--ink);
-  font-weight: 700;
-}
-.ask-block {
-  background: var(--ink);
-  padding: 12px 14px;
-  border-radius: 8px;
-}
-.ask-label {
-  font-size: 9px;
-  font-weight: 700;
-  letter-spacing: .16em;
-  text-transform: uppercase;
-  color: var(--gold);
-  margin-bottom: 12px;
-}
-.ask-text {
-  font-size: 12px;
-  color: rgba(255,255,255,.88);
-  line-height: 1.55;
-  white-space: pre-wrap;
-}
+
+/* Footer */
 .doc-footer {
+  margin-top: 64px;
+  padding-top: 24px;
+  border-top: 1px solid var(--warm-rule);
   display: flex;
   justify-content: space-between;
-  gap: 12px;
-  flex-wrap: wrap;
-  padding: 8px 12px;
-  border-top: 1px solid var(--warm-rule);
-  font-size: 9px;
-  font-weight: 700;
-  letter-spacing: .1em;
-  text-transform: uppercase;
-  color: var(--ink-soft);
   align-items: center;
+  font-size: 10px;
+  color: var(--ink-soft);
 }
 .provenance-badge {
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  font-size: 10px;
+  font-size: 9px;
   padding: 4px 10px;
-  border-radius: 8px;
+  border-radius: 6px;
   background: #f1f5f9;
   border: 1px solid #cbd5e1;
   color: #475569;
-  font-weight: 700;
+  font-weight: 600;
   letter-spacing: .02em;
   text-transform: none;
   transition: all .15s ease;
@@ -595,28 +359,45 @@ body {
 .provenance-badge.heuristic:hover {
   box-shadow: 0 2px 6px rgba(180,83,9,.2);
 }
+
 .empty {
   padding: 60px 28px;
   text-align: center;
   color: var(--ink-soft);
 }
-@media (max-width: 900px) {
-  .page { height: auto; overflow: visible; }
-  .summary-grid { grid-template-columns: 1fr; height: auto; }
-  .summary-col { height: auto; overflow: visible; }
-  .summary-col.left { border-right: none; border-bottom: 1px solid var(--warm-rule); }
-  .number-strip { grid-template-columns: repeat(3, minmax(0, 1fr)); row-gap: 22px; }
-  .number-cell:nth-child(3n) { border-right: none; }
+
+/* Responsive */
+@media (max-width: 1100px) {
+  .summary-doc {
+    padding: 40px 48px 56px;
+  }
+  .kpi-row {
+    gap: 32px;
+  }
+  .two-col-flow {
+    grid-template-columns: 1fr;
+    gap: 32px;
+  }
 }
 @media (max-width: 760px) {
-  .shell { width: calc(100vw - 12px); padding: 6px 0 10px; }
-  .page { width: 100%; }
-  .header, .progress-section, .body, .doc-footer { padding-left: 14px; padding-right: 14px; }
-  .headline { font-size: 28px; }
-  .summary-pair, .bullet-grid { grid-template-columns: 1fr; }
-  .number-strip { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .number-cell:nth-child(2n) { border-right: none; }
-  .rainmaker-three-up { flex-direction: column; }
+  .summary-doc {
+    padding: 32px 24px 48px;
+  }
+  .headline {
+    font-size: 40px;
+  }
+  .kpi-row {
+    gap: 24px;
+  }
+  .kpi-value {
+    font-size: 32px;
+  }
+  .kpi-metric.hero .kpi-value {
+    font-size: 40px;
+  }
+  .two-col-flow {
+    gap: 24px;
+  }
 }
 </style>
 </head>
@@ -663,9 +444,6 @@ function fmtMoneyShort(n) {
 function fmtPct(n) {
   return ((Number(n) || 0) * 100).toFixed(1) + "%";
 }
-function clampPct(n) {
-  return Math.max(0, Math.min(100, (Number(n) || 0) * 100));
-}
 function fmtDateShort(isoOrDate) {
   if (!isoOrDate) return "—";
   var d = new Date(isoOrDate);
@@ -689,156 +467,7 @@ function takeTopItems(items, maxItems, maxLen) {
 function goSummary() { window.top.location.href = APP_EXEC_URL + "?page=summary&v=" + Date.now(); }
 function goDashboard() { window.top.location.href = APP_EXEC_URL + "?page=dashboard&v=" + Date.now(); }
 function goPoc() { window.top.location.href = APP_EXEC_URL + "?page=poc&v=" + Date.now(); }
-function overflowPct(n) {
-  var pct = (Number(n) || 0) * 100;
-  if (pct <= 100) return 0;
-  return Math.min(pct - 100, 60);
-}
-function progressRow(label, value, quota, pct, tone, note) {
-  var fillClass = tone === 'gold' ? 'gold' : tone === 'green' ? 'accent' : 'blue';
-  var baseZone = 84;
-  var overflowZone = 16;
-  var ratio = Number(pct || 0);
-  var baseWidth = Math.max(0, Math.min(1, ratio)) * baseZone;
-  var overflowRatio = ratio > 1 ? Math.min((ratio - 1) / 0.6, 1) : 0;
-  var overflowWidth = overflowRatio * overflowZone;
-  var overflowHtml = overflowWidth > 0
-    ? '<div class="progress-overflow" style="width:' + overflowWidth + '%"></div>'
-    : '';
-  return '<div class="progress-row">'
-    + '<div class="progress-header"><span class="progress-label">' + escHtml(label) + '</span><span class="progress-note ' + escHtml(tone || '') + '">' + escHtml(note || '') + '</span></div>'
-    + '<div class="progress-track">'
-    + '<div class="progress-fill-base ' + escHtml(fillClass) + '" style="width:' + baseWidth + '%"></div>'
-    + '<div class="progress-target-line"></div>'
-    + overflowHtml
-    + '</div>'
-    + '</div>';
-}
-function renderNamedList(items, className) {
-  var listClass = className || 'bullet-list';
-  if (!items || !items.length) return '<div style="text-align:left;"><ul class="' + listClass + '" style="text-align:left;margin:0;padding:0;"><li style="text-align:left;">No current notes.</li></ul></div>';
-  var html = '<div style="text-align:left;"><ul class="' + listClass + '" style="text-align:left;margin:0;padding:0;">';
-  for (var i = 0; i < items.length; i++) {
-    var raw = String(items[i] || '');
-    var m = raw.match(/^([^:]+):\s*(.*)$/);
-    if (m) {
-      var firstName = String(m[1] || '').trim().split(/\s+/)[0] || m[1];
-      var rest = String(m[2] || '').trim();
-      html += '<li style="text-align:left;"><strong>' + escHtml(firstName) + ':</strong> ' + escHtml(rest) + '</li>';
-    } else {
-      html += '<li style="text-align:left;">' + escHtml(raw) + '</li>';
-    }
-  }
-  html += '</ul></div>';
-  return html;
-}
 
-function renderNumberedList(items) {
-  if (!items || !items.length) return '<ol class="numbered-list"><li>No current notes.</li></ol>';
-  var html = '<ol class="numbered-list">';
-  for (var i = 0; i < items.length; i++) {
-    var raw = String(items[i] || '').trim();
-    var m = raw.match(/^([^:]+):\s*(.*)$/);
-    if (m) {
-      html += '<li><strong>' + escHtml(m[1].trim()) + ':</strong> ' + escHtml(m[2].trim()) + '</li>';
-    } else {
-      html += '<li>' + escHtml(raw) + '</li>';
-    }
-  }
-  html += '</ol>';
-  return html;
-}
-
-function renderNumberedSection(title, items) {
-  if (!items || !items.length) return '';
-  var limited = takeTopItems(items, 5, 150);
-  return '<div class="fullwidth-card">'
-    + '<div class="fullwidth-header"><div class="fullwidth-title">' + escHtml(title) + '</div></div>'
-    + '<div class="fullwidth-body">' + renderNumberedList(limited) + '</div>'
-    + '</div>';
-}
-
-function renderFullWidthSection(title, items) {
-  if (!items || !items.length) return '';
-  var limited = items;
-  if (title === 'Big Deal Adds') limited = takeTopItems(items, 1, 190);
-  else if (title === 'Deal Progression') limited = takeTopItems(items, 4, 170);
-  else if (title === 'Forecast Signals') limited = takeTopItems(items, 4, 150);
-  else if (title === 'Rep Priorities') limited = takeTopItems(items, 4, 165);
-  else if (title === 'Notes') limited = takeTopItems(items, 2, 150);
-  return '<div class="fullwidth-card">'
-    + '<div class="fullwidth-header"><div class="fullwidth-title">' + escHtml(title) + '</div></div>'
-    + '<div class="fullwidth-body">' + renderNamedList(limited, 'named-list') + '</div>'
-    + '</div>';
-}
-function renderNBMSection(nbm) {
-  if (!nbm) return '';
-  var completed = Array.isArray(nbm.completedQtd) ? nbm.completedQtd : [];
-  var scheduled = Array.isArray(nbm.scheduledThisWeek) ? nbm.scheduledThisWeek : [];
-  var completedHtml = '<ul class="nbm-metric-list">';
-  for (var i = 0; i < completed.length; i++) {
-    completedHtml += '<li><strong>' + escHtml(completed[i].rep || '') + '</strong>: ' + escHtml(String(completed[i].count || 0)) + '</li>';
-  }
-  completedHtml += '</ul>';
-
-  var scheduledHtml = scheduled.length
-    ? ('<ul class="nbm-scheduled-list">' + scheduled.map(function(item) { return '<li>' + escHtml(item) + '</li>'; }).join('') + '</ul>')
-    : '<ul class="nbm-scheduled-list"><li>No NBMs currently dated for this week.</li></ul>';
-
-  return '<div class="section">'
-    + '<div class="section-label">NBMs</div>'
-    + '<div class="nbm-panel">'
-    +   '<div class="nbm-subcard"><div class="nbm-subtitle">Completed QTD</div>' + completedHtml + '</div>'
-    +   '<div class="nbm-subcard"><div class="nbm-subtitle">NBMs Scheduled This Week' + (nbm.weekLabel ? ' · ' + escHtml(nbm.weekLabel) : '') + '</div>' + scheduledHtml + '</div>'
-    + '</div>'
-    + '</div>';
-}
-function renderCountList(items, emptyText) {
-  if (!items || !items.length) return '<ul class="nbm-scheduled-list"><li>' + escHtml(emptyText || 'None entered this week.') + '</li></ul>';
-  var html = '<ul class="nbm-scheduled-list">';
-  for (var i = 0; i < items.length; i++) {
-    var item = items[i] || {};
-    var count = Number(item.count) || 0;
-    var note = String(item.note || '').trim();
-    var label = '<strong>' + escHtml(item.rep || '') + '</strong>: ' + escHtml(String(count));
-    if (count > 0 && note) label += ' - ' + escHtml(note);
-    html += '<li>' + label + '</li>';
-  }
-  html += '</ul>';
-  return html;
-}
-
-function renderNBMRollupList(items, emptyText) {
-  if (!items || !items.length) return '<ul class="nbm-scheduled-list"><li>' + escHtml(emptyText || 'No NBMs entered this week.') + '</li></ul>';
-  var html = '<ul class="nbm-scheduled-list">';
-  for (var i = 0; i < items.length; i++) {
-    var item = items[i] || {};
-    var currentCount = Number(item.currentCount) || 0;
-    var weeklyCount = Number(item.count) || 0;
-    var note = String(item.note || '').trim();
-    var label = '<strong>' + escHtml(item.rep || '') + '</strong>'
-      + escHtml(' — current: ' + currentCount + ' | this week: ' + weeklyCount);
-    if (weeklyCount > 0 && note) label += escHtml(' (' + note + ')');
-    html += '<li>' + label + '</li>';
-  }
-  html += '</ul>';
-  return html;
-}
-
-function renderRainmakerSummarySection(summary) {
-  if (!summary) return '';
-  return '<div class="section">'
-    + '<div class="section-label">Rainmaker Metrics · ' + escHtml(summary.weekLabel || '') + '</div>'
-    + '<div class="rainmaker-three-up">'
-    +   '<div class="nbm-subcard featured-green"><div class="nbm-subtitle">NBMs (Current + This Week)</div>' + renderNBMRollupList(summary.nbms, 'No NBMs entered this week.') + '</div>'
-    +   '<div class="nbm-subcard"><div class="nbm-subtitle">Discovery Meetings</div>' + renderCountList(summary.discovery, 'No discovery meetings entered this week.') + '</div>'
-    +   '<div class="nbm-subcard"><div class="nbm-subtitle">Planned Channel Meetings</div>' + renderCountList(summary.channelMeetings, 'No channel meetings entered this week.') + '</div>'
-    + '</div>'
-    + '</div>';
-}
-function wrapPanel(html) {
-  return '<div class="summary-panel">' + html + '</div>';
-}
 function renderSummary(data) {
   var root = document.getElementById('summaryRoot');
   if (!data || !data.metrics) {
@@ -849,76 +478,196 @@ function renderSummary(data) {
   var m = data.metrics || {};
   var t = data.teamRollup || {};
   var recap = data.teamRecap || {};
-  var themeText = (t.themes && t.themes.length) ? t.themes.join(' · ') : (data.theme || 'Weekly Summary');
-  var closedSub = fmtPct(m.attainmentPct || 0) + ' attained';
-  var commitSub = fmtPct(m.commitPct || 0) + ' to quota';
-  var likelySub = fmtPct(m.likelyPct || 0) + ' to quota';
-  var bestSub = fmtPct(m.bestCasePct || 0) + ' to quota';
-  var nextQuarterSub = (m.nextQuarterCoverageX && m.nextQuarterCoverageX > 0)
-    ? m.nextQuarterCoverageX.toFixed(1) + 'x coverage vs ' + fmtMoneyShort(m.nextQuarterQuota || 0) + ' quota'
-    : 'Next-quarter coverage';
 
-  var leftHtml = '';
-  leftHtml += wrapPanel('<div class="header">'
-    +   '<div class="header-top"><span>' + escHtml(data.teamName || 'NorthCentral Enterprise') + '</span><span>' + escHtml(data.managerName || 'Billy Schuett') + '</span></div>'
-    +   '<h1 class="headline">' + escHtml(data.theme || 'Weekly Summary') + '</h1>'
-    +   '<div class="date-line">Week of ' + escHtml(fmtDateShort(data.reportingWeek)) + ' · ' + escHtml(data.quarterLabel || data.quarterKey || '') + '</div>'
-    + '</div>');
+  var html = '<div class="summary-doc">';
 
-  leftHtml += wrapPanel('<div class="number-strip">'
-    +   '<div class="number-cell"><div class="number-label">Quota</div><div class="number-val">' + escHtml(fmtMoneyShort(m.teamQuota)) + '</div><div class="number-sub">' + escHtml(data.teamName || '') + '</div></div>'
-    +   '<div class="number-cell closed"><div class="number-label">Closed</div><div class="number-val">' + escHtml(fmtMoneyShort(m.closed)) + '</div><div class="number-sub">' + escHtml(closedSub) + '</div></div>'
-    +   '<div class="number-cell"><div class="number-label">Commit</div><div class="number-val">' + escHtml(fmtMoneyShort(m.commit)) + '</div><div class="number-sub">' + escHtml(commitSub) + '</div></div>'
-    +   '<div class="number-cell"><div class="number-label">Most Likely</div><div class="number-val">' + escHtml(fmtMoneyShort(m.mostLikely)) + '</div><div class="number-sub">' + escHtml(likelySub) + '</div></div>'
-    +   '<div class="number-cell best"><div class="number-label">Best Case</div><div class="number-val">' + escHtml(fmtMoneyShort(m.bestCase)) + '</div><div class="number-sub">' + escHtml(bestSub) + '</div></div>'
-    +   '<div class="number-cell"><div class="number-label">Next Quarter</div><div class="number-val">' + escHtml(fmtMoneyShort(m.nextQuarter)) + '</div><div class="number-sub">' + escHtml(nextQuarterSub) + '</div></div>'
-    + '</div>');
+  // Header
+  html += '<div class="doc-header">';
+  html += '<div class="doc-meta">';
+  html += '<span>' + escHtml(data.teamName || 'NorthCentral Enterprise') + '</span>';
+  html += '<span>' + escHtml(data.managerName || 'Billy Schuett') + '</span>';
+  html += '</div>';
+  html += '<h1 class="headline">' + escHtml(data.theme || 'Weekly Summary') + '</h1>';
+  html += '<div class="date-line">Week of ' + escHtml(fmtDateShort(data.reportingWeek)) + ' · ' + escHtml(data.quarterLabel || data.quarterKey || '') + '</div>';
+  html += '</div>';
 
-  leftHtml += wrapPanel('<div class="progress-section">'
-    + progressRow('Closed vs Quota', m.closed, m.teamQuota, m.attainmentPct, 'green', fmtMoneyShort(m.closedGap) + ' gap')
-    + progressRow('Commit vs Quota', m.commit, m.teamQuota, m.commitPct, '', fmtMoneyShort(m.commitGap) + ' gap')
-    + progressRow('Most Likely vs Quota', m.mostLikely, m.teamQuota, m.likelyPct, 'gold', fmtMoneyShort(m.likelyGap) + ' gap')
-    + progressRow('Best Case vs Quota', m.bestCase, m.teamQuota, m.bestCasePct, 'gold', fmtMoneyShort(m.bestCaseGap) + ' gap')
-    + '</div>');
+  // KPI Row - Clean Sparse Layout
+  html += '<div class="kpi-row">';
 
+  // Hero metrics first
+  html += '<div class="kpi-metric hero">';
+  html += '<div class="kpi-label">Closed</div>';
+  html += '<div class="kpi-value">' + escHtml(fmtMoneyShort(m.closed)) + '</div>';
+  html += '<div class="kpi-sub">' + escHtml(fmtPct(m.attainmentPct || 0)) + ' to quota</div>';
+  html += '</div>';
+
+  html += '<div class="kpi-metric hero commit">';
+  html += '<div class="kpi-label">Commit</div>';
+  html += '<div class="kpi-value">' + escHtml(fmtMoneyShort(m.commit)) + '</div>';
+  html += '<div class="kpi-sub">' + escHtml(fmtPct(m.commitPct || 0)) + ' to quota</div>';
+  html += '</div>';
+
+  // Supporting metrics
+  html += '<div class="kpi-metric">';
+  html += '<div class="kpi-label">Most Likely</div>';
+  html += '<div class="kpi-value">' + escHtml(fmtMoneyShort(m.mostLikely)) + '</div>';
+  html += '<div class="kpi-sub">' + escHtml(fmtPct(m.likelyPct || 0)) + ' to quota</div>';
+  html += '</div>';
+
+  html += '<div class="kpi-metric">';
+  html += '<div class="kpi-label">Best Case</div>';
+  html += '<div class="kpi-value">' + escHtml(fmtMoneyShort(m.bestCase)) + '</div>';
+  html += '<div class="kpi-sub">' + escHtml(fmtPct(m.bestCasePct || 0)) + ' to quota</div>';
+  html += '</div>';
+
+  html += '<div class="kpi-metric">';
+  html += '<div class="kpi-label">Next Quarter</div>';
+  html += '<div class="kpi-value">' + escHtml(fmtMoneyShort(m.nextQuarter)) + '</div>';
+  var nextQSub = (m.nextQuarterCoverageX && m.nextQuarterCoverageX > 0)
+    ? m.nextQuarterCoverageX.toFixed(1) + 'x coverage'
+    : 'Pipeline';
+  html += '<div class="kpi-sub">' + escHtml(nextQSub) + '</div>';
+  html += '</div>';
+
+  html += '</div>';
+
+  // Leader Note
   if (data.leaderNote || recap.note) {
-    var noteParts = [];
-    if (data.leaderNote) noteParts.push(data.leaderNote);
-    if (!data.leaderNote && recap.note) noteParts.push(truncateText(recap.note, 220));
-    leftHtml += wrapPanel('<div class="body"><div class="section">'
-      +   '<div class="section-label">From ' + escHtml((data.managerName || 'Billy').split(' ')[0]) + '</div>'
-      +   '<h2>Team —</h2>'
-      +   (noteParts.length ? '<p>' + escHtml(noteParts.join(' ')) + '</p>' : '')
-      + '</div></div>');
+    var noteText = data.leaderNote || truncateText(recap.note, 280);
+    html += '<div class="leader-note">';
+    html += '<div class="leader-note-label">From ' + escHtml((data.managerName || 'Billy').split(' ')[0]) + '</div>';
+    html += '<div class="leader-note-content">' + escHtml(noteText) + '</div>';
+    html += '</div>';
   }
 
-  if (data.rainmakerSummary) {
-    leftHtml += wrapPanel('<div class="body">' + renderRainmakerSummarySection(data.rainmakerSummary) + '</div>');
+  // Big Deal Adds - Featured Callout
+  var bigDeals = recap.newDealItems || [];
+  if (bigDeals.length > 0) {
+    html += '<div class="featured-callout">';
+    html += '<div class="section-title">Big Deal Adds</div>';
+    html += '<ul class="content-list">';
+    var limited = takeTopItems(bigDeals, 2, 200);
+    for (var i = 0; i < limited.length; i++) {
+      html += '<li>' + escHtml(limited[i]) + '</li>';
+    }
+    html += '</ul>';
+    html += '</div>';
   }
 
-  var rightHtml = '';
+  // Two-Column Content Flow
+  html += '<div class="two-col-flow">';
 
-  rightHtml += wrapPanel('<div class="body"><div class="section">'
-    +   '<div class="fullwidth-stack">'
-    +     renderFullWidthSection('Big Deal Adds', recap.newDealItems || [])
-    +     renderFullWidthSection('Deal Progression', recap.dealProgressItems || [])
-    +     renderFullWidthSection('Forecast Signals', recap.forecastItems || [])
-    +     renderFullWidthSection('Rep Priorities', (t.priorities && t.priorities.length) ? t.priorities : (recap.priorityItems || []))
-    +   '</div>'
-    + '</div></div>');
+  // Left Column
+  html += '<div>';
 
+  // Deal Progression
+  var dealProg = recap.dealProgressItems || [];
+  if (dealProg.length > 0) {
+    html += '<div class="content-section">';
+    html += '<div class="section-title">Deal Progression</div>';
+    html += '<ul class="content-list">';
+    var limited = takeTopItems(dealProg, 4, 170);
+    for (var i = 0; i < limited.length; i++) {
+      html += '<li>' + escHtml(limited[i]) + '</li>';
+    }
+    html += '</ul>';
+    html += '</div>';
+  }
+
+  // Forecast Signals
+  var forecastSig = recap.forecastItems || [];
+  if (forecastSig.length > 0) {
+    html += '<div class="content-section">';
+    html += '<div class="section-title">Forecast Signals</div>';
+    html += '<ul class="content-list">';
+    var limited = takeTopItems(forecastSig, 4, 150);
+    for (var i = 0; i < limited.length; i++) {
+      html += '<li>' + escHtml(limited[i]) + '</li>';
+    }
+    html += '</ul>';
+    html += '</div>';
+  }
+
+  html += '</div>';
+
+  // Right Column
+  html += '<div>';
+
+  // Rep Priorities
+  var priorities = (t.priorities && t.priorities.length) ? t.priorities : (recap.priorityItems || []);
+  if (priorities.length > 0) {
+    html += '<div class="content-section">';
+    html += '<div class="section-title">Rep Priorities</div>';
+    html += '<ul class="content-list">';
+    var limited = takeTopItems(priorities, 4, 165);
+    for (var i = 0; i < limited.length; i++) {
+      html += '<li>' + escHtml(limited[i]) + '</li>';
+    }
+    html += '</ul>';
+    html += '</div>';
+  }
+
+  // Risks, Asks, Notes
   var combinedRAN = (recap.risksAsksNotesItems && recap.risksAsksNotesItems.length)
     ? recap.risksAsksNotesItems
     : [].concat(t.risks || [], t.asks || [], t.notes || []).slice(0, 5);
   if (combinedRAN && combinedRAN.length) {
-    rightHtml += wrapPanel('<div class="body"><div class="section">'
-      +   renderNumberedSection('Risks, Asks, and Notes', combinedRAN)
-      + '</div></div>');
+    html += '<div class="content-section">';
+    html += '<div class="section-title">Risks, Asks & Notes</div>';
+    html += '<ol class="content-list numbered">';
+    var limited = takeTopItems(combinedRAN, 5, 150);
+    for (var i = 0; i < limited.length; i++) {
+      html += '<li>' + escHtml(limited[i]) + '</li>';
+    }
+    html += '</ol>';
+    html += '</div>';
   }
 
-  rightHtml += wrapPanel('<div class="body"><div class="section">'
-    +   '<div class="banner"><div class="banner-label">Team Rollup</div><div class="banner-val">' + escHtml(String(t.repsSubmitted || 0)) + ' reps submitted · Pulse ' + escHtml(String(t.avgPulse || recap.avgPulse || '—')) + '/10</div><div class="banner-note">Themes: ' + escHtml(truncateText(themeText, 72)) + '. Accounts: <span style="color:#2d6a4f;font-weight:700">' + escHtml(String(t.greenAccounts || 0)) + ' Green</span> · <span style="color:#b8860b;font-weight:700">' + escHtml(String(t.yellowAccounts || 0)) + ' Yellow</span> · <span style="color:#c0392b;font-weight:700">' + escHtml(String(t.redAccounts || 0)) + ' Red</span>.</div></div>'
-    + '</div></div>');
+  html += '</div>';
+  html += '</div>'; // end two-col-flow
+
+  // Rainmaker Summary (if exists)
+  if (data.rainmakerSummary) {
+    var rm = data.rainmakerSummary;
+    html += '<div class="rainmaker-summary">';
+    html += '<div class="section-title">Rainmaker Activity</div>';
+    html += '<div class="rainmaker-metrics">';
+
+    if (rm.disco) {
+      html += '<div class="rainmaker-metric">';
+      html += '<div class="rainmaker-metric-label">Discovery Meetings</div>';
+      html += '<div class="rainmaker-metric-value">' + escHtml(String(rm.disco.totalCompleted || 0)) + '</div>';
+      html += '</div>';
+    }
+
+    if (rm.nbm) {
+      html += '<div class="rainmaker-metric">';
+      html += '<div class="rainmaker-metric-label">NBMs Completed</div>';
+      html += '<div class="rainmaker-metric-value">' + escHtml(String(rm.nbm.totalCompleted || 0)) + '</div>';
+      html += '</div>';
+
+      html += '<div class="rainmaker-metric">';
+      html += '<div class="rainmaker-metric-label">NBMs Scheduled</div>';
+      html += '<div class="rainmaker-metric-value">' + escHtml(String(rm.nbm.totalScheduled || 0)) + '</div>';
+      html += '</div>';
+    }
+
+    html += '</div>';
+    html += '</div>';
+  }
+
+  // Weekly Ask (if exists)
+  if (data.weeklyAsk) {
+    html += '<div class="content-section">';
+    html += '<div class="section-title">This Week's Ask</div>';
+    html += '<div class="leader-note-content">' + escHtml(data.weeklyAsk) + '</div>';
+    html += '</div>';
+  }
+
+  // Footer with Provenance
+  html += '<div class="doc-footer">';
+  html += '<span>' + escHtml(data.footerNote || 'Confidential · Team Only') + '</span>';
+  html += '<span style="display:inline-flex;gap:8px;align-items:center;">';
 
   var provenanceBadge = '';
   if (recap.provenance) {
@@ -932,22 +681,16 @@ function renderSummary(data) {
     }
   }
 
-  rightHtml += '<div class="doc-footer"><span>' + escHtml(data.footerNote || 'Confidential · Team Only') + '</span><span style="display:inline-flex;gap:8px;align-items:center;">' + provenanceBadge + '<span>' + escHtml(data.managerName || 'Billy Schuett') + '</span></span></div>';
+  html += provenanceBadge;
+  html += '<span>' + escHtml(data.managerName || 'Billy Schuett') + '</span>';
+  html += '</span>';
+  html += '</div>';
 
-  root.innerHTML = '<div class="summary-grid"><div class="summary-col left">' + leftHtml + '</div><div class="summary-col right">' + rightHtml + '</div></div>';
-  var labels = root.querySelectorAll('.section-label');
-  for (var i = 0; i < labels.length; i++) {
-    var text = String(labels[i].textContent || '').toLowerCase();
-    if (text.indexOf('quarter view') !== -1) {
-      var panel = labels[i].closest('.summary-panel');
-      if (panel) panel.remove();
-      else {
-        var section = labels[i].closest('.section');
-        if (section) section.remove();
-      }
-    }
-  }
+  html += '</div>'; // end summary-doc
+
+  root.innerHTML = html;
 }
+
 window.addEventListener('load', function() {
   try { renderSummary(parseSummaryData(SUMMARY_DATA)); }
   catch (e) { document.getElementById('summaryRoot').innerHTML = '<div class="empty">Summary failed to load: ' + escHtml(e.message || String(e)) + '</div>'; }
