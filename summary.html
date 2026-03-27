@@ -32,8 +32,8 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 .shell {
-  width: min(calc(100vw - 48px), 1400px);
-  max-width: 1400px;
+  width: min(calc(100vw - 32px), 1560px);
+  max-width: 1560px;
   min-width: 0;
   margin: 0 auto;
   padding: 10px 0 18px;
@@ -95,7 +95,7 @@ body {
 }
 .summary-grid {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  grid-template-columns: minmax(0, 0.98fr) minmax(0, 1.02fr);
   gap: 0;
   width: 100%;
   height: auto;
@@ -411,6 +411,9 @@ body {
   flex: 1 1 0;
   min-width: 0;
 }
+.rainmaker-three-up .nbm-subcard.featured-green {
+  flex: 1.22 1 0;
+}
 .nbm-subcard {
   border: none;
   background: transparent;
@@ -418,12 +421,23 @@ body {
   box-shadow: none;
 }
 .nbm-subcard.featured-green {
-  background: transparent;
+  background: linear-gradient(180deg, #f2faf5 0%, #e7f5ec 100%);
   border-color: transparent;
-  box-shadow: none;
+  box-shadow: inset 0 0 0 1px rgba(45,106,79,.05);
+  padding: 0 10px 10px;
+  border-radius: 8px;
 }
 .nbm-subcard.featured-green .nbm-subtitle {
   color: var(--green);
+}
+.nbm-subcard.featured-green .nbm-scheduled-list li {
+  background: transparent;
+  white-space: nowrap;
+  font-size: 10px;
+  padding: 7px 6px;
+}
+.nbm-subcard.featured-green .nbm-scheduled-list li:nth-child(even) {
+  background: rgba(45,106,79,.05);
 }
 .nbm-subtitle {
   font-size: 11px;
@@ -842,7 +856,7 @@ function renderNumberedList(items) {
 
 function renderNumberedSection(title, items) {
   if (!items || !items.length) return '';
-  var limited = takeTopItems(items, 5, 150);
+  var limited = takeTopItems(items, 5, 320);
   return '<div class="fullwidth-card">'
     + '<div class="fullwidth-header"><div class="fullwidth-title">' + escHtml(title) + '</div></div>'
     + '<div class="fullwidth-body">' + renderNumberedList(limited) + '</div>'
@@ -852,11 +866,11 @@ function renderNumberedSection(title, items) {
 function renderFullWidthSection(title, items) {
   if (!items || !items.length) return '';
   var limited = items;
-  if (title === 'Big Deal Adds') limited = takeTopItems(items, 1, 190);
-  else if (title === 'Deal Progression') limited = takeTopItems(items, 4, 170);
-  else if (title === 'Forecast Signals') limited = takeTopItems(items, 4, 150);
-  else if (title === 'Rep Priorities') limited = takeTopItems(items, 4, 165);
-  else if (title === 'Notes') limited = takeTopItems(items, 2, 150);
+  if (title === 'Big Deal Adds') limited = takeTopItems(items, 1, 280);
+  else if (title === 'Deal Progression') limited = takeTopItems(items, 4, 320);
+  else if (title === 'Forecast Signals') limited = takeTopItems(items, 4, 300);
+  else if (title === 'Rep Priorities') limited = takeTopItems(items, 4, 300);
+  else if (title === 'Notes') limited = takeTopItems(items, 2, 240);
   return '<div class="fullwidth-card">'
     + '<div class="fullwidth-header"><div class="fullwidth-title">' + escHtml(title) + '</div></div>'
     + '<div class="fullwidth-body">' + renderNamedList(limited, 'named-list') + '</div>'
@@ -908,7 +922,7 @@ function renderNBMRollupList(items, emptyText) {
     var weeklyCount = Number(item.count) || 0;
     var note = String(item.note || '').trim();
     var label = '<strong>' + escHtml(item.rep || '') + '</strong>'
-      + escHtml(' — current: ' + currentCount + ' | this week: ' + weeklyCount);
+      + escHtml(' — SFDC: ' + currentCount + ' / EOW: ' + weeklyCount);
     if (weeklyCount > 0 && note) label += escHtml(' (' + note + ')');
     html += '<li>' + label + '</li>';
   }
