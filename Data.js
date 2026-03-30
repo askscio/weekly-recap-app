@@ -1029,7 +1029,30 @@ function cleanSnippet_(text, maxLen) {
   var s = String(text || "").replace(/\s+/g, " ").trim();
   if (!s) return "";
   if (s.length <= maxLen) return s;
-  return s.slice(0, maxLen).replace(/[,:;.-]?$/, "") + "…";
+  var cutoff = Number(maxLen) || 0;
+  if (!cutoff || s.length <= cutoff) return s;
+
+  // Prefer ending on a full sentence if we can do so without over-shortening.
+  var minSentenceCutoff = Math.max(60, Math.floor(cutoff * 0.6));
+  var sentenceEnd = -1;
+  for (var i = cutoff; i >= minSentenceCutoff; i--) {
+    var ch = s.charAt(i - 1);
+    if (ch === '.' || ch === '!' || ch === '?') {
+      sentenceEnd = i;
+      break;
+    }
+  }
+  if (sentenceEnd > 0) {
+    return s.slice(0, sentenceEnd).trim();
+  }
+
+  // Otherwise cut at the last word boundary so we do not break mid-word.
+  var wordBoundary = s.lastIndexOf(' ', cutoff);
+  if (wordBoundary > Math.max(40, Math.floor(cutoff * 0.5))) {
+    return s.slice(0, wordBoundary).replace(/[,:;.-]?$/, "") + "…";
+  }
+
+  return s.slice(0, cutoff).replace(/[,:;.-]?$/, "") + "…";
 }
 
 
@@ -1127,8 +1150,17 @@ function renderEditorialSection_(section, selected) {
     var item = selected[i];
     var prefix = formatRepPrefix_(item.repName);
     if (section === 'deal_progression') {
-      if (item.accountName) lines.push(prefix + formatAccountMention_(item.accountName) + ': ' + item.text);
-      else lines.push(prefix + item.text);
+      var itemText = String(item.text || '').trim();
+      var acct = formatAccountMention_(item.accountName);
+      var acctLower = acct.toLowerCase();
+      var textLower = itemText.toLowerCase();
+      if (item.accountName && textLower.indexOf(acctLower + ':') === 0) {
+        lines.push(prefix + itemText);
+      } else if (item.accountName) {
+        lines.push(prefix + acct + ': ' + itemText);
+      } else {
+        lines.push(prefix + itemText);
+      }
     } else {
       lines.push(prefix + item.text);
     }
@@ -1176,7 +1208,7 @@ function summarizeTeamRecapsEditorial_(latestRecaps) {
       { label: 'next quarter', value: parseMoneyishServer_(parsed.nq_commit) }
     ].sort(function(a, b) { return b.value - a.value; })[0];
     if (bestForecast && bestForecast.value >= 150000) {
-      var forecastText = 'Carrying ' + bestForecast.label + ' at $' + Math.round(bestForecast.value).toLocaleString('en-US') + (parsed.forecast_note && !looksWeakSnippet_(parsed.forecast_note) ? ' — ' + cleanSnippet_(parsed.forecast_note, 90) : '');
+      var forecastText = 'Carrying ' + bestForecast.label + ' at $' + Math.round(bestForecast.value).toLocaleString('en-US') + (parsed.forecast_note && !looksWeakSnippet_(parsed.forecast_note) ? ' — ' + cleanSnippet_(parsed.forecast_note, 140) : '');
       pushCandidate_(forecastSignals, 'forecast_signals', repName, forecastText, 7 + Math.min(8, Math.round(bestForecast.value / 150000)), '');
     }
 
@@ -1209,11 +1241,11 @@ function summarizeTeamRecapsEditorial_(latestRecaps) {
       if (/closed won|contract signed|signed/i.test(combo) || /closed won/i.test(stage)) {
         narrative = 'Signed or commercial outcome on ' + formatAccountMention_(acctName) + ' is now real and worth leaning into.';
       } else if (/legal|procurement|approval|security|paperwork|msa|dpa/i.test(combo)) {
-        narrative = formatAccountMention_(acctName) + ' is moving through a real commercial gate: ' + cleanSnippet_(move || next, 100);
+        narrative = formatAccountMention_(acctName) + ' is moving through a real commercial gate: ' + cleanSnippet_(move || next, 180);
       } else if (/kickoff|deploy|rollout|pilot|launch|implementation/i.test(combo)) {
-        narrative = formatAccountMention_(acctName) + ' is moving operationally: ' + cleanSnippet_(move || next, 100);
+        narrative = formatAccountMention_(acctName) + ' is moving operationally: ' + cleanSnippet_(move || next, 180);
       } else {
-        narrative = formatAccountMention_(acctName) + ': ' + cleanSnippet_(move || next, 100);
+        narrative = formatAccountMention_(acctName) + ': ' + cleanSnippet_(move || next, 180);
       }
       pushCandidate_(dealProgress, 'deal_progression', repName, narrative, score, acctName);
     }
@@ -2001,7 +2033,7 @@ function getExecutiveSummaryData() {
   var base = getExecutiveSummaryDataBase_();
   function isTruncatedLine_(text) {
     var s = String(text || '').trim();
-    return !!s && /…$/.test(s);
+    return !!s && /(?:…|\.\.\.)$/.test(s);
   }
   function dropTruncatedItems_(list) {
     list = Array.isArray(list) ? list : [];
