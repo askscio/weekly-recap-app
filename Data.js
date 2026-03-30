@@ -1148,6 +1148,10 @@ function renderEditorialSection_(section, selected) {
   var lines = [];
   for (var i = 0; i < selected.length; i++) {
     var item = selected[i];
+    if (item._fullLine && item.text) {
+      lines.push(item.text);
+      continue;
+    }
     var prefix = formatRepPrefix_(item.repName);
     if (section === 'deal_progression') {
       var itemText = String(item.text || '').trim();
@@ -1166,6 +1170,163 @@ function renderEditorialSection_(section, selected) {
     }
   }
   return lines;
+}
+
+// -----------------------------------------------------------------------
+// DETERMINISTIC DEAL PROGRESSION SCORING
+// Replaces keyword-hit heuristic with weighted model.
+// -----------------------------------------------------------------------
+function scoreDealProgressionCandidate_(acctName, move, next, stage, arr, forecastContext, repForecast) {
+  var combo = [move, next].join(' ').toLowerCase();
+  var score = 0;
+  var dominated = false;
+  var exclusionReason = '';
+
+  // 1. Forecast bucket weight
+  var inForecast = false;
+  var acctLower = String(acctName || '').trim().toLowerCase();
+  if (Array.isArray(forecastContext)) {
+    for (var fc = 0; fc < forecastContext.length; fc++) {
+      var fcAcct = String(forecastContext[fc].account || '').trim().toLowerCase();
+      if (!fcAcct || fcAcct !== acctLower) continue;
+      inForecast = true;
+      var cat = String(forecastContext[fc].category || '').trim();
+      if (cat === 'Closed' || cat === 'Commit') score += 100;
+      else if (cat === 'Most Likely') score += 80;
+      else if (cat === 'Best Case') score += 55;
+      break;
+    }
+  }
+  if (!inForecast && repForecast) {
+    var nqc = Number(repForecast.next_quarter_commit) || 0;
+    if (nqc > 100000) { score += 35; inForecast = true; }
+  }
+
+  // 2. ARR weight
+  var arrNum = Number(arr) || 0;
+  if (arrNum >= 500000) score += 30;
+  else if (arrNum >= 250000) score += 20;
+  else if (arrNum >= 100000) score += 10;
+
+  // 3. Commercial gate movement weight
+  if (/contract\s*(out|sent)|signature|signed|executed|closed\s*won/i.test(combo)) {
+    score += 35;
+  } else if (/procurement|legal\s*(review|engaged|clearance)|security\s*(review|sign-off|approval)|dpa|msa|approval\s*(gate|pending)/i.test(combo)) {
+    score += 25;
+  } else if (/budget\s*(confirmed|approved)|commercial\s*gate|pricing\s*(review|sent|proposal)|quote\s*(sent|approved)/i.test(combo)) {
+    score += 18;
+  } else if (/pilot\s*(kickoff|kicked|start|launch)|implementation\s*(start|kickoff)|rollout|deployment\s*(start|begin)/i.test(combo)) {
+    score += 15;
+  } else if (/executive\s*(meeting|sponsor|intro|alignment)|cxo|vp\s*(meeting|call|intro)/i.test(combo) && /advance|progress|move|approve|confirm/i.test(combo)) {
+    score += 12;
+  }
+
+  // 4. Time sensitivity
+  if (/this\s*quarter|in-quarter|eow|end\s*of\s*(week|month|quarter)|before\s*(q[1-4]|quarter)\s*end/i.test(combo)) {
+    score += 20;
+  } else if (/next\s*quarter|q[1-4]\s*(setup|pipeline|start)|set\s*up\s*for/i.test(combo)) {
+    score += 10;
+  }
+
+  // 5. Negative weights
+  if (/competitive\s*(position|landscape|bake-?off|comparison|analysis)/i.test(combo) &&
+      !/procurement|legal|signed|contract|budget|pilot\s*kick/i.test(combo)) {
+    score -= 35; dominated = true;
+  }
+  if (/relationship\s*building|generic\s*follow[- ]?up|check[- ]?in\s*(call|meeting)|touch\s*base|catch\s*up/i.test(combo) &&
+      !/procurement|legal|signed|contract|budget|pilot\s*kick/i.test(combo)) {
+    score -= 25;
+  }
+  if (/strategy\s*(session|discussion|alignment)|roadmap\s*(review|discussion)|vision|thought\s*leadership/i.test(combo) &&
+      !/procurement|legal|signed|contract|budget|pilot\s*kick/i.test(combo)) {
+    score -= 20;
+  }
+  if (/\b(ensure|continue|support|align)\b/i.test(combo) &&
+      !/procurement|legal|signed|contract|budget|pilot\s*kick|commercial\s*gate|security|approval/i.test(combo)) {
+    score -= 18;
+  }
+  if (!inForecast && arrNum < 100000) { score -= 40; }
+
+  // 6. Hard exclusion rules
+  if (!inForecast && arrNum < 150000) exclusionReason = 'no forecast context and ARR < $150k';
+  if (dominated && score < 0) exclusionReason = 'competitive/strategic only';
+  if (!/closed|signed|contract|procurement|legal|security|approval|budget|commercial|pricing|quote|pilot\s*kick|implementation|rollout|deployment|executive.*advance|msa|dpa/i.test(combo) &&
+      !/closed\s*won|s4|stage\s*4|procurement|security|pilot/i.test(String(stage || '').toLowerCase())) {
+    if (!inForecast || arrNum < 100000) exclusionReason = 'no commercial evidence';
+  }
+
+  return { score: score, excluded: !!exclusionReason, exclusionReason: exclusionReason };
+}
+
+function buildDealProgressionLine_(repName, acctName, move, next) {
+  var rep = String(repName || '').trim().split(/\s+/)[0] || '';
+  var acct = String(acctName || '').trim();
+  var text = String(move || '').trim() || String(next || '').trim();
+  if (!text) return '';
+  text = text.replace(/\s+/g, ' ').trim();
+  if (text.length > 140) text = text.slice(0, 140).replace(/[,:;.\s]+$/, '');
+  if (rep && acct) return rep + ': ' + acct + ' — ' + text;
+  if (acct) return acct + ' — ' + text;
+  return text;
+}
+
+function buildDeterministicDealProgression_(latestRecaps, forecastDealContext) {
+  var candidates = [];
+  var seenAccounts = {};
+
+  for (var r = 0; r < latestRecaps.length; r++) {
+    var row = latestRecaps[r];
+    var parsed = parseRecapRow_(row);
+    var repEmail = String(row[1] || '').trim().toLowerCase();
+    var repName = getUserNameFromEmail(repEmail) || repEmail;
+    var repForecast = {
+      next_quarter_commit: parseMoneyishServer_(parsed.nq_commit)
+    };
+
+    for (var a = 1; a <= 6; a++) {
+      var acctName = String(parsed['acct' + a + '_name'] || '').trim();
+      if (!acctName) continue;
+      var move = String(parsed['acct' + a + '_move'] || '').trim();
+      var next = String(parsed['acct' + a + '_next'] || '').trim();
+      var stage = String(parsed['acct' + a + '_stage'] || '').trim();
+      var arr = parseMoneyishServer_(parsed['acct' + a + '_arr']);
+      if (!move && !next) continue;
+      if (looksWeakSnippet_(move) && looksWeakSnippet_(next)) continue;
+
+      var result = scoreDealProgressionCandidate_(acctName, move, next, stage, arr, forecastDealContext, repForecast);
+      if (result.excluded) continue;
+
+      var acctKey = acctName.toLowerCase();
+      if (seenAccounts[acctKey] && seenAccounts[acctKey].score >= result.score) continue;
+
+      var line = buildDealProgressionLine_(repName, acctName, move, next);
+      if (!line) continue;
+
+      var candidate = {
+        section: 'deal_progression',
+        repName: repName,
+        repFirst: String(repName || '').trim().split(/\s+/)[0] || repName,
+        accountName: acctName,
+        text: line,
+        score: result.score,
+        _fullLine: true
+      };
+
+      if (seenAccounts[acctKey]) {
+        for (var c = 0; c < candidates.length; c++) {
+          if (candidates[c].accountName && candidates[c].accountName.toLowerCase() === acctKey) {
+            candidates[c] = candidate; break;
+          }
+        }
+      } else {
+        candidates.push(candidate);
+      }
+      seenAccounts[acctKey] = candidate;
+    }
+  }
+
+  candidates.sort(function(a, b) { return b.score - a.score; });
+  return candidates;
 }
 
 function summarizeTeamRecapsEditorial_(latestRecaps) {
@@ -1224,31 +1385,6 @@ function summarizeTeamRecapsEditorial_(latestRecaps) {
     if (parsed.forecast_note && !looksWeakSnippet_(parsed.forecast_note)) {
       pushCandidate_(forecastNotes, 'forecast_notes', repName, parsed.forecast_note, scoreSnippet_(parsed.forecast_note, ['pull in', 'slip', 'close', 'signed', 'commit', 'likely', 'upside'], 4), '');
     }
-
-    for (var a = 1; a <= 6; a++) {
-      var acctName = String(parsed['acct' + a + '_name'] || '').trim();
-      var move = String(parsed['acct' + a + '_move'] || '').trim();
-      var next = String(parsed['acct' + a + '_next'] || '').trim();
-      var stage = String(parsed['acct' + a + '_stage'] || '').trim();
-      var arr = parseMoneyishServer_(parsed['acct' + a + '_arr']);
-      var combo = [move, next, parsed.forecast_note, parsed.pulseReason].join(' ').toLowerCase();
-      var score = 0;
-      score += scoreSnippet_(move + ' ' + next, ['closed', 'signed', 'procurement', 'legal', 'approval', 'security', 'kickoff', 'deployment', 'commercial'], 3);
-      if (arr >= 100000) score += Math.min(6, Math.round(arr / 200000));
-      if (stage && /closed won|s4|s3|stage 4|procurement|security|pilot/i.test(stage)) score += 3;
-      if (score <= 0) continue;
-      var narrative = '';
-      if (/closed won|contract signed|signed/i.test(combo) || /closed won/i.test(stage)) {
-        narrative = 'Signed or commercial outcome on ' + formatAccountMention_(acctName) + ' is now real and worth leaning into.';
-      } else if (/legal|procurement|approval|security|paperwork|msa|dpa/i.test(combo)) {
-        narrative = formatAccountMention_(acctName) + ' is moving through a real commercial gate: ' + cleanSnippet_(move || next, 180);
-      } else if (/kickoff|deploy|rollout|pilot|launch|implementation/i.test(combo)) {
-        narrative = formatAccountMention_(acctName) + ' is moving operationally: ' + cleanSnippet_(move || next, 180);
-      } else {
-        narrative = formatAccountMention_(acctName) + ': ' + cleanSnippet_(move || next, 180);
-      }
-      pushCandidate_(dealProgress, 'deal_progression', repName, narrative, score, acctName);
-    }
   }
 
   var avgPulse = pulseCount ? (pulseSum / pulseCount).toFixed(1) : '—';
@@ -1260,6 +1396,16 @@ function summarizeTeamRecapsEditorial_(latestRecaps) {
     { label: 'expansion potential', score: themes.expansion }
   ].sort(function(a, b) { return b.score - a.score; });
   var themeLabels = themeArray.filter(function(t) { return t.score > 0; }).slice(0, 3).map(function(t) { return t.label; });
+
+  // Deterministic deal progression: weighted scoring replaces keyword heuristic
+  var _dpRepEmails = [];
+  for (var _dpIdx = 0; _dpIdx < latestRecaps.length; _dpIdx++) {
+    var _dpEmail = String((latestRecaps[_dpIdx] && latestRecaps[_dpIdx][1]) || '').trim().toLowerCase();
+    if (_dpEmail && _dpRepEmails.indexOf(_dpEmail) === -1) _dpRepEmails.push(_dpEmail);
+  }
+  var _dpForecastContext = typeof buildTeamForecastDealContext_ === 'function'
+    ? buildTeamForecastDealContext_(_dpRepEmails) : [];
+  dealProgress = buildDeterministicDealProgression_(latestRecaps, _dpForecastContext);
 
   var selectedBigDealAdds = selectEditorialItems_(bigDealAdds, 2);
   var selectedDealProgress = selectEditorialItems_(dealProgress, 3);
