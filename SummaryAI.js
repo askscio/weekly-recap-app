@@ -419,16 +419,16 @@ function validateSummaryAIPayload_(payload, context) {
     generated_at: String(out.generated_at || new Date().toISOString()),
     leader_note: trimSentenceWords_(String(out.leader_note || '').trim(), 85),
     themes: arr_('themes', 3, 8),
-    big_deal_adds: arr_('big_deal_adds', 1, 24),
-    deal_progression: arr_('deal_progression', 4, 14),
+    big_deal_adds: arr_('big_deal_adds', 1, 40),
+    deal_progression: arr_('deal_progression', 4, 36),
     forecast_signals: buildDeterministicForecastSignals_(context).map(function(v) {
-      return trimSentenceWords_(String(v || '').trim(), 14);
+      return trimSentenceWords_(String(v || '').trim(), 32);
     }).filter(Boolean).slice(0, 4),
-    rep_priorities: arr_('rep_priorities', 4, 14),
-    risks_asks_notes: arr_('risks_asks_notes', 5, 11),
-    top_risks: arr_('top_risks', 2, 18),
-    manager_asks: arr_('manager_asks', 2, 18),
-    forecast_notes: arr_('forecast_notes', 2, 18)
+    rep_priorities: arr_('rep_priorities', 4, 36),
+    risks_asks_notes: arr_('risks_asks_notes', 5, 28),
+    top_risks: arr_('top_risks', 2, 28),
+    manager_asks: arr_('manager_asks', 2, 28),
+    forecast_notes: arr_('forecast_notes', 2, 28)
   };
 }
 

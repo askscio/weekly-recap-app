@@ -1999,6 +1999,16 @@ function getSummaryRainmakerData_(teamData, reportingDate, nbmSummary) {
 
 function getExecutiveSummaryData() {
   var base = getExecutiveSummaryDataBase_();
+  function isTruncatedLine_(text) {
+    var s = String(text || '').trim();
+    return !!s && /…$/.test(s);
+  }
+  function dropTruncatedItems_(list) {
+    list = Array.isArray(list) ? list : [];
+    return list.filter(function(item) {
+      return !isTruncatedLine_(item);
+    });
+  }
   function mergeSectionItems_(primary, fallbackA, fallbackB, maxItems) {
     var out = [];
     var seen = {};
@@ -2037,11 +2047,17 @@ function getExecutiveSummaryData() {
     if (ai) {
       base.leaderNote = normalizedAi.leader_note || base.leaderNote || "";
       if (normalizedAi.themes && normalizedAi.themes.length) base.teamRollup.themes = normalizedAi.themes;
-      var combinedRAN = normalizedAi.risks_asks_notes || [].concat(normalizedAi.top_risks || [], normalizedAi.manager_asks || [], normalizedAi.forecast_notes || []).slice(0, 5);
-      base.teamRollup.priorities = mergeSectionItems_(normalizedAi.rep_priorities || [], fallbackRollup.priorities || [], fallbackRecap.priorityItems || [], 4);
-      base.teamRollup.risks = normalizedAi.top_risks || [];
-      base.teamRollup.asks = normalizedAi.manager_asks || [];
-      base.teamRollup.notes = normalizedAi.forecast_notes || [];
+      var aiRisksAsksNotes = dropTruncatedItems_(normalizedAi.risks_asks_notes || []);
+      var aiTopRisks = dropTruncatedItems_(normalizedAi.top_risks || []);
+      var aiManagerAsks = dropTruncatedItems_(normalizedAi.manager_asks || []);
+      var aiForecastNotes = dropTruncatedItems_(normalizedAi.forecast_notes || []);
+      var combinedRAN = aiRisksAsksNotes.length
+        ? aiRisksAsksNotes
+        : [].concat(aiTopRisks, aiManagerAsks, aiForecastNotes).slice(0, 5);
+      base.teamRollup.priorities = mergeSectionItems_(dropTruncatedItems_(normalizedAi.rep_priorities || []), fallbackRollup.priorities || [], fallbackRecap.priorityItems || [], 4);
+      base.teamRollup.risks = aiTopRisks;
+      base.teamRollup.asks = aiManagerAsks;
+      base.teamRollup.notes = aiForecastNotes;
       base.teamRollup.risksAsksNotes = combinedRAN;
       base.teamRecap = {
         success: true,
@@ -2050,13 +2066,13 @@ function getExecutiveSummaryData() {
         recapsUsed: base.teamRollup.repsSubmitted || 0,
         avgPulse: base.teamRollup.avgPulse || "—",
         themeItems: normalizedAi.themes || [],
-        newDealItems: normalizedAi.big_deal_adds || [],
-        dealProgressItems: mergeSectionItems_(normalizedAi.deal_progression || [], fallbackRecap.dealProgressItems || [], normalizedAi.big_deal_adds || [], 4),
+        newDealItems: dropTruncatedItems_(normalizedAi.big_deal_adds || []),
+        dealProgressItems: mergeSectionItems_(dropTruncatedItems_(normalizedAi.deal_progression || []), fallbackRecap.dealProgressItems || [], dropTruncatedItems_(normalizedAi.big_deal_adds || []), 4),
         forecastItems: mergeSectionItems_(normalizedAi.forecast_signals || [], fallbackRecap.forecastItems || [], [], 4),
-        priorityItems: mergeSectionItems_(normalizedAi.rep_priorities || [], fallbackRollup.priorities || [], fallbackRecap.priorityItems || [], 4),
-        riskItems: normalizedAi.top_risks || [],
-        askItems: normalizedAi.manager_asks || [],
-        noteItems: normalizedAi.forecast_notes || [],
+        priorityItems: mergeSectionItems_(dropTruncatedItems_(normalizedAi.rep_priorities || []), fallbackRollup.priorities || [], fallbackRecap.priorityItems || [], 4),
+        riskItems: aiTopRisks,
+        askItems: aiManagerAsks,
+        noteItems: aiForecastNotes,
         risksAsksNotesItems: combinedRAN,
         source: "openai",
         provenance: {
