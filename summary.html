@@ -95,7 +95,7 @@ body {
 }
 .summary-grid {
   display: grid;
-  grid-template-columns: minmax(0, 0.98fr) minmax(0, 1.02fr);
+  grid-template-columns: minmax(0, 0.96fr) minmax(0, 1.04fr);
   gap: 0;
   width: 100%;
   height: auto;
@@ -856,7 +856,7 @@ function renderNumberedList(items) {
 
 function renderNumberedSection(title, items) {
   if (!items || !items.length) return '';
-  var limited = takeTopItems(items, 5, 320);
+  var limited = takeTopItems(items, 5, 900);
   return '<div class="fullwidth-card">'
     + '<div class="fullwidth-header"><div class="fullwidth-title">' + escHtml(title) + '</div></div>'
     + '<div class="fullwidth-body">' + renderNumberedList(limited) + '</div>'
@@ -866,11 +866,11 @@ function renderNumberedSection(title, items) {
 function renderFullWidthSection(title, items) {
   if (!items || !items.length) return '';
   var limited = items;
-  if (title === 'Big Deal Adds') limited = takeTopItems(items, 1, 280);
-  else if (title === 'Deal Progression') limited = takeTopItems(items, 4, 320);
-  else if (title === 'Forecast Signals') limited = takeTopItems(items, 4, 300);
-  else if (title === 'Rep Priorities') limited = takeTopItems(items, 4, 300);
-  else if (title === 'Notes') limited = takeTopItems(items, 2, 240);
+  if (title === 'Big Deal Adds') limited = takeTopItems(items, 1, 700);
+  else if (title === 'Deal Progression') limited = takeTopItems(items, 4, 900);
+  else if (title === 'Forecast Signals') limited = takeTopItems(items, 4, 900);
+  else if (title === 'Rep Priorities') limited = takeTopItems(items, 4, 900);
+  else if (title === 'Notes') limited = takeTopItems(items, 2, 700);
   return '<div class="fullwidth-card">'
     + '<div class="fullwidth-header"><div class="fullwidth-title">' + escHtml(title) + '</div></div>'
     + '<div class="fullwidth-body">' + renderNamedList(limited, 'named-list') + '</div>'
