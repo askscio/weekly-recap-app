@@ -116,7 +116,7 @@ function getPocData() {
 
 function getPocDashboardSnapshot_() {
   return {
-    generated_at: "2026-03-23T15:00:00Z",
+    generated_at: "2026-03-30T15:00:00Z",
     accounts: [
       {
         name: "Morningstar",
@@ -130,9 +130,9 @@ function getPocDashboardSnapshot_() {
         key_signals: [
           "POC quote approved 3/4; Morningstar opted for full deployment POC with AHEAD services.",
           "MSA terms under review; Morningstar pushed 3/18 meeting to 3/21 due to security questions — signature expected next week.",
-          "SE Mike Koscak identified a contact (Hannah) from a prior Salesforce CPQ project who could help expand the land scope.",
+          "Use cases and connected systems still not formally defined by champion Samuel Castano.",
           "Multiple senior leaders (marketing ops, sales ops, finance tech, product) have expressed interest in participating in the POC.",
-          "Taylor on maternity leave — coverage transition introduces execution risk.",
+          "SE Mike Koscak identified a contact (Hannah) from a prior Salesforce CPQ project who could help expand the land scope.",
           "Competitor landscape includes Microsoft Copilot, OpenAI Enterprise, Agentforce, and DIY solutions."
         ],
         recommended_actions: [
@@ -147,25 +147,25 @@ function getPocDashboardSnapshot_() {
         name: "A.T. Kearney",
         status: "Yellow",
         health_summary: [
-          "The Kearney POC is active and in P6 – Crawling/Indexing stage with ~40 pilot users across multiple geographies; the paid pilot ($10K) kicked off on 3/9.",
-          "A significant risk emerged on 3/12: pilot users are confused about how Glean differs from Microsoft Copilot due to the small pilot scope, putting the $2.94M land opportunity at risk.",
-          "On the 3/16 sync call, Kearney user Nadim referenced a 'Thursday debacle' where multiple users questioned Copilot vs. Glean and suggested a live differentiation session.",
-          "SharePoint permissions issues affected at least one pilot user and more may be silently impacted."
+          "The Kearney POC is active and now at P10 – User Piloting with ~56 users signed up (target was 60), a 70% MAU-to-WAU ratio, and users reporting 30–60 minutes daily time savings.",
+          "Pricing is the #1 risk: Kearney feedback states Glean is 'expensive compared to others by a factor of a lot' and the board will choose the less expensive option.",
+          "A mid-POC review meeting was held on 3/26 with Billy Schuett presenting ROI and pilot results, showing 94% activity rate and 69% stickiness.",
+          "Copilot differentiation confusion emerged earlier in the pilot but appears to have been addressed through live sessions and stronger demos."
         ],
         key_signals: [
-          "Pilot is live with users actively testing; POC officially kicked off 3/9.",
-          "Copilot differentiation confusion is the #1 risk — multiple users questioned Glean vs. Copilot in the pilot group chat.",
-          "SharePoint permissions gap affected pilot user Pranav Sharma; more users may be silently affected.",
-          "Kearney was asked to send sample SharePoint docs/folder links for agent seeding and RFP workflows — not yet received.",
-          "The $2.94M Intelligence Platform opportunity is at Stage 4 with a Q2-2027 close date of 5/29/2026.",
-          "Billy committed to follow up with AHEAD partner Josh Weisfuse to press at every angle on differentiation."
+          "Pilot is live with strong adoption metrics: 94% activity, 48 MAU, 33 WAU, 69% stickiness as of 3/24.",
+          "Kearney described Glean as 'another tool' — biggest questions are about scale, not functionality.",
+          "Pricing is a major concern: two products in final evaluation, and Kearney says the board will choose the less expensive option.",
+          "Security architecture deep dive still needed; Kearney wants detailed review of agent permissions and delegated authority.",
+          "The $2.94M Intelligence Platform opportunity is at Stage 4 with a close date of 5/29/2026.",
+          "BVC request submitted by Mike Koscak for a $2M deal with help needed on the final mile of the business value analysis."
         ],
         recommended_actions: [
-          "Schedule the Copilot differentiation live session ASAP — this was requested by Kearney users and has strong interest.",
-          "Proactively reach out to all pilot users to check for SharePoint permissions gaps and prevent silent churn.",
-          "Collect sample SharePoint docs and folder links from Kearney to tailor starter agents and RFP workflows.",
-          "Coordinate with AHEAD partner Josh Weisfuse to reinforce Glean's value proposition at every touchpoint.",
-          "Prepare stronger use-case demos that clearly differentiate Glean's enterprise search and knowledge graph from Copilot."
+          "Address pricing objection urgently — prepare a partnership/alliance discussion and competitive pricing proposal before the board decision.",
+          "Schedule the security architecture deep dive requested by Kearney to address governance and agent permission concerns.",
+          "Expand POC data sources beyond the ~5K sanitized docs to demonstrate full enterprise value — discuss scaling from 5K to 500K docs.",
+          "Finalize the business value analysis with the BVC team to present a compelling ROI case.",
+          "Coordinate with AHEAD partner Josh Weisfuse to reinforce Glean's value proposition at every touchpoint."
         ]
       },
       {
@@ -174,23 +174,23 @@ function getPocDashboardSnapshot_() {
         health_summary: [
           "The 100-user land deal ($69.4K TCV) closed won on 2/24/2026 — Chamberlain is now a Glean customer, positioned as phase 1 of a larger ~3,000-user expansion.",
           "On 3/19, Chamberlain confirmed that their contracts (ToS/DPA) are complete, clearing the legal blocker for the paid pilot and the $650K expansion opportunity.",
-          "DEM Connor Waldo and AIOM Fernando Ponce have been assigned for post-close kickoff readiness.",
+          "Glean legal (Lauren McHugh) returned ToS redlines to Chamberlain on 3/26; AI Addendum and DPA still under review.",
           "The $650K expansion opportunity is at Stage 2 – Blueprint with a Q2-2027 close date of 5/29/2026."
         ],
         key_signals: [
           "Land deal closed won at $69.4K for 100 users on 2/24/2026.",
           "Contracts (ToS/DPA) confirmed complete by Chamberlain on 3/19 — legal blocker cleared.",
-          "$650K expansion opportunity created at Stage 2 with 5/29/2026 close date.",
-          "Jeff Wyzywany (Strategic Sourcing) sent redlines on ToS/DPA on 3/19 — Niko looped in Glean legal for review.",
+          "Glean legal returned ToS redlines on 3/26; AI Addendum and DPA still under review — some legal friction remains.",
+          "CIO David Stahl and Director Manoj Chinnasamy are actively engaged.",
           "Chamberlain prefers to use their own established channel partners for future expansion rather than NTT.",
-          "CIO David Stahl and Director Manoj Chinnasamy are actively engaged."
+          "DEM Connor Waldo and AIOM Fernando Ponce have been assigned for post-close kickoff readiness."
         ],
         recommended_actions: [
+          "Resolve remaining ToS/DPA redlines (AI Addendum and DPA) quickly to avoid delays in the expansion motion.",
           "Schedule kickoff/rollout call immediately now that contracts are complete — begin platform deployment with the initial 100 users.",
-          "Resolve any remaining ToS/DPA redlines from Jeff Wyzywany quickly to avoid delays in the expansion motion.",
           "Ensure a strong initial deployment experience to build momentum for the $650K expansion.",
-          "Coordinate with DEM Connor Waldo and AIOM Fernando Ponce on kickoff logistics.",
-          "Begin mapping expansion use cases across engineering, company-wide search, and additional departments to justify the 3,000-user target."
+          "Begin mapping expansion use cases across engineering, company-wide search, and additional departments to justify the 3,000-user target.",
+          "Coordinate with DEM Connor Waldo and AIOM Fernando Ponce on kickoff logistics."
         ]
       },
       {
@@ -198,7 +198,7 @@ function getPocDashboardSnapshot_() {
         status: "Yellow",
         health_summary: [
           "The HUDL POC is active and in P10 – User Piloting stage, running from ~2/20 to 4/10/2026, with the $250K new business opportunity at Stage 4.",
-          "A critical Salesforce connector authentication failure (RETRIES_EXHAUSTED) was escalated on 3/13 — root cause is a systemic scio-apps issue. Jira EE-23939 created.",
+          "A critical Salesforce connector authentication failure (RETRIES_EXHAUSTED) was escalated on 3/13 — root cause is a systemic scio-apps issue; Jira EE-23939 created.",
           "Daniel Shaefer (Head of Business Technology) confirmed positive POC feedback and discussed expanding from 350 support users to 2,800–3,000 enterprise-wide, targeting a mid-April executive write-up.",
           "Hudl's recent enterprise Claude agreement creates competitive noise, though internal champions view Glean as the stronger platform play."
         ],
@@ -207,15 +207,15 @@ function getPocDashboardSnapshot_() {
           "Salesforce connector auth failure is a critical blocker — directly impacts the active pilot experience ending 4/10.",
           "Daniel Shaefer confirmed potential enterprise rollout to 2,800–3,000 users with mid-April executive write-up target.",
           "Hudl signed an enterprise Claude agreement — CTO-driven, primarily for engineering/code, but creates competitive noise.",
-          "support.hudl is not indexed, causing search to return internal Guru content instead of public support articles.",
-          "Johnny working to grow deal from Support-only to org-wide; business case meeting with AI lead scheduled for 3/24."
+          "Strategic meeting with Courtney Rogers (SVP) scheduled for Monday 3/30 to discuss wall-to-wall deployment.",
+          "Johnny working to grow deal from Support-only to org-wide; business case meeting with AI lead completed 3/23."
         ],
         recommended_actions: [
           "Resolve the Salesforce connector authentication failure urgently — this is the #1 technical blocker with the pilot ending 4/10.",
+          "Execute the Monday 3/30 strategic meeting with Courtney Rogers to position Glean as the enterprise AI platform of choice.",
           "Add support.hudl as an indexed data source before the pilot ends to demonstrate public-facing support answer quality.",
-          "Execute the 3/23 working session with Daniel Shaefer to document the business case and competitive differentiation vs. Claude/Slack.",
-          "Arrange the executive intro between Stephanie (Glean) and Courtney Rogers (Hudl SVP Business Operations).",
           "Connect Gong and Google Drive as additional data sources to expand POC value beyond support use cases.",
+          "Prepare volume-based pricing for 2,800+ users for the enterprise rollout conversation.",
           "Confirm Salesforce embedded widget visibility for all pilot users to ensure consistent experience."
         ]
       },
@@ -229,12 +229,12 @@ function getPocDashboardSnapshot_() {
           "The $500K new business opportunity has a Q3-2027 close date of 9/30/2026 but is at serious risk of deprioritization given zero engagement momentum."
         ],
         key_signals: [
-          "Pilot has never started — original dates (Oct–Dec 2025) are long past; opportunity is 416 days old.",
+          "Pilot has never started — original dates (Oct–Dec 2025) are long past; opportunity is 423+ days old.",
           "Contract language concerns raised internally; legal redlines on hold pending POC test plan revamp.",
           "CTO Allegra Driscoll (Exec Sponsor) has never responded to any outreach.",
           "Champion Joe Petrelli's contact status is 'Marketing Nurture – Last Activity 30+ Days.'",
           "Bread Financial has high intent signals (surging for Generative AI, Agentic AI, AI strategy) but zero engagement momentum.",
-          "Last substantive update from John Downs on 3/9: internal discussions happened 3–4 weeks ago with no follow-up since."
+          "PG standup on 3/23 noted the POC remains stalled due to ongoing leadership discussions about security concerns."
         ],
         recommended_actions: [
           "Escalate internally — make a leadership-level decision on whether to continue investing or deprioritize this account.",
