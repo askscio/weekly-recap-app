@@ -335,6 +335,15 @@ function ensureAdminCaller_() {
   if (caller && caller !== admin) throw new Error("Admin access required.");
 }
 
+function isGleanViewerEmail_(email) {
+  return /@glean\.com$/i.test(String(email || "").trim());
+}
+
+function ensureGleanViewerCaller_() {
+  var caller = getResolvedCallerEmail_();
+  if (!isGleanViewerEmail_(caller)) throw new Error("Glean access required.");
+}
+
 function normHeaderKey_(h) {
   return String(h || "").toLowerCase().replace(/[^a-z0-9]/g, "");
 }
@@ -1443,7 +1452,7 @@ function summarizeTeamRecapsEditorial_(latestRecaps) {
 }
 
 function getTeamRecapNote() {
-  ensureAdminCaller_();
+  ensureGleanViewerCaller_();
 
   var cached = getJsonCache_("team_recap_note_v2", null);
   if (cached) return cached;
@@ -1869,7 +1878,7 @@ function buildExecutiveTeamRollup_(teamData, teamRecap) {
 }
 
 function getExecutiveSummaryDataBase_(forcedQuarterKey) {
-  ensureAdminCaller_();
+  ensureGleanViewerCaller_();
 
   var admin = findLatestSummaryAdminRow_();
   var reportingDate = getEffectiveReportingDate_(admin.week_of);
