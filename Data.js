@@ -1808,9 +1808,18 @@ function getQuotaMetricsForDashboard_() {
     var admin = findLatestSummaryAdminRow_();
     var reportingDate = getEffectiveReportingDate_(admin.week_of);
     var quarterKey = quarterKeyFromDate_(reportingDate);
+    var nextQuarterKey = quarterKeyFromDate_(new Date(reportingDate.getFullYear(), reportingDate.getMonth() + 3, reportingDate.getDate()));
     var quotaCfg = findQuotaConfigForQuarter_(quarterKey);
     var closedMeta = getClosedWonSourceForQuarter_(quarterKey, quotaCfg.closed_to_date);
-    var closed = Number(closedMeta.amount) || 0;
+    var fallbackTotals = {
+      closed: Number(closedMeta.amount) || 0,
+      commit: 0,
+      likely: 0,
+      bestCase: 0,
+      nextQuarter: 0
+    };
+    var forecastTotals = getTeamForecastTotalsFromDealsSheet_(quarterKey, nextQuarterKey, fallbackTotals);
+    var closed = Number(forecastTotals.closed) || Number(closedMeta.amount) || 0;
     var quota = Number(quotaCfg.team_quota) || 0;
     return {
       teamQuota: quota,
@@ -1818,7 +1827,8 @@ function getQuotaMetricsForDashboard_() {
       attainmentPct: pctOfQuota_(closed, quota),
       quarterLabel: quotaCfg.quarter_label || quarterLabelFromKey_(quarterKey),
       reportingWeek: toIsoDateOnly_(reportingDate),
-      closedSource: closedMeta
+      closedSource: forecastTotals.sources.closed && !forecastTotals.sources.closed.usedFallback ? forecastTotals.sources.closed : closedMeta,
+      closedFallbackSource: closedMeta
     };
   } catch (err) {
     Logger.log("getQuotaMetricsForDashboard_ failed: " + err.message);
