@@ -1805,7 +1805,9 @@ function getClosedWonSourceForQuarter_(quarterKey, fallbackValue) {
 // Lightweight quota + closed won for Dashboard/POC pages
 function getQuotaMetricsForDashboard_() {
   try {
-    var quarterKey = quarterKeyFromDate_(new Date());
+    var admin = findLatestSummaryAdminRow_();
+    var reportingDate = getEffectiveReportingDate_(admin.week_of);
+    var quarterKey = quarterKeyFromDate_(reportingDate);
     var quotaCfg = findQuotaConfigForQuarter_(quarterKey);
     var closedMeta = getClosedWonSourceForQuarter_(quarterKey, quotaCfg.closed_to_date);
     var closed = Number(closedMeta.amount) || 0;
@@ -1815,6 +1817,7 @@ function getQuotaMetricsForDashboard_() {
       closed: closed,
       attainmentPct: pctOfQuota_(closed, quota),
       quarterLabel: quotaCfg.quarter_label || quarterLabelFromKey_(quarterKey),
+      reportingWeek: toIsoDateOnly_(reportingDate),
       closedSource: closedMeta
     };
   } catch (err) {
@@ -1824,6 +1827,7 @@ function getQuotaMetricsForDashboard_() {
       closed: 0,
       attainmentPct: 0,
       quarterLabel: "",
+      reportingWeek: "",
       closedSource: {
         amount: 0,
         source: "error",
