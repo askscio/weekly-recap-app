@@ -547,3 +547,49 @@ function getOrCreateRainmakerLogSheet_(ss) {
   }
   return sheet;
 }
+
+// -----------------------------------------------------------------------
+// TOKEN DIAGNOSTICS
+// -----------------------------------------------------------------------
+function decodeGleanToken_() {
+  var token = PropertiesService.getScriptProperties().getProperty('GLEAN_API_TOKEN');
+  if (!token) {
+    Logger.log('decodeGleanToken_: GLEAN_API_TOKEN not set in Script Properties');
+    return null;
+  }
+
+  var parts = token.split('.');
+
+  if (parts.length !== 3) {
+    Logger.log('decodeGleanToken_: token is NOT a JWT (parts=' + parts.length + '). Likely an opaque Glean-issued Client API token.');
+    Logger.log('decodeGleanToken_: token length: ' + token.length);
+    Logger.log('decodeGleanToken_: token first 20 chars: ' + token.substring(0, 20) + '...');
+    return { jwt: false, tokenType: 'opaque' };
+  }
+
+  try {
+    var payloadJson = Utilities.newBlob(Utilities.base64DecodeWebSafe(parts[1])).getDataAsString();
+    var payload = JSON.parse(payloadJson);
+
+    Logger.log('decodeGleanToken_: ===== TOKEN INSPECTION =====');
+    Logger.log('decodeGleanToken_: Scopes: ' + (payload.scope || '(not set)'));
+    Logger.log('decodeGleanToken_: Subject: ' + (payload.sub || '(not set)'));
+    Logger.log('decodeGleanToken_: Client ID: ' + (payload.client_id || '(not set)'));
+    Logger.log('decodeGleanToken_: Issuer: ' + (payload.iss || '(not set)'));
+    Logger.log('decodeGleanToken_: Issued At: ' + (payload.iat ? new Date(payload.iat * 1000).toISOString() : '(not set)'));
+    Logger.log('decodeGleanToken_: Expires: ' + (payload.exp ? new Date(payload.exp * 1000).toISOString() : '(not set)'));
+    Logger.log('decodeGleanToken_: Full payload: ' + JSON.stringify(payload, null, 2));
+    Logger.log('decodeGleanToken_: ===== END INSPECTION =====');
+
+    return { jwt: true, payload: payload };
+
+  } catch (err) {
+    Logger.log('decodeGleanToken_: failed to decode JWT payload: ' + err.message);
+    return { jwt: true, error: err.message };
+  }
+}
+
+// Public wrapper so it's runnable from the Apps Script editor dropdown
+function decodeGleanToken() {
+  return decodeGleanToken_();
+}
