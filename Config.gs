@@ -53,10 +53,9 @@ var NAME_ALIASES_MAP = {
 var REP_EMAILS = [
   "niko.argaez@glean.com",
   "taylor.lundberg@glean.com",
-  "james.demory@glean.com",
+  "daniel.broderick@glean.com",
   "johnny.hatch@glean.com",
-  "melissa.richards@glean.com",
-  "daniel.broderick@glean.com"
+  "melissa.richards@glean.com"
 ];
 
 var POC_ACCOUNTS_HEADERS = ["Account","Pilot Type","Status","Stage","Owner","SE","Champion","Pilot Start","Pilot End","Competitor","SFDC URL"];
@@ -131,19 +130,20 @@ var OPERATING_STANDARDS = {
 // -----------------------------------------------------------------------
 var GLEAN_API_BASE = 'https://scio-prod-be.glean.com/rest/api/v1';
 var GLEAN_AGENT_WAIT_ENDPOINT = GLEAN_API_BASE + '/agents/runs/wait';
-var RAINMAKER_AGENT_ID = '';  // Filled in after agent is built in Glean Agent Builder
+var RAINMAKER_AGENT_ID_REP_SCORECARD = 'ae1af2d7195e4bc08a43d6bdf0e4d674';
+var RAINMAKER_AGENT_ID_ENT_BENCHMARKS = 'e3d6d039ddf8487c80da8b94adfe3584';
 var RAINMAKER_SHEET_NAME = 'Rainmaker';
 var RAINMAKER_LOG_SHEET_NAME = 'Rainmaker_Log';
 
 var RAINMAKER_CATEGORIES = [
-  { key: 'nbm',          label: 'NBMs',                  weight: 1 },
-  { key: 'pipe_adds',    label: 'Pipe Adds',             weight: 1 },
-  { key: 'pipe_dollars', label: 'Pipe $$',               weight: 1 },
-  { key: 'c_level',      label: 'C-Level',               weight: 1 },
-  { key: 'stage4_plus',  label: 'Stage 4+',              weight: 2 },
-  { key: 'pocs',         label: 'POCs',                  weight: 1 },
-  { key: 'partner_reg',  label: 'Partner Registrations', weight: 1 },
-  { key: 'closed_won',   label: 'Closed Won Business',   weight: 3 }
+  { key: 'nbm',          label: 'NBMs',                  weight: 1, enterpriseBenchmark: true,  type: 'count'  },
+  { key: 'pipe_adds',    label: 'Pipe Adds',             weight: 1, enterpriseBenchmark: true,  type: 'count'  },
+  { key: 'pipe_dollars', label: 'Pipe $$',               weight: 1, enterpriseBenchmark: true,  type: 'amount' },
+  { key: 'c_level',      label: 'C-Level',               weight: 1, enterpriseBenchmark: false, type: 'count'  },
+  { key: 'stage4_plus',  label: 'Stage 4+',              weight: 2, enterpriseBenchmark: true,  type: 'amount' },
+  { key: 'pocs',         label: 'POCs',                  weight: 1, enterpriseBenchmark: false, type: 'count'  },
+  { key: 'partner_reg',  label: 'Partner Registrations', weight: 1, enterpriseBenchmark: true,  type: 'count'  },
+  { key: 'closed_won',   label: 'Closed Won Business',   weight: 3, enterpriseBenchmark: true,  type: 'amount' }
 ];
 
 var RAINMAKER_POINT_BUCKETS = [
