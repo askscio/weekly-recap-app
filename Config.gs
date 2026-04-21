@@ -126,6 +126,40 @@ var OPERATING_STANDARDS = {
   ebr_per_tier1_per_quarter: 1     // 1 EBR per Tier 1 customer per quarter (source: pending)
 };
 
+// -----------------------------------------------------------------------
+// RAINMAKER — Glean Agents API integration
+// -----------------------------------------------------------------------
+var GLEAN_API_BASE = 'https://scio-prod-be.glean.com/rest/api/v1';
+var GLEAN_AGENT_WAIT_ENDPOINT = GLEAN_API_BASE + '/agents/runs/wait';
+var RAINMAKER_AGENT_ID = '';  // Filled in after agent is built in Glean Agent Builder
+var RAINMAKER_SHEET_NAME = 'Rainmaker';
+var RAINMAKER_LOG_SHEET_NAME = 'Rainmaker_Log';
+
+var RAINMAKER_CATEGORIES = [
+  { key: 'nbm',          label: 'NBMs',                  weight: 1 },
+  { key: 'pipe_adds',    label: 'Pipe Adds',             weight: 1 },
+  { key: 'pipe_dollars', label: 'Pipe $$',               weight: 1 },
+  { key: 'c_level',      label: 'C-Level',               weight: 1 },
+  { key: 'stage4_plus',  label: 'Stage 4+',              weight: 2 },
+  { key: 'pocs',         label: 'POCs',                  weight: 1 },
+  { key: 'partner_reg',  label: 'Partner Registrations', weight: 1 },
+  { key: 'closed_won',   label: 'Closed Won Business',   weight: 3 }
+];
+
+var RAINMAKER_POINT_BUCKETS = [
+  { minPercentile: 90, points: 6 },
+  { minPercentile: 75, points: 5 },
+  { minPercentile: 50, points: 4 },
+  { minPercentile: 25, points: 3 },
+  { minPercentile: 10, points: 2 },
+  { minPercentile: 0,  points: 1 }
+];
+
+var RAINMAKER_EXCLUDED_EMAILS = ['billy.schuett@glean.com'];
+
+// -----------------------------------------------------------------------
+// HELPERS
+// -----------------------------------------------------------------------
 function getSubmissionsSheet_() {
   var ss = SpreadsheetApp.openById(TRACKER_SHEET_ID);
 
