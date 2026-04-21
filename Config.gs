@@ -115,6 +115,17 @@ function getOrCreateQuotaConfigSheet() {
   return sheet;
 }
 
+// -----------------------------------------------------------------------
+// OPERATING STANDARDS — US Enterprise KPI targets
+// -----------------------------------------------------------------------
+var OPERATING_STANDARDS = {
+  stage2_plus_coverage_x: 4,       // 4x quota in Stage 2+ pipeline
+  nbms_per_quarter: 5,             // 5 NBMs per quarter
+  nnms_per_quarter: 15,            // 15 NNMs per quarter (source: pending)
+  meetings_per_week: 8,            // 8 meetings per week (definition needs leadership clarity)
+  ebr_per_tier1_per_quarter: 1     // 1 EBR per Tier 1 customer per quarter (source: pending)
+};
+
 function getSubmissionsSheet_() {
   var ss = SpreadsheetApp.openById(TRACKER_SHEET_ID);
 

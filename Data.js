@@ -1854,6 +1854,155 @@ function pctOfQuota_(value, quota) {
   return (Number(value) || 0) / quota;
 }
 
+// -----------------------------------------------------------------------
+// OPERATING STANDARDS — Dashboard KPI discipline data
+// -----------------------------------------------------------------------
+function getOperatingStandardsForDashboard_() {
+  try {
+    var quarterKey = quarterKeyFromDate_(new Date());
+    var quotaCfg = findQuotaConfigForQuarter_(quarterKey);
+    var teamQuota = Number(quotaCfg.team_quota) || 0;
+
+    // --- Calculate weeks elapsed in quarter ---
+    var now = new Date();
+    var year = now.getFullYear();
+    var qNum = parseInt(quarterKey.split('Q')[1] || '1', 10);
+    var qStart = new Date(year, (qNum - 1) * 3, 1);
+    var msElapsed = now.getTime() - qStart.getTime();
+    var weeksElapsed = Math.max(1, Math.floor(msElapsed / (7 * 86400000)));
+    var totalWeeksInQuarter = 13;
+
+    // --- Stage 2+ Coverage ---
+    // Use deals sheet totals. Open pipeline = bestCase - closed.
+    var nextQuarterKey = quarterKeyFromDate_(new Date(year, (qNum) * 3, 1));
+    var forecastTotals = getTeamForecastTotalsFromDealsSheet_(quarterKey, nextQuarterKey, {
+      closed: 0, commit: 0, likely: 0, bestCase: 0, nextQuarter: 0
+    });
+    var openPipeline = Math.max(0, (Number(forecastTotals.bestCase) || 0) - (Number(forecastTotals.closed) || 0));
+    var coverageX = teamQuota > 0 ? (openPipeline / teamQuota) : 0;
+    var coverageTarget = OPERATING_STANDARDS.stage2_plus_coverage_x;
+    var coverageStatus = coverageX >= coverageTarget ? 'on_pace' :
+                         coverageX >= (coverageTarget * 0.75) ? 'needs_attention' : 'behind';
+
+    // --- NBMs this week (team total from recap) ---
+    // NOTE: Performance consideration - getTeamDashboardData() is cached.
+    // If team grows beyond ~15 reps, the per-rep SF data calls below may need batching/caching.
+    var teamData = getTeamDashboardData();
+    var nbmTotal = 0;
+    var discoTotal = 0;
+    var repCount = teamData.length;
+    var repKpis = [];
+
+    for (var i = 0; i < teamData.length; i++) {
+      var rep = teamData[i];
+      var repNbm = Number(rep.rm_nbm) || 0;
+      var repDisco = Number(rep.rm_disco) || 0;
+      nbmTotal += repNbm;
+      discoTotal += repDisco;
+
+      // Per-rep SF data for coverage (used for per-rep indicators only)
+      var sf = null;
+      try { sf = getSFDataForUser(rep.email); } catch (_) {}
+      var repPipeline = 0;
+      if (sf) {
+        // bestCase is cumulative total. Calculate closed from deals to get open pipeline.
+        var repClosed = 0;
+        if (sf.deals) {
+          for (var d = 0; d < sf.deals.length; d++) {
+            var cat = String(sf.deals[d].category || '').toLowerCase();
+            if (cat.indexOf('closed') !== -1) repClosed += Number(sf.deals[d].amount) || 0;
+          }
+        }
+        repPipeline = Math.max(0, (Number(sf.bestCase) || 0) - repClosed);
+      }
+      var repQuota = repCount > 0 ? (teamQuota / repCount) : 0;
+      var repCoverageX = repQuota > 0 ? (repPipeline / repQuota) : 0;
+
+      repKpis.push({
+        email: rep.email,
+        name: rep.name || rep.email,
+        coverage_x: Math.round(repCoverageX * 10) / 10,
+        nbm_this_week: repNbm,
+        disco_this_week: repDisco,
+        coverage_status: repCoverageX >= coverageTarget ? 'on_pace' :
+                         repCoverageX >= (coverageTarget * 0.75) ? 'needs_attention' : 'behind',
+        nbm_status: 'ok',  // Weekly snapshot, no pace calc for single week
+        disco_status: repDisco >= OPERATING_STANDARDS.meetings_per_week ? 'on_pace' :
+                      repDisco >= (OPERATING_STANDARDS.meetings_per_week * 0.6) ? 'needs_attention' : 'behind'
+      });
+    }
+
+    // NBM pace: quarterly target is 5 per rep. Team weekly run rate needed:
+    var nbmQtdTarget = Math.round((OPERATING_STANDARDS.nbms_per_quarter / totalWeeksInQuarter) * weeksElapsed * repCount);
+    var nbmStatus = nbmTotal >= nbmQtdTarget ? 'on_pace' :
+                    nbmTotal >= (nbmQtdTarget * 0.75) ? 'needs_attention' : 'behind';
+
+    // Disco/meetings: weekly target per rep
+    var discoTarget = OPERATING_STANDARDS.meetings_per_week * repCount;
+    var discoStatus = discoTotal >= discoTarget ? 'on_pace' :
+                      discoTotal >= (discoTarget * 0.6) ? 'needs_attention' : 'behind';
+
+    // Count reps below pace for each KPI
+    var belowCoverage = 0, belowDisco = 0;
+    for (var j = 0; j < repKpis.length; j++) {
+      if (repKpis[j].coverage_status === 'behind') belowCoverage++;
+      if (repKpis[j].disco_status === 'behind') belowDisco++;
+    }
+
+    return {
+      weeksElapsed: weeksElapsed,
+      totalWeeksInQuarter: totalWeeksInQuarter,
+      quarterLabel: quotaCfg.quarter_label || quarterLabelFromKey_(quarterKey),
+      repCount: repCount,
+      coverage: {
+        actual_x: Math.round(coverageX * 10) / 10,
+        target_x: coverageTarget,
+        pipeline_dollars: openPipeline,
+        quota_dollars: teamQuota,
+        status: coverageStatus,
+        reps_behind: belowCoverage,
+        source: 'salesforce_total_pipe_sheet',
+        label: 'Pipeline Coverage (S2+)'
+      },
+      nbm: {
+        actual_this_week: nbmTotal,
+        qtd_pace_target: nbmQtdTarget,
+        quarterly_target: OPERATING_STANDARDS.nbms_per_quarter * repCount,
+        status: nbmStatus,
+        source: 'recap_rm_nbm',
+        label: 'NBMs'
+      },
+      disco: {
+        actual_this_week: discoTotal,
+        weekly_target: discoTarget,
+        per_rep_target: OPERATING_STANDARDS.meetings_per_week,
+        status: discoStatus,
+        reps_behind: belowDisco,
+        source: 'recap_rm_disco',
+        label: 'Discovery Meetings'
+      },
+      nnm: {
+        actual: null,
+        target: OPERATING_STANDARDS.nnms_per_quarter,
+        status: 'pending',
+        source: 'pending',
+        label: 'NNMs'
+      },
+      ebr: {
+        actual: null,
+        target: OPERATING_STANDARDS.ebr_per_tier1_per_quarter,
+        status: 'pending',
+        source: 'pending',
+        label: 'EBR Cadence'
+      },
+      repKpis: repKpis
+    };
+  } catch (err) {
+    Logger.log('getOperatingStandardsForDashboard_ failed: ' + err.message);
+    return null;
+  }
+}
+
 function buildExecutiveTeamRollup_(teamData, teamRecap) {
   var avgPulse = 0;
   var pulseCount = 0;

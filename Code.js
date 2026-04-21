@@ -233,6 +233,7 @@ function doGet(e) {
     dashTemplate.dashboardData = JSON.stringify(getTeamDashboardData());
     dashTemplate.benchmarks = "{}";
     dashTemplate.quotaMetrics = JSON.stringify(getQuotaMetricsForDashboard_());
+    dashTemplate.operatingStandardsJson = safeJsonString_(getOperatingStandardsForDashboard_());
     dashTemplate.qaRepOptionsJson = safeJsonString_(getQaRepOptions_());
     dashTemplate.scriptUrl = ScriptApp.getService().getUrl();
     dashTemplate.sessionEmail = sessionEmail;

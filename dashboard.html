@@ -217,6 +217,148 @@ a:hover { text-decoration: underline; }
   margin: 0 0 14px 2px;
 }
 
+/* ===== OPERATING STANDARDS ===== */
+.operating-standards {
+  border: 1px solid #d4af37;
+  background: linear-gradient(135deg, #fffef8 0%, #fefbf0 100%);
+  border-radius: 14px;
+  padding: 20px;
+  margin-bottom: 24px;
+  box-shadow: 0 4px 12px rgba(212,175,55,.12), inset 0 1px 0 rgba(255,255,255,.9);
+}
+.operating-standards-title {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: #6b5a30;
+  margin: 0 0 14px 2px;
+}
+.operating-standards-grid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(140px, 1fr));
+  gap: 12px;
+  margin-bottom: 12px;
+}
+.operating-standards-kpi {
+  background: linear-gradient(135deg, #ffffff 0%, #fafbfc 100%);
+  border: 1px solid #e8dcc0;
+  border-radius: 12px;
+  padding: 16px 14px;
+  min-height: 100px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  text-align: center;
+  box-shadow: 0 2px 8px rgba(212,175,55,.08), inset 0 1px 0 rgba(255,255,255,.9);
+  transition: transform .15s ease, box-shadow .15s ease;
+}
+.operating-standards-kpi:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(212,175,55,.15), inset 0 1px 0 rgba(255,255,255,.9);
+}
+.operating-standards-kpi.pending {
+  background: linear-gradient(135deg, #f8f8f8 0%, #f0f0f0 100%);
+  border-color: #d0d0d0;
+  opacity: 0.6;
+}
+.os-label {
+  font-size: 10px;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+.os-value {
+  font-size: 2rem;
+  font-weight: 800;
+  color: #0f172a;
+  font-family: 'Space Mono', monospace;
+  line-height: 1;
+  margin-bottom: 6px;
+}
+.os-value.pending {
+  font-size: 1.5rem;
+  color: #9ca3af;
+}
+.os-target {
+  font-size: 11px;
+  color: #64748b;
+  margin-top: 4px;
+}
+.os-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 10px;
+  font-weight: 600;
+  margin-top: 8px;
+  justify-content: center;
+}
+.os-status-dot {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  box-shadow: 0 1px 3px rgba(0,0,0,.15);
+}
+.os-status-dot.on_pace { background: #22c55e; }
+.os-status-dot.needs_attention { background: #f59e0b; }
+.os-status-dot.behind { background: #ef4444; }
+.os-status-dot.pending { background: #9ca3af; }
+.os-footnote {
+  font-size: 10px;
+  color: #6b5a30;
+  font-style: italic;
+  margin-top: 8px;
+  line-height: 1.5;
+}
+
+/* Per-rep KPI indicators */
+.rep-kpi-indicators {
+  display: flex;
+  gap: 12px;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid #e5e7eb;
+  flex-wrap: wrap;
+  align-items: center;
+}
+.rep-kpi-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #475569;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 5px 10px;
+}
+.rep-kpi-indicator .kpi-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  box-shadow: 0 1px 2px rgba(0,0,0,.12);
+}
+.rep-kpi-indicator .kpi-dot.on_pace { background: #22c55e; }
+.rep-kpi-indicator .kpi-dot.needs_attention { background: #f59e0b; }
+.rep-kpi-indicator .kpi-dot.behind { background: #ef4444; }
+.rep-kpi-indicator .kpi-label {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  color: #64748b;
+}
+.rep-kpi-indicator .kpi-value {
+  font-family: 'Space Mono', monospace;
+  font-weight: 700;
+  color: #0f172a;
+}
+
 /* ===== REP CARD ===== */
 .rep-card {
   background: #fff; border-radius: 14px; padding: 20px;
@@ -1326,11 +1468,14 @@ body {
   .summary-row { grid-template-columns: repeat(3, 1fr) !important; }
   .poc-summary { grid-template-columns: repeat(3, minmax(0, 1fr)) !important; }
   .rainmaker-rollup-grid { grid-template-columns: repeat(3, 1fr) !important; }
+  .operating-standards-grid { grid-template-columns: repeat(3, minmax(120px, 1fr)) !important; }
 }
 @media (max-width: 640px) {
   .summary-row { grid-template-columns: repeat(2, 1fr) !important; }
   .poc-summary { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
   .rainmaker-rollup-grid { grid-template-columns: 1fr !important; }
+  .operating-standards-grid { grid-template-columns: 1fr !important; }
+  .rep-kpi-indicators { flex-direction: column; align-items: flex-start; }
   .page-header { padding: 24px 20px 14px; }
   .page-header .headline { font-size: 28px; }
 }
@@ -1410,6 +1555,7 @@ var POC_RECAP_NOTE = null;
 var TEAM_RECAP_NOTE = null;
 var INITIAL_PAGE = <?= JSON.stringify(typeof initialPage === 'undefined' ? 'dashboard' : initialPage) ?>;
 var QUOTA_METRICS = <?= JSON.stringify(typeof quotaMetrics === 'undefined' ? '{}' : quotaMetrics) ?>;
+var OPERATING_STANDARDS = JSON.parse(<?!= JSON.stringify(operatingStandardsJson) ?>);
 var QA_REP_OPTIONS = [];
 var INITIAL_POC_DATA = null;
 var INITIAL_POC_REFRESH_STATUS = null;
@@ -1647,6 +1793,97 @@ function switchTab(tab) {
 }
 
 // =====================================================================
+// OPERATING STANDARDS RENDERING
+// =====================================================================
+function renderOperatingStandards() {
+  if (!OPERATING_STANDARDS || !IS_ADMIN) return '';
+
+  var os = OPERATING_STANDARDS;
+  var html = '<div class="operating-standards">';
+  html += '<div class="operating-standards-title">Operating Standards — ' + escHtml(os.quarterLabel || 'Current Quarter') + ' (Week ' + (os.weeksElapsed || 1) + ' of ' + (os.totalWeeksInQuarter || 13) + ')</div>';
+  html += '<div class="operating-standards-grid">';
+
+  // Coverage
+  if (os.coverage) {
+    var c = os.coverage;
+    html += '<div class="operating-standards-kpi">';
+    html += '<div class="os-label">' + escHtml(c.label) + '</div>';
+    html += '<div class="os-value">' + (c.actual_x || 0) + 'x</div>';
+    html += '<div class="os-target">Target: ' + (c.target_x || 0) + 'x</div>';
+    html += '<div class="os-target">$' + Math.round((c.pipeline_dollars || 0) / 1000) + 'k / $' + Math.round((c.quota_dollars || 0) / 1000) + 'k</div>';
+    html += '<div class="os-status">';
+    html += '<span class="os-status-dot ' + (c.status || 'pending') + '"></span>';
+    if (c.reps_behind > 0) html += '<span>' + c.reps_behind + ' behind</span>';
+    html += '</div>';
+    html += '</div>';
+  }
+
+  // NBMs
+  if (os.nbm) {
+    var n = os.nbm;
+    html += '<div class="operating-standards-kpi">';
+    html += '<div class="os-label">' + escHtml(n.label) + '</div>';
+    html += '<div class="os-value">' + (n.actual_this_week || 0) + '</div>';
+    html += '<div class="os-target">This Week</div>';
+    html += '<div class="os-target">QTD Pace: ' + (n.qtd_pace_target || 0) + ' / ' + (n.quarterly_target || 0) + '</div>';
+    html += '<div class="os-status">';
+    html += '<span class="os-status-dot ' + (n.status || 'pending') + '"></span>';
+    html += '</div>';
+    html += '</div>';
+  }
+
+  // Discovery Meetings
+  if (os.disco) {
+    var d = os.disco;
+    html += '<div class="operating-standards-kpi">';
+    html += '<div class="os-label">' + escHtml(d.label) + '</div>';
+    html += '<div class="os-value">' + (d.actual_this_week || 0) + '</div>';
+    html += '<div class="os-target">Target: ' + (d.weekly_target || 0) + ' / week</div>';
+    html += '<div class="os-target">(' + (d.per_rep_target || 0) + ' per rep)</div>';
+    html += '<div class="os-status">';
+    html += '<span class="os-status-dot ' + (d.status || 'pending') + '"></span>';
+    if (d.reps_behind > 0) html += '<span>' + d.reps_behind + ' behind</span>';
+    html += '</div>';
+    html += '</div>';
+  }
+
+  // NNMs (pending)
+  if (os.nnm) {
+    var nnm = os.nnm;
+    html += '<div class="operating-standards-kpi pending">';
+    html += '<div class="os-label">' + escHtml(nnm.label) + '</div>';
+    html += '<div class="os-value pending">—</div>';
+    html += '<div class="os-target">Coming Soon</div>';
+    html += '<div class="os-target">Target: ' + (nnm.target || 0) + ' / qtr</div>';
+    html += '<div class="os-status">';
+    html += '<span class="os-status-dot pending"></span>';
+    html += '<span style="font-size:9px;color:#9ca3af;">Source pending</span>';
+    html += '</div>';
+    html += '</div>';
+  }
+
+  // EBR (pending)
+  if (os.ebr) {
+    var ebr = os.ebr;
+    html += '<div class="operating-standards-kpi pending">';
+    html += '<div class="os-label">' + escHtml(ebr.label) + '</div>';
+    html += '<div class="os-value pending">—</div>';
+    html += '<div class="os-target">Coming Soon</div>';
+    html += '<div class="os-target">Target: ' + (ebr.target || 0) + ' / qtr</div>';
+    html += '<div class="os-status">';
+    html += '<span class="os-status-dot pending"></span>';
+    html += '<span style="font-size:9px;color:#9ca3af;">Source pending</span>';
+    html += '</div>';
+    html += '</div>';
+  }
+
+  html += '</div>'; // close grid
+  html += '<div class="os-footnote">Discovery Meetings = rm_disco from weekly recap. NBMs = rm_nbm from weekly recap. Pipeline coverage = open deals pipeline / team quota.</div>';
+  html += '</div>'; // close operating-standards
+  return html;
+}
+
+// =====================================================================
 // TEAM DASHBOARD RENDERING
 // =====================================================================
 function renderDashboard(data) {
@@ -1692,6 +1929,11 @@ function renderDashboard(data) {
   html += summaryCard('Yellow Accts', totalYellow, 'pulse-yellow');
   html += summaryCard('Red Accts', totalRed, 'pulse-red');
   html += '</div>';
+
+  // Operating Standards strip (admin only)
+  if (IS_ADMIN) {
+    html += renderOperatingStandards();
+  }
 
   var rainmakerDisco = 0, rainmakerNbm = 0, rainmakerChannel = 0;
   for (var rs = 0; rs < data.length; rs++) {
@@ -1990,6 +2232,35 @@ function buildRepCard(rep, idx) {
   h += '<div class="rep-inline-metric"><span class="metric-label">Pipeline Rank:</span><span class="metric-value">' + escHtml(rep.pipe_rank || '—') + '</span></div>';
   h += '<div class="rep-inline-metric"><span class="metric-label">Commit:</span><span class="metric-value">' + fmtK(rep.commit) + '</span></div>';
   h += '</div>';
+
+  // Operating Standards KPI indicators (admin only, per-rep)
+  if (window.IS_ADMIN && window.OPERATING_STANDARDS && window.OPERATING_STANDARDS.repKpis) {
+    var repKpi = null;
+    for (var k = 0; k < window.OPERATING_STANDARDS.repKpis.length; k++) {
+      if (window.OPERATING_STANDARDS.repKpis[k].email === rep.email) {
+        repKpi = window.OPERATING_STANDARDS.repKpis[k];
+        break;
+      }
+    }
+    if (repKpi) {
+      h += '<div class="rep-kpi-indicators">';
+      h += '<div class="rep-kpi-indicator">';
+      h += '<span class="kpi-dot ' + (repKpi.coverage_status || 'pending') + '"></span>';
+      h += '<span class="kpi-label">Coverage:</span>';
+      h += '<span class="kpi-value">' + (repKpi.coverage_x || '—') + 'x</span>';
+      h += '</div>';
+      h += '<div class="rep-kpi-indicator">';
+      h += '<span class="kpi-label">NBMs:</span>';
+      h += '<span class="kpi-value">' + (repKpi.nbm_this_week || 0) + '</span>';
+      h += '</div>';
+      h += '<div class="rep-kpi-indicator">';
+      h += '<span class="kpi-dot ' + (repKpi.disco_status || 'pending') + '"></span>';
+      h += '<span class="kpi-label">Disco:</span>';
+      h += '<span class="kpi-value">' + (repKpi.disco_this_week || 0) + ' / 8</span>';
+      h += '</div>';
+      h += '</div>';
+    }
+  }
 
   // Details (collapsed by default)
   h += '<div class="rep-details" id="repDetails_' + idx + '">';
