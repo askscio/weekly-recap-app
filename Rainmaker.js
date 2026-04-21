@@ -286,3 +286,264 @@ function smokeTestGleanConnection() {
 
   return result;
 }
+
+// -----------------------------------------------------------------------
+// RAINMAKER DATA REFRESH — End-to-End Pipeline
+// -----------------------------------------------------------------------
+function runRainmakerRefresh() {
+  var startTime = new Date();
+  var summary = {
+    success: false,
+    reps_scored: 0,
+    reps_with_errors: 0,
+    ent_rows_total: 0,
+    runtime_seconds: 0,
+    error: null
+  };
+
+  try {
+    Logger.log('runRainmakerRefresh: starting Rainmaker data refresh...');
+
+    // Collect per-rep data from Agent 1
+    var repsData = [];
+    var fiscalQuarter = null;
+
+    for (var i = 0; i < REP_EMAILS.length; i++) {
+      var repEmail = REP_EMAILS[i];
+      try {
+        Logger.log('runRainmakerRefresh: calling Agent 1 for ' + repEmail);
+
+        var agentResponse = callGleanAgent_(
+          RAINMAKER_AGENT_ID_REP_SCORECARD,
+          JSON.stringify({ rep_email: repEmail })
+        );
+
+        var responseText = extractAgentResponseText_(agentResponse);
+        var repData = parseAgentJsonResponse_(responseText);
+
+        // Skip if rep_excluded
+        if (repData.rep_excluded) {
+          Logger.log('runRainmakerRefresh: ' + repEmail + ' is excluded, skipping');
+          continue;
+        }
+
+        // Store fiscal quarter from first successful rep
+        if (!fiscalQuarter && repData.fiscal_quarter) {
+          fiscalQuarter = repData.fiscal_quarter;
+        }
+
+        repsData.push(repData);
+        summary.reps_scored++;
+
+        if (repData.errors && Array.isArray(repData.errors) && repData.errors.length > 0) {
+          summary.reps_with_errors++;
+          Logger.log('runRainmakerRefresh: ' + repEmail + ' has errors: ' + repData.errors.join('; '));
+        }
+
+        Logger.log('runRainmakerRefresh: successfully processed ' + repEmail);
+
+      } catch (repErr) {
+        Logger.log('runRainmakerRefresh: FAILED for ' + repEmail + ': ' + repErr.message);
+        summary.reps_with_errors++;
+        // Continue to next rep
+      }
+    }
+
+    Logger.log('runRainmakerRefresh: Agent 1 calls complete. Scored ' + summary.reps_scored + ' reps.');
+
+    // Call Agent 2 for Enterprise benchmarks
+    var entBenchmarks = null;
+    try {
+      Logger.log('runRainmakerRefresh: calling Agent 2 for Enterprise benchmarks');
+
+      var agent2Response = callGleanAgent_(
+        RAINMAKER_AGENT_ID_ENT_BENCHMARKS,
+        '{}'
+      );
+
+      var ent2Text = extractAgentResponseText_(agent2Response);
+      entBenchmarks = parseAgentJsonResponse_(ent2Text);
+
+      Logger.log('runRainmakerRefresh: successfully retrieved Enterprise benchmarks');
+
+    } catch (entErr) {
+      Logger.log('runRainmakerRefresh: Agent 2 FAILED: ' + entErr.message);
+      Logger.log('runRainmakerRefresh: continuing without Enterprise data');
+      // Continue without Enterprise data
+    }
+
+    // Get/create sheets
+    var ss = SpreadsheetApp.openById(TRACKER_SHEET_ID);
+    var rainmakerSheet = getOrCreateSheet_(ss, RAINMAKER_SHEET_NAME);
+    var entSheet = getOrCreateSheet_(ss, RAINMAKER_SHEET_NAME + '_Ent');
+
+    Logger.log('runRainmakerRefresh: clearing existing data...');
+
+    // Clear both sheets completely
+    if (rainmakerSheet.getLastRow() > 0) {
+      rainmakerSheet.getRange(1, 1, rainmakerSheet.getMaxRows(), rainmakerSheet.getMaxColumns()).clearContent();
+    }
+    if (entSheet.getLastRow() > 0) {
+      entSheet.getRange(1, 1, entSheet.getMaxRows(), entSheet.getMaxColumns()).clearContent();
+    }
+
+    Logger.log('runRainmakerRefresh: writing per-rep data to Rainmaker sheet...');
+
+    // Write Rainmaker sheet header
+    var rainmakerHeaders = [
+      'rep_email', 'rep_name', 'fiscal_quarter', 'nbm', 'pipe_adds', 'pipe_dollars',
+      'c_level', 'stage4_plus', 'closed_won', 'pocs', 'partner_reg', 'errors', 'generated_at'
+    ];
+    rainmakerSheet.appendRow(rainmakerHeaders);
+    rainmakerSheet.getRange(1, 1, 1, rainmakerHeaders.length).setFontWeight('bold');
+    rainmakerSheet.setFrozenRows(1);
+
+    // Write rep data rows
+    var now = new Date();
+    for (var j = 0; j < repsData.length; j++) {
+      var rd = repsData[j];
+      var errorsText = (rd.errors && Array.isArray(rd.errors) && rd.errors.length > 0)
+        ? rd.errors.join('; ')
+        : 'none';
+
+      var row = [
+        rd.rep_email || '',
+        rd.rep_name || '',
+        rd.fiscal_quarter || fiscalQuarter || '',
+        rd.nbm || 0,
+        rd.pipe_adds || 0,
+        rd.pipe_dollars || 0,
+        rd.c_level || 0,
+        rd.stage4_plus || 0,
+        rd.closed_won || 0,
+        rd.pocs || 0,
+        rd.partner_reg || 0,
+        errorsText,
+        now
+      ];
+      rainmakerSheet.appendRow(row);
+    }
+
+    Logger.log('runRainmakerRefresh: wrote ' + repsData.length + ' rep rows');
+    Logger.log('runRainmakerRefresh: writing Enterprise benchmark data to Rainmaker_Ent sheet...');
+
+    // Write Enterprise benchmark sheet header
+    var entHeaders = ['category', 'owner_name', 'owner_email', 'value'];
+    entSheet.appendRow(entHeaders);
+    entSheet.getRange(1, 1, 1, entHeaders.length).setFontWeight('bold');
+    entSheet.setFrozenRows(1);
+
+    // Write Enterprise benchmark rows
+    var entRowsTotal = 0;
+    if (entBenchmarks && entBenchmarks.rows_by_category) {
+      var categories = ['nbm', 'pipe_adds', 'pipe_dollars', 'stage4_plus', 'closed_won', 'partner_reg'];
+
+      for (var k = 0; k < categories.length; k++) {
+        var cat = categories[k];
+        var rows = entBenchmarks.rows_by_category[cat];
+
+        if (rows && Array.isArray(rows)) {
+          for (var m = 0; m < rows.length; m++) {
+            var entRow = rows[m];
+            entSheet.appendRow([
+              cat,
+              entRow.owner_name || '',
+              entRow.owner_email || '',
+              entRow.value || 0
+            ]);
+            entRowsTotal++;
+          }
+          Logger.log('runRainmakerRefresh: wrote ' + rows.length + ' rows for category: ' + cat);
+        }
+      }
+    } else {
+      Logger.log('runRainmakerRefresh: no Enterprise benchmark data available');
+    }
+
+    summary.ent_rows_total = entRowsTotal;
+
+    // Calculate runtime
+    var endTime = new Date();
+    summary.runtime_seconds = Math.round((endTime.getTime() - startTime.getTime()) / 1000 * 10) / 10;
+
+    // Log summary
+    Logger.log('runRainmakerRefresh: COMPLETE ✓');
+    Logger.log('  Reps scored: ' + summary.reps_scored);
+    Logger.log('  Reps with errors: ' + summary.reps_with_errors);
+    Logger.log('  Enterprise rows written: ' + summary.ent_rows_total);
+    Logger.log('  Runtime: ' + summary.runtime_seconds + 's');
+
+    // Append to log sheet
+    var logSheet = getOrCreateRainmakerLogSheet_(ss);
+    logSheet.appendRow([
+      now,
+      fiscalQuarter || '',
+      summary.reps_scored,
+      summary.reps_with_errors,
+      summary.ent_rows_total,
+      summary.runtime_seconds,
+      'Success'
+    ]);
+
+    summary.success = true;
+    return summary;
+
+  } catch (err) {
+    Logger.log('runRainmakerRefresh: FATAL ERROR: ' + err.message);
+    Logger.log('runRainmakerRefresh: Stack trace: ' + err.stack);
+
+    summary.error = err.message;
+    summary.runtime_seconds = Math.round((new Date().getTime() - startTime.getTime()) / 1000 * 10) / 10;
+
+    // Try to log the failure
+    try {
+      var ss = SpreadsheetApp.openById(TRACKER_SHEET_ID);
+      var logSheet = getOrCreateRainmakerLogSheet_(ss);
+      logSheet.appendRow([
+        new Date(),
+        '',
+        summary.reps_scored,
+        summary.reps_with_errors,
+        summary.ent_rows_total,
+        summary.runtime_seconds,
+        'ERROR: ' + err.message.slice(0, 200)
+      ]);
+    } catch (logErr) {
+      Logger.log('runRainmakerRefresh: could not write error to log: ' + logErr.message);
+    }
+
+    return summary;
+  }
+}
+
+// -----------------------------------------------------------------------
+// SHEET HELPERS
+// -----------------------------------------------------------------------
+function getOrCreateSheet_(ss, sheetName) {
+  var sheet = ss.getSheetByName(sheetName);
+  if (!sheet) {
+    Logger.log('getOrCreateSheet_: creating new sheet: ' + sheetName);
+    sheet = ss.insertSheet(sheetName);
+  }
+  return sheet;
+}
+
+function getOrCreateRainmakerLogSheet_(ss) {
+  var sheet = ss.getSheetByName(RAINMAKER_LOG_SHEET_NAME);
+  if (!sheet) {
+    Logger.log('getOrCreateRainmakerLogSheet_: creating new log sheet');
+    sheet = ss.insertSheet(RAINMAKER_LOG_SHEET_NAME);
+    sheet.appendRow([
+      'timestamp',
+      'fiscal_quarter',
+      'reps_scored',
+      'reps_with_errors',
+      'ent_rows_total',
+      'runtime_seconds',
+      'notes'
+    ]);
+    sheet.getRange(1, 1, 1, 7).setFontWeight('bold');
+    sheet.setFrozenRows(1);
+  }
+  return sheet;
+}
