@@ -2040,6 +2040,106 @@ function buildExecutiveTeamRollup_(teamData, teamRecap) {
   };
 }
 
+function getAccountHealthTrend_(quarterStartDate) {
+  var sheet = getRecapSheet_();
+  var lastRow = sheet.getLastRow();
+  if (lastRow < 2) {
+    return { current: { green: 0, yellow: 0, red: 0, total: 0 }, baseline: null, deltas: null, weeklySeries: [], hasHistory: false };
+  }
+  var values = sheet.getRange(2, 1, lastRow - 1, Math.max(45, sheet.getLastColumn())).getValues();
+  var accountBases = [9, 15, 21, 27, 33, 39];
+
+  function weekKey_(d) {
+    var dt = d instanceof Date ? new Date(d.getTime()) : new Date(d);
+    if (isNaN(dt.getTime())) return null;
+    // Monday-start ISO week
+    var day = dt.getUTCDay();
+    var diff = (day === 0 ? -6 : 1 - day);
+    var monday = new Date(Date.UTC(dt.getUTCFullYear(), dt.getUTCMonth(), dt.getUTCDate() + diff));
+    return monday.toISOString().slice(0, 10);
+  }
+
+  // Normalize engagement string to green/yellow/red
+  function normColor_(s) {
+    var v = String(s || '').trim().toLowerCase();
+    if (v === 'green') return 'green';
+    if (v === 'yellow') return 'yellow';
+    if (v === 'red') return 'red';
+    return null;
+  }
+
+  // Group rows by (week, email) — for each week, keep only the most recent row per rep
+  var byWeekEmail = {};
+  for (var i = 0; i < values.length; i++) {
+    var row = values[i];
+    var ts = row[0];
+    if (!(ts instanceof Date)) {
+      try { ts = new Date(ts); } catch (_) { continue; }
+    }
+    if (!ts || isNaN(ts.getTime())) continue;
+    var email = String(row[1] || '').trim().toLowerCase();
+    if (!email) continue;
+    var wk = weekKey_(ts);
+    if (!wk) continue;
+    var key = wk + '|' + email;
+    var existing = byWeekEmail[key];
+    if (!existing || ts.getTime() > existing.ts.getTime()) {
+      byWeekEmail[key] = { ts: ts, row: row, week: wk, email: email };
+    }
+  }
+
+  // Collapse to weekly color counts
+  var weekly = {};
+  var keys = Object.keys(byWeekEmail);
+  for (var k = 0; k < keys.length; k++) {
+    var entry = byWeekEmail[keys[k]];
+    if (!weekly[entry.week]) weekly[entry.week] = { week: entry.week, green: 0, yellow: 0, red: 0, total: 0 };
+    for (var b = 0; b < accountBases.length; b++) {
+      var engCol = accountBases[b] + 3;
+      var color = normColor_(entry.row[engCol]);
+      if (!color) continue;
+      weekly[entry.week][color]++;
+      weekly[entry.week].total++;
+    }
+  }
+
+  var weeksSorted = Object.keys(weekly).sort();
+  var weeklySeries = weeksSorted.map(function(w) { return weekly[w]; });
+
+  var current = weeklySeries.length ? weeklySeries[weeklySeries.length - 1] : { week: null, green: 0, yellow: 0, red: 0, total: 0 };
+
+  // Baseline: first week in or after the quarter start
+  var baseline = null;
+  var qStartIso = quarterStartDate ? new Date(quarterStartDate).toISOString().slice(0, 10) : null;
+  if (qStartIso) {
+    for (var m = 0; m < weeklySeries.length; m++) {
+      if (weeklySeries[m].week >= qStartIso) {
+        baseline = weeklySeries[m];
+        break;
+      }
+    }
+  }
+
+  var deltas = null;
+  if (baseline && current && baseline.week !== current.week) {
+    deltas = {
+      green: current.green - baseline.green,
+      yellow: current.yellow - baseline.yellow,
+      red: current.red - baseline.red,
+      baselineWeek: baseline.week,
+      currentWeek: current.week
+    };
+  }
+
+  return {
+    current: current,
+    baseline: baseline,
+    deltas: deltas,
+    weeklySeries: weeklySeries,
+    hasHistory: weeklySeries.length >= 2
+  };
+}
+
 function getExecutiveSummaryDataBase_(forcedQuarterKey) {
   ensureGleanViewerCaller_();
 
@@ -2143,6 +2243,15 @@ function getExecutiveSummaryDataBase_(forcedQuarterKey) {
     },
     nbmSummary: nbmSummary,
     rainmakerSummary: rainmakerSummary,
+    accountHealthTrend: (function() {
+      try {
+        var qStart = quotaCfg && quotaCfg.quarter_start ? new Date(quotaCfg.quarter_start) : null;
+        return getAccountHealthTrend_(qStart);
+      } catch (trendErr) {
+        Logger.log('getAccountHealthTrend_ failed: ' + trendErr.message);
+        return { current: { green: 0, yellow: 0, red: 0, total: 0 }, baseline: null, deltas: null, weeklySeries: [], hasHistory: false };
+      }
+    })(),
     teamRollup: rollup,
     teamRecap: teamRecap
   };
@@ -2413,6 +2522,7 @@ function getExecutiveSummaryData() {
         success: true,
         note: "",
         generatedAt: normalizedAi.generated_at || "",
+        headlineVerdict: String(normalizedAi.headline_verdict || "").trim(),
         recapsUsed: base.teamRollup.repsSubmitted || 0,
         avgPulse: base.teamRollup.avgPulse || "—",
         themeItems: normalizedAi.themes || [],

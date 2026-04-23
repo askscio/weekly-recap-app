@@ -712,6 +712,534 @@ body {
   .number-strip { grid-template-columns: repeat(3, minmax(0, 1fr)); row-gap: 22px; }
   .number-cell:nth-child(3n) { border-right: none; }
 }
+
+
+/* ============================================
+   News from The North — newspaper top half
+   ============================================ */
+
+.news-masthead {
+  text-align: center;
+  padding: 24px 0 14px 0;
+  margin-bottom: 10px;
+}
+.news-rule-top, .news-rule-bottom {
+  height: 1px;
+  background: var(--ink);
+  margin: 6px auto;
+  max-width: 100%;
+}
+.news-rule-bottom { height: 2px; }
+.news-title {
+  font-family: 'Playfair Display', serif;
+  font-weight: 900;
+  font-size: 58px;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+  line-height: 1;
+  padding: 6px 0 10px 0;
+  text-transform: none;
+}
+.news-dateline {
+  padding-top: 10px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 11px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  font-weight: 600;
+  color: var(--ink-soft);
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.news-dateline-sep { opacity: 0.5; }
+
+.news-lede {
+  text-align: center;
+  padding: 20px 0 32px 0;
+  max-width: 820px;
+  margin: 0 auto;
+}
+.news-lede-text {
+  font-family: 'Playfair Display', serif;
+  font-weight: 500;
+  font-size: 26px;
+  line-height: 1.35;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+  font-style: italic;
+  margin: 0;
+}
+
+.news-hero-grid {
+  display: grid;
+  grid-template-columns: minmax(200px, 1fr) minmax(200px, 1fr) minmax(280px, 1.8fr);
+  gap: 28px;
+  padding: 22px 0;
+  border-top: 1px solid var(--ink);
+  border-bottom: 1px solid var(--ink);
+  margin-bottom: 20px;
+}
+
+.news-hero-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 0 18px;
+  border-left: 1px solid var(--warm-rule);
+}
+.news-hero-cell:first-child { border-left: none; padding-left: 0; }
+.news-cell-label {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: var(--ink-soft);
+  margin-bottom: 2px;
+}
+
+.news-pulse-scoreline { display: flex; align-items: baseline; gap: 4px; }
+.news-pulse-big {
+  font-family: 'Playfair Display', serif;
+  font-size: 52px;
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -0.03em;
+  color: var(--ink);
+}
+.news-pulse-big.green { color: var(--green); }
+.news-pulse-big.gold { color: var(--gold); }
+.news-pulse-big.red { color: var(--red); }
+.news-pulse-denom {
+  font-family: 'Playfair Display', serif;
+  font-size: 20px;
+  color: var(--ink-soft);
+}
+.news-pulse-bar {
+  position: relative;
+  display: flex;
+  height: 8px;
+  border-radius: 4px;
+  overflow: hidden;
+  background: var(--warm-rule);
+}
+
+/* ===== RAINMAKER SCOREBOARD ===== */
+.rainmaker-scoreboard {
+  width: 100%;
+  max-width: 1280px;
+  margin: 0 auto;
+  border-top: 1px solid var(--warm-rule);
+  padding: 32px;
+  box-sizing: border-box;
+  background: linear-gradient(180deg, var(--gold-bg) 0%, var(--page) 100%);
+}
+.rainmaker-scoreboard-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 22px;
+  padding-bottom: 18px;
+  border-bottom: 1px solid var(--warm-rule);
+  text-align: center;
+}
+.rainmaker-scoreboard-header-title-row {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+.rainmaker-scoreboard-header-controls {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+.rainmaker-scoreboard-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 36px;
+  font-weight: 800;
+  color: var(--ink);
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+}
+.rainmaker-scoreboard-title-sub {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+.rainmaker-refresh-btn {
+  padding: 10px 16px;
+  border: 1px solid var(--gold);
+  background: var(--gold-bg);
+  color: var(--gold);
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 13px;
+  transition: all .15s ease;
+}
+.rainmaker-refresh-btn:hover {
+  background: var(--gold);
+  color: #fff;
+}
+.rm-error-state {
+  padding: 18px;
+  background: var(--red-bg);
+  border: 1px solid var(--red);
+  border-radius: 8px;
+  color: var(--red);
+  font-size: 14px;
+  margin-top: 12px;
+}
+.rm-podium {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+.rm-podium-item {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 14px 18px;
+  background: var(--page);
+  border-left: 3px solid var(--warm-rule);
+  border-radius: 2px;
+}
+.rm-podium-item.rank-1 {
+  border-left-color: var(--gold);
+  background: linear-gradient(90deg, var(--gold-bg) 0%, var(--page) 60%);
+}
+.rm-podium-item.rank-2 {
+  border-left-color: #a8a8a8;
+  background: linear-gradient(90deg, #f4f4f4 0%, var(--page) 60%);
+}
+.rm-podium-rank {
+  font-family: 'Playfair Display', serif;
+  font-size: 24px;
+  font-weight: 800;
+  color: var(--ink-soft);
+  letter-spacing: -0.02em;
+  line-height: 1;
+  min-width: 40px;
+}
+.rm-podium-item.rank-1 .rm-podium-rank { color: var(--gold); }
+.rm-podium-item.rank-2 .rm-podium-rank { color: #808080; }
+.rm-podium-name {
+  font-family: 'Playfair Display', serif;
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--ink);
+  line-height: 1.1;
+  letter-spacing: -0.01em;
+  flex: 1 1 auto;
+}
+.rm-podium-points {
+  display: flex;
+  align-items: baseline;
+  gap: 5px;
+  margin-left: auto;
+}
+.rm-podium-pts-num {
+  font-family: 'Playfair Display', serif;
+  font-size: 26px;
+  font-weight: 800;
+  color: var(--ink);
+  letter-spacing: -0.02em;
+  line-height: 1;
+}
+.rm-podium-pts-unit {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+.rm-team-leaderboard {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+.rm-team-leaderboard-item {
+  flex: 1 1 140px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 16px;
+  background: linear-gradient(135deg, #fff 0%, #fdfcfa 100%);
+  border: 1px solid rgba(184,134,11,.15);
+  border-radius: 8px;
+}
+.rm-team-leaderboard-item.rank-1 {
+  background: linear-gradient(135deg, var(--gold-bg) 0%, #fffbf0 100%);
+  border-color: var(--gold);
+  box-shadow: 0 2px 8px rgba(184,134,11,.12);
+}
+.rm-rank-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--shell);
+  color: var(--ink-mid);
+  font-weight: 700;
+  font-size: 13px;
+}
+.rm-rank-badge.rank-1 {
+  background: var(--gold);
+  color: #fff;
+}
+.rm-rep-name {
+  flex: 1;
+  font-weight: 600;
+  font-size: 14px;
+  color: var(--ink);
+}
+.rm-rep-points {
+  font-weight: 700;
+  font-size: 16px;
+  color: var(--gold);
+}
+.rm-pts-label {
+  font-size: 11px;
+  font-weight: 600;
+  margin-left: 3px;
+  color: var(--ink-soft);
+}
+.rm-grid-wrapper {
+  overflow-x: auto;
+  margin-bottom: 20px;
+}
+.rm-grid {
+  display: grid;
+  grid-template-columns: minmax(140px, 1.4fr) repeat(8, minmax(0, 1fr)) minmax(80px, 1fr);
+  gap: 1px;
+  background: var(--warm-rule);
+  border: 1px solid var(--warm-rule);
+  border-radius: 4px;
+  overflow: hidden;
+}
+.rm-grid-header {
+  background: linear-gradient(135deg, var(--gold-bg) 0%, #fffcf5 100%);
+  padding: 12px 8px;
+  font-weight: 700;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  color: var(--gold);
+  text-align: center;
+}
+.rm-grid-header.rep-col {
+  text-align: left;
+  padding-left: 14px;
+}
+.rm-grid-cell {
+  background: #fff;
+  padding: 12px 8px;
+  font-size: 13px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+}
+.rm-grid-cell.rep-col {
+  align-items: flex-start;
+  justify-content: center;
+  padding-left: 14px;
+  font-weight: 600;
+  color: var(--ink);
+}
+.rm-grid-cell.green {
+  background: var(--green-bg);
+  border-left: 3px solid var(--green);
+}
+.rm-grid-cell.yellow {
+  background: var(--gold-bg);
+  border-left: 3px solid var(--gold);
+}
+.rm-grid-cell.red {
+  background: var(--red-bg);
+  border-left: 3px solid var(--red);
+}
+.rm-cell-value {
+  font-weight: 700;
+  font-size: 14px;
+  color: var(--ink);
+}
+.rm-cell-points {
+  font-size: 11px;
+  color: var(--ink-soft);
+  font-weight: 600;
+}
+.rm-grid-cell.total-col {
+  background: var(--page);
+  border-left: 2px solid var(--gold);
+  padding-left: 12px;
+  padding-right: 12px;
+}
+.rm-grid-header.total-col {
+  background: var(--gold-bg);
+  border-left: 2px solid var(--gold);
+  color: var(--gold);
+}
+.rm-cell-total {
+  font-family: 'Playfair Display', serif;
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--ink);
+  line-height: 1;
+}
+.rm-cell-total-unit {
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  margin-top: 2px;
+}
+.rm-benchmarks {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 16px;
+  margin-bottom: 20px;
+  padding-top: 18px;
+  border-top: 1px solid var(--warm-rule);
+}
+.rm-benchmark-card {
+  background: linear-gradient(135deg, #fff 0%, #fdfcfa 100%);
+  border: 1px solid var(--warm-rule);
+  border-radius: 8px;
+  padding: 16px;
+}
+.rm-benchmark-category {
+  font-weight: 700;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  color: var(--gold);
+  margin-bottom: 10px;
+}
+.rm-benchmark-stats {
+  display: flex;
+  gap: 16px;
+}
+.rm-benchmark-stat {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.rm-benchmark-stat-label {
+  font-size: 11px;
+  color: var(--ink-soft);
+  font-weight: 600;
+}
+.rm-benchmark-stat-value {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--ink);
+}
+.rm-leaderboards {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 12px;
+  padding-top: 20px;
+  border-top: 1px solid var(--warm-rule);
+}
+.rm-leaderboard-card {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+.rm-leaderboard-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--ink);
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--warm-rule);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.rm-leaderboard-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding: 2px 0;
+  font-size: 10px;
+  gap: 4px;
+}
+.rm-leaderboard-row.tn-highlight {
+  background: var(--gold-bg);
+  margin: 0 -4px;
+  padding: 2px 4px;
+  border-radius: 2px;
+  font-weight: 700;
+}
+.rm-leaderboard-row-name {
+  color: var(--ink-mid);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+}
+.rm-leaderboard-row-name.tn-highlight-text {
+  font-weight: 700;
+  color: var(--gold);
+}
+.rm-leaderboard-row-value {
+  font-weight: 700;
+  color: var(--ink);
+  white-space: nowrap;
+  flex-shrink: 0;
+  font-size: 10px;
+}
+.rm-refresh-toast {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  background: var(--ink);
+  color: #fff;
+  padding: 14px 20px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  box-shadow: 0 8px 24px rgba(26,22,18,.2);
+  z-index: 10000;
+  max-width: 400px;
+}
+
+@media (max-width: 1100px) {
+  .rm-benchmarks { grid-template-columns: repeat(3, 1fr); }
+  .rm-leaderboards { grid-template-columns: repeat(3, 1fr); }
+}
+
+@media (max-width: 700px) {
+  .rm-podium { grid-template-columns: 1fr; gap: 12px; }
+  .rm-podium-name { font-size: 26px; }
+  .rm-podium-pts-num { font-size: 32px; }
+  .rm-benchmarks { grid-template-columns: repeat(2, 1fr); }
+  .rm-leaderboards { grid-template-columns: 1fr; }
+  .rainmaker-scoreboard-title { font-size: 22px; }
+}
+
 @media (max-width: 760px) {
   .shell { width: calc(100vw - 16px); padding: 6px 0 10px; }
   .page { width: 100%; }
@@ -723,6 +1251,271 @@ body {
   .number-cell:nth-child(2n) { border-right: none; }
   .rainmaker-three-up { flex-direction: column; }
 }
+
+/* ============================================
+   NORTH OPERATIONS — 12-col grid scaffold (Commit 1)
+   ============================================ */
+
+.nops-shell {
+  width: 100%;
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 20px 32px 28px 32px;
+  box-sizing: border-box;
+}
+
+.nops-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding: 0 0 12px 0;
+  border-bottom: 1px solid var(--warm-rule);
+  margin-bottom: 22px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+
+.nops-verdict {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 0 0 26px 0;
+}
+.nops-verdict-rule {
+  width: 3px;
+  align-self: stretch;
+  background: var(--gold);
+  border-radius: 1px;
+  flex-shrink: 0;
+}
+.nops-verdict-text {
+  font-family: 'Playfair Display', serif;
+  font-size: 22px;
+  line-height: 1.35;
+  font-weight: 500;
+  color: var(--ink);
+  margin: 0;
+  flex: 1;
+}
+.nops-placeholder {
+  color: var(--ink-soft) !important;
+  font-style: italic;
+}
+
+/* Shared 12-column grid — every row uses same columns and same gap.
+   This is the alignment contract. */
+.nops-grid-row {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: 16px;
+  margin-bottom: 16px;
+}
+.nops-cell {
+  background: var(--page);
+  border: 1px solid var(--warm-rule);
+  border-radius: 4px;
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  min-width: 0;
+}
+.nops-cell-label {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  margin-bottom: 12px;
+}
+
+/* Chart row: two cells, each spans 6 columns */
+.nops-chart-row .nops-cell-chart {
+  grid-column: span 6;
+  min-height: 340px;
+}
+
+/* KPI row: four cells, each spans 3 columns */
+.nops-kpi-row .nops-cell-kpi {
+  grid-column: span 3;
+  min-height: 96px;
+  justify-content: space-between;
+}
+.nops-kpi-placeholder {
+  font-family: 'Playfair Display', serif;
+  font-size: 32px;
+  font-weight: 800;
+  color: var(--ink-soft);
+  line-height: 1;
+}
+
+/* Billy row: one cell spans all 12 */
+.nops-billy-row .nops-cell-billy {
+  grid-column: span 12;
+  background: transparent;
+  border: none;
+  border-top: 1px solid var(--warm-rule);
+  border-bottom: 1px solid var(--warm-rule);
+  border-radius: 0;
+  padding: 16px 0;
+}
+.nops-billy-text {
+  font-family: 'Playfair Display', serif;
+  font-size: 16px;
+  line-height: 1.55;
+  color: var(--ink);
+  margin: 0;
+  font-style: italic;
+}
+
+/* Forecast gauge chart (Commit 2.1 — SVG bar + HTML labels) */
+.nops-fc-wrap {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 8px;
+}
+.nops-fc-container {
+  width: 100%;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* Quota callout above the bar */
+.nops-fc-quota-top {
+  position: relative;
+  height: 40px;
+  margin-bottom: -4px;
+}
+.nops-fc-quota-top > * {
+  position: absolute;
+  left: 0;
+  transform: translateX(-50%);
+  white-space: nowrap;
+}
+.nops-fc-quota-label {
+  top: 2px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.22em;
+  color: var(--ink-soft);
+}
+.nops-fc-quota-value {
+  top: 14px;
+  font-family: 'Playfair Display', serif;
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--ink);
+  line-height: 1;
+}
+.nops-fc-quota-arrow {
+  top: 34px;
+  width: 0;
+  height: 0;
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-top: 6px solid var(--ink);
+}
+
+/* Bar row */
+.nops-fc-bar-row {
+  width: 100%;
+  padding: 0;
+}
+.nops-fc-bar-track {
+  position: relative;
+  width: 100%;
+  height: 32px;
+  background: #eae2d4;
+  border-radius: 3px;
+  overflow: visible;
+}
+.nops-fc-bar-seg {
+  position: absolute;
+  top: 0;
+  height: 100%;
+}
+.nops-fc-bar-seg.nops-fc-closed { left: 0; background: #2d6a4f; border-top-left-radius: 3px; border-bottom-left-radius: 3px; }
+.nops-fc-bar-seg.nops-fc-commit { background: #6fa98a; }
+.nops-fc-bar-seg.nops-fc-likely { background: #b8860b; }
+.nops-fc-bar-seg.nops-fc-best   { background: #d4b776; }
+
+.nops-fc-quota-line {
+  position: absolute;
+  top: -6px;
+  bottom: -6px;
+  width: 2px;
+  background: var(--ink);
+  transform: translateX(-50%);
+  z-index: 2;
+}
+
+/* Dollar labels row — under each segment */
+.nops-fc-labels-row {
+  position: relative;
+  height: 26px;
+  margin-top: 10px;
+}
+.nops-fc-seg-value {
+  position: absolute;
+  top: 0;
+  transform: translateX(-50%);
+  font-family: 'Playfair Display', serif;
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--ink);
+  line-height: 1;
+  white-space: nowrap;
+}
+
+/* Segment names row */
+.nops-fc-names-row {
+  position: relative;
+  height: 14px;
+  margin-top: 2px;
+}
+.nops-fc-seg-name {
+  position: absolute;
+  top: 0;
+  transform: translateX(-50%);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.18em;
+  color: var(--ink-soft);
+  white-space: nowrap;
+}
+
+/* Placeholder pattern for empty chart cells */
+.nops-placeholder-box {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: repeating-linear-gradient(45deg, transparent, transparent 8px, var(--shell) 8px, var(--shell) 10px);
+  border-radius: 3px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 12px;
+  color: var(--ink-soft);
+  font-style: italic;
+}
+
+@media (max-width: 900px) {
+  .nops-shell { padding: 16px 20px; }
+  .nops-chart-row .nops-cell-chart { grid-column: span 12; }
+  .nops-kpi-row .nops-cell-kpi { grid-column: span 6; }
+  .nops-verdict-text { font-size: 18px; }
+}
+
 </style>
 </head>
 <body>
@@ -744,6 +1537,12 @@ body {
 <script>
 var APP_EXEC_URL = "https://script.google.com/a/macros/glean.com/s/AKfycbxt9SVE3r4zf7PB0auoKaXODrnSWNm2p-Kh3ByoVWHw9YJzjkClEP8Shb2-embIfKJ5/exec";
 var SUMMARY_DATA = <?= JSON.stringify(typeof summaryData === 'undefined' ? {} : summaryData) ?>;
+var RAINMAKER_SCOREBOARD = null;
+try {
+  RAINMAKER_SCOREBOARD = JSON.parse(<?!= JSON.stringify(rainmakerScoreboardJson) ?>);
+} catch (e) {
+  RAINMAKER_SCOREBOARD = { success: false, error: 'Failed to parse scoreboard data: ' + e.message, data: null };
+}
 
 function parseSummaryData(raw) {
   var x = raw;
@@ -794,6 +1593,210 @@ function takeTopItems(items, maxItems, maxLen) {
 function goSummary() { window.top.location.href = APP_EXEC_URL + "?page=summary&v=" + Date.now(); }
 function goDashboard() { window.top.location.href = APP_EXEC_URL + "?page=dashboard&v=" + Date.now(); }
 function goPoc() { window.top.location.href = APP_EXEC_URL + "?page=poc&v=" + Date.now(); }
+
+// RAINMAKER SCOREBOARD
+function htmlEscape_(s) {
+  if (s === null || s === undefined) return '';
+  return String(s)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+function formatCurrencyShort_(amt) {
+  if (amt === null || amt === undefined) return '$0';
+  var n = Number(amt);
+  if (isNaN(n)) return '$0';
+  if (n >= 1000000) return '$' + (n/1e6).toFixed(2) + 'M';
+  if (n >= 100000) return '$' + Math.round(n/1e3) + 'K';
+  if (n >= 1000) return '$' + (n/1e3).toFixed(1) + 'K';
+  return '$' + n;
+}
+
+function renderRainmakerScoreboard() {
+  if (!RAINMAKER_SCOREBOARD || !RAINMAKER_SCOREBOARD.success || !RAINMAKER_SCOREBOARD.data) {
+    var errMsg = (RAINMAKER_SCOREBOARD && RAINMAKER_SCOREBOARD.error) ? RAINMAKER_SCOREBOARD.error : 'No scoreboard data available. Click Refresh to try again.';
+    return '<div class="rainmaker-scoreboard"><div class="rainmaker-scoreboard-header">' +
+           '<div class="rainmaker-scoreboard-title">Rainmaker Scoreboard</div>' +
+           '<button class="rainmaker-refresh-btn" onclick="refreshRainmakerScoreboard(this)">Refresh</button>' +
+           '</div><div class="rm-error-state">' + htmlEscape_(errMsg) + '</div></div>';
+  }
+
+  var sb = RAINMAKER_SCOREBOARD.data;
+  var lastRefresh = 'never';
+  if (sb.last_refresh) {
+    try {
+      var d = new Date(sb.last_refresh);
+      var dateStr = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+      var timeStr = d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+      lastRefresh = dateStr + ' · ' + timeStr;
+    } catch (e) {
+      lastRefresh = 'unknown';
+    }
+  }
+
+  var html = '<div class="rainmaker-scoreboard">';
+
+  // HEADER
+  html += '<div class="rainmaker-scoreboard-header">';
+  html += '<div class="rainmaker-scoreboard-header-title-row">';
+  html += '<div class="rainmaker-scoreboard-title">Rainmaker Scoreboard</div>';
+  html += '<div class="rainmaker-scoreboard-title-sub">' + htmlEscape_(sb.fiscal_quarter) + '</div>';
+  html += '</div>';
+  html += '<div class="rainmaker-scoreboard-header-controls">';
+  html += '<span>Last refreshed ' + htmlEscape_(lastRefresh) + '</span>';
+  html += '<button class="rainmaker-refresh-btn" onclick="refreshRainmakerScoreboard(this)">Refresh</button>';
+  html += '</div>';
+  html += '</div>';
+
+  // Team sort (still needed for grid rendering)
+  var teamSorted = sb.team.slice().sort(function(a,b){ return a.team_rank - b.team_rank; });
+
+  // Podium: #1 and #2 only
+  var podiumReps = teamSorted.slice(0, 2);
+  html += '<div class="rm-podium">';
+  for (var i = 0; i < podiumReps.length; i++) {
+    var pr = podiumReps[i];
+    var rnk = pr.team_rank;
+    html += '<div class="rm-podium-item rank-' + rnk + '">';
+    html += '<span class="rm-podium-rank">#' + rnk + '</span>';
+    html += '<div class="rm-podium-name">' + htmlEscape_(pr.rep_name) + '</div>';
+    html += '<div class="rm-podium-points">';
+    html += '<span class="rm-podium-pts-num">' + pr.total_points + '</span>';
+    html += '<span class="rm-podium-pts-unit">pts</span>';
+    html += '</div>';
+    html += '</div>';
+  }
+  html += '</div>';
+
+  // MAIN GRID (8 categories × 5 reps)
+  var categories = ['nbm','pipe_adds','pipe_dollars','c_level','stage4_plus','closed_won','pocs','partner_reg'];
+  var categoryLabels = {
+    nbm: 'NBM', pipe_adds: 'Pipe Adds', pipe_dollars: 'Pipe $$',
+    c_level: 'C-Level', stage4_plus: 'Stage 4+', closed_won: 'Closed Won',
+    pocs: 'POCs', partner_reg: 'Partner Reg'
+  };
+  var categoryWeights = {
+    nbm: 1, pipe_adds: 1, pipe_dollars: 1, c_level: 1,
+    stage4_plus: 2, closed_won: 3, pocs: 1, partner_reg: 1
+  };
+
+  html += '<div class="rm-grid-wrapper"><div class="rm-grid">';
+  // Header row
+  html += '<div class="rm-grid-header rep-col">Rep</div>';
+  for (var c = 0; c < categories.length; c++) {
+    var cat = categories[c];
+    var w = categoryWeights[cat];
+    var wLabel = w > 1 ? ' ×' + w : '';
+    html += '<div class="rm-grid-header">' + htmlEscape_(categoryLabels[cat]) + wLabel + '</div>';
+  }
+  html += '<div class="rm-grid-header total-col">Total</div>';
+  // Data rows
+  for (var ri = 0; ri < teamSorted.length; ri++) {
+    var rep = teamSorted[ri];
+    html += '<div class="rm-grid-cell rep-col">' + htmlEscape_(rep.rep_name) + '</div>';
+    for (var cj = 0; cj < categories.length; cj++) {
+      var catKey = categories[cj];
+      var catData = rep.categories[catKey] || {};
+      var color = catData.color || 'yellow';
+      html += '<div class="rm-grid-cell ' + color + '" title="Team rank ' + (catData.team_rank || '—') + ' of 5">';
+      html += '<span class="rm-cell-value">' + htmlEscape_(catData.display || '—') + '</span>';
+      html += '<span class="rm-cell-points">' + (catData.weighted_points || 0) + ' pts</span>';
+      html += '</div>';
+    }
+    html += '<div class="rm-grid-cell total-col">';
+    html += '<span class="rm-cell-total">' + (rep.total_points || 0) + '</span>';
+    html += '<span class="rm-cell-total-unit">pts</span>';
+    html += '</div>';
+  }
+  html += '</div></div>';
+
+  // ENTERPRISE BENCHMARKS STRIP
+  var entCats = ['nbm','pipe_adds','pipe_dollars','stage4_plus','closed_won','partner_reg'];
+  html += '<div class="rm-benchmarks">';
+  for (var ec = 0; ec < entCats.length; ec++) {
+    var ecKey = entCats[ec];
+    var lb = (sb.ent_leaderboards && sb.ent_leaderboards[ecKey]) || null;
+    if (!lb) continue;
+    var isAmount = (ecKey === 'pipe_dollars' || ecKey === 'stage4_plus' || ecKey === 'closed_won');
+    var medDisplay = isAmount ? formatCurrencyShort_(lb.median) : String(lb.median);
+    var topDisplay = isAmount ? formatCurrencyShort_(lb.top_10_percent_threshold) : String(lb.top_10_percent_threshold);
+    html += '<div class="rm-benchmark-card">';
+    html += '<div class="rm-benchmark-category">' + htmlEscape_(categoryLabels[ecKey]) + '</div>';
+    html += '<div class="rm-benchmark-stats">';
+    html += '<div class="rm-benchmark-stat"><span class="rm-benchmark-stat-label">Median</span><span class="rm-benchmark-stat-value">' + htmlEscape_(medDisplay) + '</span></div>';
+    html += '<div class="rm-benchmark-stat"><span class="rm-benchmark-stat-label">Top 10%</span><span class="rm-benchmark-stat-value">' + htmlEscape_(topDisplay) + '</span></div>';
+    html += '</div></div>';
+  }
+  html += '</div>';
+
+  // ENTERPRISE LEADERBOARDS (top 5 per category, 2-col grid)
+  html += '<div class="rm-leaderboards">';
+  for (var lc = 0; lc < entCats.length; lc++) {
+    var lcKey = entCats[lc];
+    var lcLb = (sb.ent_leaderboards && sb.ent_leaderboards[lcKey]) || null;
+    if (!lcLb || !lcLb.top_10) continue;
+    html += '<div class="rm-leaderboard-card">';
+    html += '<div class="rm-leaderboard-title">Top Enterprise — ' + htmlEscape_(categoryLabels[lcKey]) + '</div>';
+    var top5 = lcLb.top_10.slice(0, 5);
+    for (var tr = 0; tr < top5.length; tr++) {
+      var trow = top5[tr];
+      var tnCls = trow.is_team_north ? ' tn-highlight' : '';
+      var nameCls = trow.is_team_north ? ' tn-highlight-text' : '';
+      html += '<div class="rm-leaderboard-row' + tnCls + '">';
+      html += '<span class="rm-leaderboard-row-name' + nameCls + '">' + (tr+1) + '. ' + htmlEscape_(trow.owner_name) + '</span>';
+      html += '<span class="rm-leaderboard-row-value">' + htmlEscape_(trow.display) + '</span>';
+      html += '</div>';
+    }
+    html += '</div>';
+  }
+  html += '</div>';
+
+  html += '</div>'; // end .rainmaker-scoreboard
+
+  return html;
+}
+
+function refreshRainmakerScoreboard(btn) {
+  if (btn) {
+    btn.disabled = true;
+    btn.textContent = 'Refreshing… (~6 min)';
+  }
+  showRmToast_('Rainmaker refresh started. This takes ~6 minutes. Page will auto-reload when done.');
+  google.script.run
+    .withSuccessHandler(function(result) {
+      if (result && result.success) {
+        showRmToast_('Refresh complete. Reloading…');
+        setTimeout(function(){ window.top.location.reload(); }, 1500);
+      } else {
+        var msg = (result && result.error) ? result.error : 'Refresh failed with no error message.';
+        showRmToast_('Refresh failed: ' + msg);
+        if (btn) { btn.disabled = false; btn.textContent = 'Refresh'; }
+      }
+    })
+    .withFailureHandler(function(err) {
+      var msg = (err && err.message) ? err.message : String(err);
+      showRmToast_('Refresh failed: ' + msg);
+      if (btn) { btn.disabled = false; btn.textContent = 'Refresh'; }
+    })
+    .refreshRainmakerData();
+}
+
+function showRmToast_(message) {
+  var existing = document.getElementById('rmRefreshToast');
+  if (existing) existing.remove();
+  var toast = document.createElement('div');
+  toast.id = 'rmRefreshToast';
+  toast.className = 'rm-refresh-toast';
+  toast.textContent = message;
+  document.body.appendChild(toast);
+  setTimeout(function() {
+    if (toast && toast.parentNode) toast.remove();
+  }, 15000);
+}
+
 function overflowPct(n) {
   var pct = (Number(n) || 0) * 100;
   if (pct <= 100) return 0;
@@ -944,114 +1947,182 @@ function renderRainmakerSummarySection(summary) {
 function wrapPanel(html) {
   return '<div class="summary-panel">' + html + '</div>';
 }
+
+function renderForecastGauge_(metrics) {
+  var quota = Number(metrics.teamQuota) || 0;
+  var closed = Number(metrics.closed) || 0;
+  var commit = Number(metrics.commit) || 0;
+  var likely = Number(metrics.mostLikely) || 0;
+  var best = Number(metrics.bestCase) || 0;
+
+  // Scale: max of quota or best case, +5% headroom so quota tick never hugs the right edge.
+  var scaleMax = Math.max(quota, best) * 1.05 || quota * 1.05 || 1;
+
+  function pctOfScale(v) { return (v / scaleMax) * 100; }
+
+  function fmtMoney(n) {
+    var v = Number(n) || 0;
+    if (Math.abs(v) >= 1000000) {
+      var m = v / 1000000;
+      // Round to one decimal, clean up trailing zero
+      var s = m.toFixed(1);
+      if (s.charAt(s.length - 1) === '0' && s.indexOf('.') !== -1) s = s.substring(0, s.indexOf('.'));
+      return '$' + s + 'M';
+    }
+    if (Math.abs(v) >= 1000) return '$' + Math.round(v / 1000) + 'K';
+    return '$' + Math.round(v).toLocaleString('en-US');
+  }
+
+  // Segment widths as percent of scale
+  var closedPct = pctOfScale(closed);
+  var commitPct = pctOfScale(commit);
+  var likelyPct = pctOfScale(likely);
+  var bestPct = pctOfScale(best);
+  var quotaPct = pctOfScale(quota);
+
+  // Segment midpoints (for labels) as percent of scale
+  var closedMid = closedPct / 2;
+  var commitMid = closedPct + (commitPct - closedPct) / 2;
+  var likelyMid = commitPct + (likelyPct - commitPct) / 2;
+  var bestMid = likelyPct + (bestPct - likelyPct) / 2;
+
+  // Segment widths (deltas) — for hiding labels on tiny segments
+  var closedW = closedPct;
+  var commitW = commitPct - closedPct;
+  var likelyW = likelyPct - commitPct;
+  var bestW = bestPct - likelyPct;
+
+  // A segment needs at least ~6% width to fit a dollar label cleanly; otherwise hide the dollar label for that segment
+  var minW = 6;
+
+  function segLabel(midPct, width, value, color) {
+    if (width < minW) return '';
+    return '<div class="nops-fc-seg-value" style="left:' + midPct + '%;' + (color ? 'color:' + color : '') + '">' + fmtMoney(value) + '</div>';
+  }
+
+  function segName(midPct, width, name) {
+    if (width < minW) return '';
+    return '<div class="nops-fc-seg-name" style="left:' + midPct + '%">' + name + '</div>';
+  }
+
+  var html = '';
+  html += '<div class="nops-fc-container">';
+
+  // Top row: quota callout (absolutely positioned at quotaPct)
+  html += '<div class="nops-fc-quota-top" style="left:' + quotaPct + '%">';
+  html += '<div class="nops-fc-quota-label">QUOTA</div>';
+  html += '<div class="nops-fc-quota-value">' + fmtMoney(quota) + '</div>';
+  html += '<div class="nops-fc-quota-arrow"></div>';
+  html += '</div>';
+
+  // Middle row: the bar itself (SVG for crisp geometry)
+  html += '<div class="nops-fc-bar-row">';
+  html += '<div class="nops-fc-bar-track">';
+  html += '<div class="nops-fc-bar-seg nops-fc-closed" style="width:' + closedPct + '%"></div>';
+  html += '<div class="nops-fc-bar-seg nops-fc-commit" style="left:' + closedPct + '%;width:' + (commitPct - closedPct) + '%"></div>';
+  html += '<div class="nops-fc-bar-seg nops-fc-likely" style="left:' + commitPct + '%;width:' + (likelyPct - commitPct) + '%"></div>';
+  html += '<div class="nops-fc-bar-seg nops-fc-best" style="left:' + likelyPct + '%;width:' + (bestPct - likelyPct) + '%"></div>';
+  html += '<div class="nops-fc-quota-line" style="left:' + quotaPct + '%"></div>';
+  html += '</div>';
+  html += '</div>';
+
+  // Dollar labels row — positioned under each segment's midpoint
+  html += '<div class="nops-fc-labels-row">';
+  html += segLabel(closedMid, closedW, closed);
+  html += segLabel(commitMid, commitW, commit);
+  html += segLabel(likelyMid, likelyW, likely);
+  html += segLabel(bestMid, bestW, best);
+  html += '</div>';
+
+  // Segment name row
+  html += '<div class="nops-fc-names-row">';
+  html += segName(closedMid, closedW, 'CLOSED');
+  html += segName(commitMid, commitW, 'COMMIT');
+  html += segName(likelyMid, likelyW, 'MOST LIKELY');
+  html += segName(bestMid, bestW, 'BEST CASE');
+  html += '</div>';
+
+  html += '</div>';
+  return html;
+}
+
 function renderSummary(data) {
   var root = document.getElementById('summaryRoot');
-  if (!data || !data.metrics) {
-    root.innerHTML = '<div class="empty">Summary data is unavailable.</div>';
+  if (!root) return;
+  if (!data) {
+    root.innerHTML = '<div class="summary-error">No summary data available.</div>';
     return;
   }
+  root.className = '';
 
-  var m = data.metrics || {};
-  var t = data.teamRollup || {};
   var recap = data.teamRecap || {};
-  var themeText = (t.themes && t.themes.length) ? t.themes.join(' · ') : (data.theme || 'Weekly Summary');
-  var closedSub = fmtPct(m.attainmentPct || 0) + ' attained';
-  var commitSub = fmtPct(m.commitPct || 0) + ' to quota';
-  var likelySub = fmtPct(m.likelyPct || 0) + ' to quota';
-  var bestSub = fmtPct(m.bestCasePct || 0) + ' to quota';
-  var nextQuarterSub = (m.nextQuarterCoverageX && m.nextQuarterCoverageX > 0)
-    ? m.nextQuarterCoverageX.toFixed(1) + 'x coverage vs ' + fmtMoneyShort(m.nextQuarterQuota || 0) + ' quota'
-    : 'Next-quarter coverage';
+  var rollup = data.teamRollup || {};
+  var verdict = recap.headlineVerdict || '';
+  var leaderNote = recap.note || rollup.leaderNote || '';
 
-  var leftHtml = '';
-  leftHtml += wrapPanel('<div class="header">'
-    +   '<div class="header-top"><span>' + escHtml(data.teamName || 'NorthCentral Enterprise') + '</span><span>' + escHtml(data.managerName || 'Billy Schuett') + '</span></div>'
-    +   '<h1 class="headline">' + escHtml(data.theme || 'Weekly Summary') + '</h1>'
-    +   '<div class="date-line">Week of ' + escHtml(fmtDateShort(data.reportingWeek)) + ' · ' + escHtml(data.quarterLabel || data.quarterKey || '') + '</div>'
-    + '</div>');
-
-  leftHtml += wrapPanel('<div class="number-strip">'
-    +   '<div class="number-cell"><div class="number-label">Quota</div><div class="number-val">' + escHtml(fmtMoneyShort(m.teamQuota)) + '</div><div class="number-sub">' + escHtml(data.teamName || '') + '</div></div>'
-    +   '<div class="number-cell closed"><div class="number-label">Closed</div><div class="number-val">' + escHtml(fmtMoneyShort(m.closed)) + '</div><div class="number-sub">' + escHtml(closedSub) + '</div></div>'
-    +   '<div class="number-cell"><div class="number-label">Commit</div><div class="number-val">' + escHtml(fmtMoneyShort(m.commit)) + '</div><div class="number-sub">' + escHtml(commitSub) + '</div></div>'
-    +   '<div class="number-cell"><div class="number-label">Most Likely</div><div class="number-val">' + escHtml(fmtMoneyShort(m.mostLikely)) + '</div><div class="number-sub">' + escHtml(likelySub) + '</div></div>'
-    +   '<div class="number-cell best"><div class="number-label">Best Case</div><div class="number-val">' + escHtml(fmtMoneyShort(m.bestCase)) + '</div><div class="number-sub">' + escHtml(bestSub) + '</div></div>'
-    +   '<div class="number-cell"><div class="number-label">Next Quarter</div><div class="number-val">' + escHtml(fmtMoneyShort(m.nextQuarter)) + '</div><div class="number-sub">' + escHtml(nextQuarterSub) + '</div></div>'
-    + '</div>');
-
-  leftHtml += wrapPanel('<div class="progress-section">'
-    + progressRow('Closed vs Quota', m.closed, m.teamQuota, m.attainmentPct, 'green', fmtMoneyShort(m.closedGap) + ' gap')
-    + progressRow('Commit vs Quota', m.commit, m.teamQuota, m.commitPct, '', fmtMoneyShort(m.commitGap) + ' gap')
-    + progressRow('Most Likely vs Quota', m.mostLikely, m.teamQuota, m.likelyPct, 'gold', fmtMoneyShort(m.likelyGap) + ' gap')
-    + progressRow('Best Case vs Quota', m.bestCase, m.teamQuota, m.bestCasePct, 'gold', fmtMoneyShort(m.bestCaseGap) + ' gap')
-    + '</div>');
-
-  if (data.leaderNote || recap.note) {
-    var noteParts = [];
-    if (data.leaderNote) noteParts.push(data.leaderNote);
-    if (!data.leaderNote && recap.note) noteParts.push(truncateText(recap.note, 220));
-    leftHtml += wrapPanel('<div class="body"><div class="section">'
-      +   '<div class="section-label">From ' + escHtml((data.managerName || 'Billy').split(' ')[0]) + '</div>'
-      +   '<h2>Team —</h2>'
-      +   (noteParts.length ? '<p>' + escHtml(noteParts.join(' ')) + '</p>' : '')
-      + '</div></div>');
+  function dateLabel(iso) {
+    if (!iso) return '';
+    try {
+      var d = new Date(iso + 'T00:00:00');
+      return d.toLocaleDateString('en-US', { month: 'long', day: 'numeric' });
+    } catch (e) { return String(iso); }
+  }
+  function timeNow() {
+    return new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
   }
 
-  if (data.rainmakerSummary) {
-    leftHtml += wrapPanel('<div class="body">' + renderRainmakerSummarySection(data.rainmakerSummary) + '</div>');
+  var html = '';
+  html += '<div class="nops-shell">';
+
+  // Header strip
+  html += '<div class="nops-header">';
+  html += '<div class="nops-header-left">NORTH OPERATIONS · ' + escHtml(data.quarterLabel || '') + ' · WEEK OF ' + escHtml(dateLabel(data.reportingWeek).toUpperCase()) + '</div>';
+  html += '<div class="nops-header-right">Data as of ' + escHtml(timeNow()) + '</div>';
+  html += '</div>';
+
+  // Verdict
+  html += '<div class="nops-verdict">';
+  html += '<div class="nops-verdict-rule"></div>';
+  if (verdict) {
+    html += '<p class="nops-verdict-text">' + escHtml(verdict) + '</p>';
+  } else {
+    html += '<p class="nops-verdict-text nops-placeholder">Verdict pending — run generateExecutiveSummaryAI in the Apps Script editor.</p>';
   }
+  html += '</div>';
 
-  var rightHtml = '';
+  // Chart row (placeholders)
+  var metrics = data.metrics || {};
+  html += '<div class="nops-grid-row nops-chart-row">';
+  html += '<div class="nops-cell nops-cell-chart"><div class="nops-cell-label">FORECAST vs QUOTA</div><div class="nops-fc-wrap">' + renderForecastGauge_(metrics) + '</div></div>';
+  html += '<div class="nops-cell nops-cell-chart"><div class="nops-cell-label">2×4 ACCOUNT HEALTH</div><div class="nops-placeholder-box">Stacked area — Commit 3</div></div>';
+  html += '</div>';
 
-  rightHtml += wrapPanel('<div class="body"><div class="section">'
-    +   '<div class="fullwidth-stack">'
-    +     renderFullWidthSection('Big Deal Adds', recap.newDealItems || [])
-    +     renderFullWidthSection('Deal Progression', recap.dealProgressItems || [])
-    +     renderFullWidthSection('Forecast Signals', recap.forecastItems || [])
-    +     renderFullWidthSection('Rep Priorities', (t.priorities && t.priorities.length) ? t.priorities : (recap.priorityItems || []))
-    +   '</div>'
-    + '</div></div>');
+  // KPI row (placeholders — final metrics: Pulse, Coverage Ratio, NBMs This Week, Weeks Left Q2)
+  html += '<div class="nops-grid-row nops-kpi-row">';
+  html += '<div class="nops-cell nops-cell-kpi"><div class="nops-cell-label">TEAM PULSE</div><div class="nops-kpi-placeholder">—</div></div>';
+  html += '<div class="nops-cell nops-cell-kpi"><div class="nops-cell-label">COVERAGE RATIO</div><div class="nops-kpi-placeholder">—</div></div>';
+  html += '<div class="nops-cell nops-cell-kpi"><div class="nops-cell-label">NBMs THIS WEEK</div><div class="nops-kpi-placeholder">—</div></div>';
+  html += '<div class="nops-cell nops-cell-kpi"><div class="nops-cell-label">WEEKS LEFT Q2</div><div class="nops-kpi-placeholder">—</div></div>';
+  html += '</div>';
 
-  var combinedRAN = (recap.risksAsksNotesItems && recap.risksAsksNotesItems.length)
-    ? recap.risksAsksNotesItems
-    : [].concat(t.risks || [], t.asks || [], t.notes || []).slice(0, 5);
-  if (combinedRAN && combinedRAN.length) {
-    rightHtml += wrapPanel('<div class="body"><div class="section">'
-      +   renderNumberedSection('Risks, Asks, and Notes', combinedRAN)
-      + '</div></div>');
+  // From Billy
+  html += '<div class="nops-grid-row nops-billy-row">';
+  html += '<div class="nops-cell nops-cell-billy">';
+  html += '<div class="nops-cell-label">FROM BILLY</div>';
+  if (leaderNote) {
+    html += '<p class="nops-billy-text">' + escHtml(leaderNote) + '</p>';
+  } else {
+    html += '<p class="nops-billy-text nops-placeholder">Leader note pending.</p>';
   }
+  html += '</div>';
+  html += '</div>';
 
-  rightHtml += wrapPanel('<div class="body"><div class="section">'
-    +   '<div class="banner"><div class="banner-label">Team Rollup</div><div class="banner-val">' + escHtml(String(t.repsSubmitted || 0)) + ' reps submitted · Pulse ' + escHtml(String(t.avgPulse || recap.avgPulse || '—')) + '/10</div><div class="banner-note">Themes: ' + escHtml(truncateText(themeText, 72)) + '. Accounts: <span style="color:#2d6a4f;font-weight:700">' + escHtml(String(t.greenAccounts || 0)) + ' Green</span> · <span style="color:#b8860b;font-weight:700">' + escHtml(String(t.yellowAccounts || 0)) + ' Yellow</span> · <span style="color:#c0392b;font-weight:700">' + escHtml(String(t.redAccounts || 0)) + ' Red</span>.</div></div>'
-    + '</div></div>');
+  html += '</div>'; // /nops-shell
 
-  var provenanceBadge = '';
-  if (recap.provenance) {
-    var prov = recap.provenance;
-    if (prov.forecastSignalsDeterministic && prov.validationPassed) {
-      provenanceBadge = '<span class="provenance-badge verified" title="Forecast signals are deterministic, AI validation passed">✓ Verified Deterministic</span>';
-    } else if (prov.forecastSignalsDeterministic && !prov.aiGenerated) {
-      provenanceBadge = '<span class="provenance-badge heuristic" title="Generated from heuristic analysis">Heuristic Analysis</span>';
-    } else if (prov.aiGenerated && !prov.validationPassed) {
-      provenanceBadge = '<span class="provenance-badge" title="AI-generated but validation incomplete">AI Partial</span>';
-    }
-  }
+  // Rainmaker Scoreboard — UNTOUCHED
+  html += renderRainmakerScoreboard();
 
-  rightHtml += '<div class="doc-footer"><span>' + escHtml(data.footerNote || 'Confidential · Team Only') + '</span><span style="display:inline-flex;gap:8px;align-items:center;">' + provenanceBadge + '<span>' + escHtml(data.managerName || 'Billy Schuett') + '</span></span></div>';
-
-  root.innerHTML = '<div class="summary-grid"><div class="summary-col left">' + leftHtml + '</div><div class="summary-col right">' + rightHtml + '</div></div>';
-  var labels = root.querySelectorAll('.section-label');
-  for (var i = 0; i < labels.length; i++) {
-    var text = String(labels[i].textContent || '').toLowerCase();
-    if (text.indexOf('quarter view') !== -1) {
-      var panel = labels[i].closest('.summary-panel');
-      if (panel) panel.remove();
-      else {
-        var section = labels[i].closest('.section');
-        if (section) section.remove();
-      }
-    }
-  }
+  root.innerHTML = html;
 }
 window.addEventListener('load', function() {
   try { renderSummary(parseSummaryData(SUMMARY_DATA)); }

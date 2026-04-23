@@ -98,6 +98,13 @@ function doGet(e) {
     summaryTemplate.scriptUrl = ScriptApp.getService().getUrl();
     summaryTemplate.sessionEmail = sessionEmail;
     summaryTemplate.isAdmin = isAdmin;
+    try {
+      var rmData = getRainmakerDashboardData();
+      summaryTemplate.rainmakerScoreboardJson = safeJsonString_(rmData);
+    } catch (rmErr) {
+      Logger.log('doGet: rainmaker data fetch failed: ' + rmErr.message);
+      summaryTemplate.rainmakerScoreboardJson = safeJsonString_({ success: false, error: rmErr.message, data: null });
+    }
     return summaryTemplate.evaluate()
       .setTitle("NorthCentral Enterprise Weekly Summary")
       .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL)
@@ -389,4 +396,79 @@ function testDoGet2() {
   var bm = getBenchmarks();
   var t2 = (new Date() - start2) / 1000;
   Logger.log("benchmarks: " + t2 + "s");
+}
+
+// -----------------------------------------------------------------------
+// RAINMAKER DASHBOARD — Data & Refresh Endpoints
+// -----------------------------------------------------------------------
+function getRainmakerDashboardData() {
+  try {
+    var scoreboard = computeRainmakerScoreboard();
+    return {
+      success: true,
+      data: scoreboard
+    };
+  } catch (err) {
+    Logger.log('getRainmakerDashboardData: ' + err.message);
+    return {
+      success: false,
+      error: err.message,
+      data: null
+    };
+  }
+}
+
+function refreshRainmakerData() {
+  try {
+    var cache = CacheService.getScriptCache();
+    var lastRefreshKey = 'rainmaker_refresh_in_progress';
+    var lastRefreshTs = cache.get(lastRefreshKey);
+
+    if (lastRefreshTs) {
+      var secondsAgo = Math.round((new Date().getTime() - parseInt(lastRefreshTs, 10)) / 1000);
+      if (secondsAgo < 180) {
+        return {
+          success: false,
+          error: 'A refresh started ' + secondsAgo + ' seconds ago is still in progress or completed recently. Please wait before refreshing again.',
+          started_at: null,
+          completed_at: null,
+          summary: null
+        };
+      }
+    }
+
+    // Mark refresh as in progress with 10-minute TTL (refresh takes ~6 min)
+    cache.put(lastRefreshKey, String(new Date().getTime()), 600);
+
+    var startedAt = new Date();
+    Logger.log('refreshRainmakerData: starting refresh at ' + startedAt.toISOString());
+
+    var summary = runRainmakerRefresh();
+
+    var completedAt = new Date();
+    Logger.log('refreshRainmakerData: completed at ' + completedAt.toISOString());
+
+    // Clear the in-progress marker now that we're done
+    cache.remove(lastRefreshKey);
+
+    return {
+      success: !!summary.success,
+      error: summary.error || null,
+      started_at: startedAt.toISOString(),
+      completed_at: completedAt.toISOString(),
+      summary: summary
+    };
+
+  } catch (err) {
+    Logger.log('refreshRainmakerData: FATAL: ' + err.message);
+    // Clear the in-progress marker on unexpected error
+    try { CacheService.getScriptCache().remove('rainmaker_refresh_in_progress'); } catch (e) {}
+    return {
+      success: false,
+      error: err.message,
+      started_at: null,
+      completed_at: null,
+      summary: null
+    };
+  }
 }

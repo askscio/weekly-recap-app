@@ -103,7 +103,7 @@ function testGleanApiConnection_() {
 // -----------------------------------------------------------------------
 // CORE API WRAPPER
 // -----------------------------------------------------------------------
-function callGleanAgent_(agentId, prompt, opts) {
+function callGleanAgent_(agentId, fields, opts) {
   var options = opts || {};
   var retries = options.retries !== undefined ? options.retries : 3;
   var backoffMs = options.backoffMs !== undefined ? options.backoffMs : 2000;
@@ -112,16 +112,10 @@ function callGleanAgent_(agentId, prompt, opts) {
     throw new Error('callGleanAgent_: agentId is required');
   }
 
-  if (!prompt || prompt.trim() === '') {
-    throw new Error('callGleanAgent_: prompt is required');
-  }
-
   var token = getGleanApiToken_();
   var payload = {
     agent_id: agentId.trim(),
-    input: {
-      messages: [{ role: 'user', content: prompt.trim() }]
-    }
+    input: fields || {}
   };
 
   var requestOptions = {
@@ -204,22 +198,46 @@ function callGleanAgent_(agentId, prompt, opts) {
 // -----------------------------------------------------------------------
 // RESPONSE PARSING
 // -----------------------------------------------------------------------
-function extractAgentResponseText_(gleanResponse) {
-  if (!gleanResponse || !gleanResponse.output || !Array.isArray(gleanResponse.output.messages)) {
-    throw new Error('extractAgentResponseText_: invalid response structure. Expected output.messages array.');
+function extractAgentResponseText_(response) {
+  if (!response) {
+    throw new Error('extractAgentResponseText_: response is null or undefined');
   }
 
-  var messages = gleanResponse.output.messages;
+  if (!response.messages || !Array.isArray(response.messages)) {
+    throw new Error('extractAgentResponseText_: response.messages is not an array. Got keys: ' + Object.keys(response || {}).join(', '));
+  }
 
-  // Walk from the end to find the last assistant message
-  for (var i = messages.length - 1; i >= 0; i--) {
-    var msg = messages[i];
-    if (msg && msg.role === 'assistant' && msg.content) {
-      return String(msg.content).trim();
+  // Find the LAST GLEAN_AI message (final output, not intermediate)
+  var lastAiMessage = null;
+  for (var i = response.messages.length - 1; i >= 0; i--) {
+    if (response.messages[i].role === 'GLEAN_AI') {
+      lastAiMessage = response.messages[i];
+      break;
     }
   }
 
-  throw new Error('extractAgentResponseText_: no assistant message found in response. Messages: ' + JSON.stringify(messages).slice(0, 500));
+  if (!lastAiMessage) {
+    var rolesSeen = response.messages.map(function(m) { return m.role; }).join(', ');
+    throw new Error('extractAgentResponseText_: no GLEAN_AI message in response. Roles present: ' + rolesSeen);
+  }
+
+  if (!lastAiMessage.content || !Array.isArray(lastAiMessage.content)) {
+    throw new Error('extractAgentResponseText_: GLEAN_AI message has no content array');
+  }
+
+  var textParts = [];
+  for (var j = 0; j < lastAiMessage.content.length; j++) {
+    var frag = lastAiMessage.content[j];
+    if (frag && frag.type === 'text' && typeof frag.text === 'string') {
+      textParts.push(frag.text);
+    }
+  }
+
+  if (textParts.length === 0) {
+    throw new Error('extractAgentResponseText_: GLEAN_AI message contained no text fragments');
+  }
+
+  return textParts.join('');
 }
 
 function parseAgentJsonResponse_(text) {
@@ -290,6 +308,18 @@ function smokeTestGleanConnection() {
 // -----------------------------------------------------------------------
 // RAINMAKER DATA REFRESH — End-to-End Pipeline
 // -----------------------------------------------------------------------
+function extractCategoryValue_(rd, categoryKey, valueField) {
+  // valueField is 'count' or 'amount'
+  if (!rd || !rd.categories || !rd.categories[categoryKey]) {
+    return 0;
+  }
+  var val = rd.categories[categoryKey][valueField];
+  if (val === null || val === undefined) {
+    return 0;
+  }
+  return val;
+}
+
 function runRainmakerRefresh() {
   var startTime = new Date();
   var summary = {
@@ -315,7 +345,7 @@ function runRainmakerRefresh() {
 
         var agentResponse = callGleanAgent_(
           RAINMAKER_AGENT_ID_REP_SCORECARD,
-          JSON.stringify({ rep_email: repEmail })
+          { rep_email: repEmail }
         );
 
         var responseText = extractAgentResponseText_(agentResponse);
@@ -358,7 +388,7 @@ function runRainmakerRefresh() {
 
       var agent2Response = callGleanAgent_(
         RAINMAKER_AGENT_ID_ENT_BENCHMARKS,
-        '{}'
+        {}
       );
 
       var ent2Text = extractAgentResponseText_(agent2Response);
@@ -410,14 +440,14 @@ function runRainmakerRefresh() {
         rd.rep_email || '',
         rd.rep_name || '',
         rd.fiscal_quarter || fiscalQuarter || '',
-        rd.nbm || 0,
-        rd.pipe_adds || 0,
-        rd.pipe_dollars || 0,
-        rd.c_level || 0,
-        rd.stage4_plus || 0,
-        rd.closed_won || 0,
-        rd.pocs || 0,
-        rd.partner_reg || 0,
+        extractCategoryValue_(rd, 'nbm',          'count'),
+        extractCategoryValue_(rd, 'pipe_adds',    'count'),
+        extractCategoryValue_(rd, 'pipe_dollars', 'amount'),
+        extractCategoryValue_(rd, 'c_level',      'count'),
+        extractCategoryValue_(rd, 'stage4_plus',  'amount'),
+        extractCategoryValue_(rd, 'closed_won',   'amount'),
+        extractCategoryValue_(rd, 'pocs',         'count'),
+        extractCategoryValue_(rd, 'partner_reg',  'count'),
         errorsText,
         now
       ];

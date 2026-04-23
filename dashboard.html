@@ -1935,21 +1935,6 @@ function renderDashboard(data) {
     html += renderOperatingStandards();
   }
 
-  var rainmakerDisco = 0, rainmakerNbm = 0, rainmakerChannel = 0;
-  for (var rs = 0; rs < data.length; rs++) {
-    rainmakerDisco += Number(data[rs].rm_disco) || 0;
-    rainmakerNbm += Number(data[rs].rm_nbm) || 0;
-    rainmakerChannel += Number(data[rs].rm_accts) || 0;
-  }
-  html += '<div class="rainmaker-rollup">';
-  html += '<div class="rainmaker-rollup-title">Rainmaker Metrics — This Week Plan</div>';
-  html += '<div class="rainmaker-rollup-grid">';
-  html += summaryCard('This Week Disco Mtgs', rainmakerDisco);
-  html += summaryCard('This Week NBMs', rainmakerNbm);
-  html += summaryCard('This Week Channel Mtgs', rainmakerChannel);
-  html += '</div>';
-  html += '</div>';
-
   html += '<div class="section-divider"><div class="section-divider-label">Team Controls</div></div>';
 
   html += '<div class="team-tools-row">';
