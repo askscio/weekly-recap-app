@@ -1558,6 +1558,97 @@ body {
   margin-bottom: 2px;
 }
 
+/* Account Health Chart */
+.nops-ah-wrap {
+  position: relative;
+  width: 100%;
+}
+.nops-ah-kpis {
+  display: flex;
+  gap: 24px;
+  align-items: center;
+  padding: 4px 8px 10px 8px;
+}
+.nops-ah-kpi {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 11px;
+}
+.nops-ah-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  display: inline-block;
+}
+.nops-ah-dot-green {
+  background: #2d6a4f;
+}
+.nops-ah-dot-yellow {
+  background: #b8860b;
+}
+.nops-ah-dot-red {
+  background: #c0392b;
+}
+.nops-ah-label {
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  font-size: 10px;
+}
+.nops-ah-val {
+  font-weight: 700;
+  font-size: 16px;
+  color: var(--ink);
+}
+.nops-ah-delta {
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 3px;
+}
+.nops-ah-delta-pos {
+  background: rgba(45, 106, 79, 0.12);
+  color: #2d6a4f;
+}
+.nops-ah-delta-neg {
+  background: rgba(192, 57, 43, 0.12);
+  color: #c0392b;
+}
+.nops-ah-delta-flat {
+  background: rgba(138, 122, 110, 0.12);
+  color: var(--ink-soft);
+}
+.nops-ah-chart svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+.nops-ah-xlabels {
+  position: relative;
+  height: 16px;
+  margin-top: 2px;
+}
+.nops-ah-xlabel {
+  position: absolute;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  transform: translateX(-50%);
+}
+.nops-ah-note {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 11px;
+  color: var(--ink-soft);
+  font-style: italic;
+  padding: 12px 8px;
+}
+
 @media (max-width: 900px) {
   .nops-shell { padding: 16px 20px; }
   .nops-chart-row .nops-cell-chart { grid-column: span 12; }
@@ -2100,6 +2191,169 @@ function renderForecastGauge_(metrics) {
   return html;
 }
 
+function renderAccountHealthChart_(trend) {
+  if (!trend || !trend.current || trend.current.total === 0) {
+    return '<div class="nops-placeholder-box">No account health data yet this quarter.</div>';
+  }
+
+  var current = trend.current;
+  var deltas = trend.deltas || null;
+  var weeklySeries = trend.weeklySeries || [];
+  var hasHistory = trend.hasHistory || false;
+
+  function fmtWeekLabel(iso) {
+    if (!iso) return '';
+    try {
+      var d = new Date(iso + 'T00:00:00');
+      var months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+      return months[d.getUTCMonth()] + ' ' + d.getUTCDate();
+    } catch (e) { return ''; }
+  }
+
+  function deltaGlyph(n) {
+    if (n > 0) return '▲';
+    if (n < 0) return '▼';
+    return '–';
+  }
+
+  function deltaClass(n, metric) {
+    if (n === 0) return 'nops-ah-delta-flat';
+    if (metric === 'green') return n > 0 ? 'nops-ah-delta-pos' : 'nops-ah-delta-neg';
+    if (metric === 'red') return n > 0 ? 'nops-ah-delta-neg' : 'nops-ah-delta-pos';
+    return 'nops-ah-delta-flat'; // yellow always neutral
+  }
+
+  var html = '';
+  html += '<div class="nops-ah-wrap">';
+
+  // KPI strip
+  html += '<div class="nops-ah-kpis">';
+  html += '<span class="nops-ah-kpi">';
+  html += '<span class="nops-ah-dot nops-ah-dot-green"></span>';
+  html += '<span class="nops-ah-label">GREEN</span>';
+  html += '<span class="nops-ah-val">' + (current.green || 0) + '</span>';
+  if (deltas) {
+    html += '<span class="nops-ah-delta ' + deltaClass(deltas.green, 'green') + '">' + deltaGlyph(deltas.green) + Math.abs(deltas.green) + '</span>';
+  }
+  html += '</span>';
+
+  html += '<span class="nops-ah-kpi">';
+  html += '<span class="nops-ah-dot nops-ah-dot-yellow"></span>';
+  html += '<span class="nops-ah-label">YELLOW</span>';
+  html += '<span class="nops-ah-val">' + (current.yellow || 0) + '</span>';
+  if (deltas) {
+    html += '<span class="nops-ah-delta ' + deltaClass(deltas.yellow, 'yellow') + '">' + deltaGlyph(deltas.yellow) + Math.abs(deltas.yellow) + '</span>';
+  }
+  html += '</span>';
+
+  html += '<span class="nops-ah-kpi">';
+  html += '<span class="nops-ah-dot nops-ah-dot-red"></span>';
+  html += '<span class="nops-ah-label">RED</span>';
+  html += '<span class="nops-ah-val">' + (current.red || 0) + '</span>';
+  if (deltas) {
+    html += '<span class="nops-ah-delta ' + deltaClass(deltas.red, 'red') + '">' + deltaGlyph(deltas.red) + Math.abs(deltas.red) + '</span>';
+  }
+  html += '</span>';
+  html += '</div>';
+
+  if (!hasHistory) {
+    html += '<div class="nops-ah-note">Q2 baseline · 1 week of data</div>';
+  } else {
+    // Build stacked area chart
+    var CHART_LEFT = 40;
+    var CHART_WIDTH = 640;
+    var CHART_Y_TOP = 48;
+    var CHART_HEIGHT = 100;
+    var CHART_Y_BOTTOM = 148;
+
+    var yMax = 10; // minimum scale
+    for (var i = 0; i < weeklySeries.length; i++) {
+      if (weeklySeries[i].total > yMax) yMax = weeklySeries[i].total;
+    }
+    yMax = yMax * 1.1; // 10% headroom
+
+    var N = weeklySeries.length;
+
+    function xFor(index) {
+      if (N === 1) return 360; // center for single point
+      return CHART_LEFT + (index / (N - 1)) * CHART_WIDTH;
+    }
+
+    function yFor(value) {
+      return CHART_Y_BOTTOM - (value / yMax) * CHART_HEIGHT;
+    }
+
+    // Compute y-positions for each week
+    var greenTop = [];
+    var yellowTop = [];
+    var redTop = [];
+    for (var j = 0; j < N; j++) {
+      var w = weeklySeries[j];
+      greenTop[j] = yFor(w.green);
+      yellowTop[j] = yFor(w.green + w.yellow);
+      redTop[j] = yFor(w.green + w.yellow + w.red);
+    }
+
+    html += '<div class="nops-ah-chart">';
+    html += '<svg viewBox="0 0 720 180" width="100%" preserveAspectRatio="xMidYMid meet" role="img" xmlns="http://www.w3.org/2000/svg">';
+
+    // Green area (bottom)
+    var greenPath = 'M ' + CHART_LEFT + ' ' + CHART_Y_BOTTOM;
+    for (var k = 0; k < N; k++) {
+      greenPath += ' L ' + xFor(k) + ' ' + greenTop[k];
+    }
+    greenPath += ' L ' + xFor(N - 1) + ' ' + CHART_Y_BOTTOM + ' Z';
+    html += '<path d="' + greenPath + '" fill="#2d6a4f" opacity="0.85"/>';
+
+    // Yellow area (middle)
+    var yellowPath = 'M ' + xFor(0) + ' ' + greenTop[0];
+    for (var m = 0; m < N; m++) {
+      yellowPath += ' L ' + xFor(m) + ' ' + yellowTop[m];
+    }
+    for (var p = N - 1; p >= 0; p--) {
+      yellowPath += ' L ' + xFor(p) + ' ' + greenTop[p];
+    }
+    yellowPath += ' Z';
+    html += '<path d="' + yellowPath + '" fill="#b8860b" opacity="0.75"/>';
+
+    // Red area (top)
+    var redPath = 'M ' + xFor(0) + ' ' + yellowTop[0];
+    for (var q = 0; q < N; q++) {
+      redPath += ' L ' + xFor(q) + ' ' + redTop[q];
+    }
+    for (var r = N - 1; r >= 0; r--) {
+      redPath += ' L ' + xFor(r) + ' ' + yellowTop[r];
+    }
+    redPath += ' Z';
+    html += '<path d="' + redPath + '" fill="#c0392b" opacity="0.80"/>';
+
+    html += '</svg>';
+
+    // X-axis labels (HTML overlay)
+    html += '<div class="nops-ah-xlabels">';
+    var firstWeek = weeklySeries[0].week;
+    var lastWeek = weeklySeries[N - 1].week;
+    var firstX = (xFor(0) / 720) * 100;
+    var lastX = (xFor(N - 1) / 720) * 100;
+
+    html += '<span class="nops-ah-xlabel" style="left:' + firstX + '%">' + escHtml(fmtWeekLabel(firstWeek)) + '</span>';
+    html += '<span class="nops-ah-xlabel" style="left:' + lastX + '%">' + escHtml(fmtWeekLabel(lastWeek)) + '</span>';
+
+    if (N >= 5) {
+      var midIndex = Math.floor(N / 2);
+      var midWeek = weeklySeries[midIndex].week;
+      var midX = (xFor(midIndex) / 720) * 100;
+      html += '<span class="nops-ah-xlabel" style="left:' + midX + '%">' + escHtml(fmtWeekLabel(midWeek)) + '</span>';
+    }
+
+    html += '</div>';
+    html += '</div>'; // /nops-ah-chart
+  }
+
+  html += '</div>'; // /nops-ah-wrap
+  return html;
+}
+
 function renderSummary(data) {
   var root = document.getElementById('summaryRoot');
   if (!root) return;
@@ -2148,7 +2402,7 @@ function renderSummary(data) {
   var metrics = data.metrics || {};
   html += '<div class="nops-grid-row nops-chart-row">';
   html += '<div class="nops-cell nops-cell-chart"><div class="nops-cell-label">FORECAST vs QUOTA</div><div class="nops-fc-wrap">' + renderForecastGauge_(metrics) + '</div></div>';
-  html += '<div class="nops-cell nops-cell-chart"><div class="nops-cell-label">2×4 ACCOUNT HEALTH</div><div class="nops-placeholder-box">Stacked area — Commit 3</div></div>';
+  html += '<div class="nops-cell nops-cell-chart"><div class="nops-cell-label">ACCOUNT HEALTH</div>' + renderAccountHealthChart_(data.accountHealthTrend) + '</div>';
   html += '</div>';
 
   // KPI row (placeholders — final metrics: Pulse, Coverage Ratio, NBMs This Week, Weeks Left Q2)
