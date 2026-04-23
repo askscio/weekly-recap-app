@@ -1509,6 +1509,55 @@ body {
   font-style: italic;
 }
 
+/* Forecast gauge — Alternating Horizon (C2.3) */
+.nops-fc-gauge {
+  position: relative;
+  width: 100%;
+}
+.nops-fc-gauge svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+.nops-fc-labels {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.nops-fc-label {
+  position: absolute;
+  text-align: center;
+  white-space: nowrap;
+  transform: translateX(-50%);
+}
+.nops-fc-label-above {
+  top: 0;
+}
+.nops-fc-label-below {
+  bottom: 0;
+}
+.nops-fc-label-cat {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+.nops-fc-label-val {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--ink);
+  line-height: 1.2;
+}
+.nops-fc-label-above .nops-fc-label-cat {
+  margin-bottom: 2px;
+}
+.nops-fc-label-below .nops-fc-label-val {
+  margin-bottom: 2px;
+}
+
 @media (max-width: 900px) {
   .nops-shell { padding: 16px 20px; }
   .nops-chart-row .nops-cell-chart { grid-column: span 12; }
@@ -1955,94 +2004,99 @@ function renderForecastGauge_(metrics) {
   var likely = Number(metrics.mostLikely) || 0;
   var best = Number(metrics.bestCase) || 0;
 
-  // Scale: max of quota or best case, +5% headroom so quota tick never hugs the right edge.
-  var scaleMax = Math.max(quota, best) * 1.05 || quota * 1.05 || 1;
+  var scaleMax = Math.max(best, quota) || 1;
 
-  function pctOfScale(v) { return (v / scaleMax) * 100; }
+  // SVG layout constants
+  var CHART_LEFT = 40;
+  var CHART_RIGHT = 680;
+  var CHART_WIDTH = 640;
+  var BAR_Y_TOP = 74;
+  var BAR_Y_BOTTOM = 106;
+  var BAR_HEIGHT = 32;
 
-  function fmtMoney(n) {
-    var v = Number(n) || 0;
-    if (Math.abs(v) >= 1000000) {
-      var m = v / 1000000;
-      // Round to one decimal, clean up trailing zero
-      var s = m.toFixed(1);
-      if (s.charAt(s.length - 1) === '0' && s.indexOf('.') !== -1) s = s.substring(0, s.indexOf('.'));
-      return '$' + s + 'M';
-    }
-    if (Math.abs(v) >= 1000) return '$' + Math.round(v / 1000) + 'K';
-    return '$' + Math.round(v).toLocaleString('en-US');
+  // Convert value to x-coordinate in SVG space
+  function xFor(value) {
+    return CHART_LEFT + (value / scaleMax) * CHART_WIDTH;
   }
 
-  // Segment widths as percent of scale
-  var closedPct = pctOfScale(closed);
-  var commitPct = pctOfScale(commit);
-  var likelyPct = pctOfScale(likely);
-  var bestPct = pctOfScale(best);
-  var quotaPct = pctOfScale(quota);
+  var closedX = xFor(closed);
+  var commitX = xFor(commit);
+  var likelyX = xFor(likely);
+  var bestX = xFor(best);
+  var quotaX = xFor(quota);
 
-  // Segment midpoints (for labels) as percent of scale
-  var closedMid = closedPct / 2;
-  var commitMid = closedPct + (commitPct - closedPct) / 2;
-  var likelyMid = commitPct + (likelyPct - commitPct) / 2;
-  var bestMid = likelyPct + (bestPct - likelyPct) / 2;
-
-  // Segment widths (deltas) — for hiding labels on tiny segments
-  var closedW = closedPct;
-  var commitW = commitPct - closedPct;
-  var likelyW = likelyPct - commitPct;
-  var bestW = bestPct - likelyPct;
-
-  // A segment needs at least ~6% width to fit a dollar label cleanly; otherwise hide the dollar label for that segment
-  var minW = 6;
-
-  function segLabel(midPct, width, value, color) {
-    if (width < minW) return '';
-    return '<div class="nops-fc-seg-value" style="left:' + midPct + '%;' + (color ? 'color:' + color : '') + '">' + fmtMoney(value) + '</div>';
-  }
-
-  function segName(midPct, width, name) {
-    if (width < minW) return '';
-    return '<div class="nops-fc-seg-name" style="left:' + midPct + '%">' + name + '</div>';
-  }
+  // Zone widths (clamped to 0 if negative)
+  var zone1W = Math.max(0, closedX - CHART_LEFT);
+  var zone2W = Math.max(0, commitX - closedX);
+  var zone3W = Math.max(0, likelyX - commitX);
+  var zone4W = Math.max(0, bestX - likelyX);
 
   var html = '';
-  html += '<div class="nops-fc-container">';
+  html += '<div class="nops-fc-gauge">';
 
-  // Top row: quota callout (absolutely positioned at quotaPct)
-  html += '<div class="nops-fc-quota-top" style="left:' + quotaPct + '%">';
-  html += '<div class="nops-fc-quota-label">QUOTA</div>';
-  html += '<div class="nops-fc-quota-value">' + fmtMoney(quota) + '</div>';
-  html += '<div class="nops-fc-quota-arrow"></div>';
+  // SVG: bar + quota line + leader lines
+  html += '<svg viewBox="0 0 720 180" width="100%" preserveAspectRatio="xMidYMid meet" role="img" xmlns="http://www.w3.org/2000/svg">';
+
+  // Clip path for rounded bar edges
+  html += '<defs>';
+  html += '<clipPath id="nops-fc-barclip">';
+  html += '<rect x="' + CHART_LEFT + '" y="' + BAR_Y_TOP + '" width="' + CHART_WIDTH + '" height="' + BAR_HEIGHT + '" rx="4" ry="4"/>';
+  html += '</clipPath>';
+  html += '</defs>';
+
+  // Track bar (full-width, rounded, behind everything)
+  html += '<rect x="' + CHART_LEFT + '" y="' + BAR_Y_TOP + '" width="' + CHART_WIDTH + '" height="' + BAR_HEIGHT + '" fill="#ebe5db" rx="4" ry="4"/>';
+
+  // Bar zones (stacked left-to-right, clipped to rounded shape)
+  html += '<g clip-path="url(#nops-fc-barclip)">';
+  html += '<rect x="' + CHART_LEFT + '" y="' + BAR_Y_TOP + '" width="' + zone1W + '" height="' + BAR_HEIGHT + '" fill="#1a4a7a"/>';
+  html += '<rect x="' + closedX + '" y="' + BAR_Y_TOP + '" width="' + zone2W + '" height="' + BAR_HEIGHT + '" fill="#2d6a4f"/>';
+  html += '<rect x="' + commitX + '" y="' + BAR_Y_TOP + '" width="' + zone3W + '" height="' + BAR_HEIGHT + '" fill="#4a9b7e"/>';
+  html += '<rect x="' + likelyX + '" y="' + BAR_Y_TOP + '" width="' + zone4W + '" height="' + BAR_HEIGHT + '" fill="#c8d9d1"/>';
+  html += '</g>';
+
+  // Quota reference line (on top of bar)
+  html += '<line x1="' + quotaX + '" y1="42" x2="' + quotaX + '" y2="138" stroke="#b8860b" stroke-width="1.5" stroke-dasharray="4 3"/>';
+  html += '<text x="' + quotaX + '" y="34" text-anchor="middle" font-family="DM Sans,sans-serif" font-size="10" font-weight="700" letter-spacing="0.12em" fill="#b8860b">QUOTA ' + fmtMoneyShort(quota) + '</text>';
+
+  // Leader lines (straight vertical, on top of bar)
+  html += '<path d="M ' + closedX + ',' + BAR_Y_TOP + ' L ' + closedX + ',42" stroke="#4a3f35" stroke-width="1.5" fill="none"/>';
+  html += '<path d="M ' + commitX + ',' + BAR_Y_BOTTOM + ' L ' + commitX + ',138" stroke="#4a3f35" stroke-width="1.5" fill="none"/>';
+  html += '<path d="M ' + likelyX + ',' + BAR_Y_TOP + ' L ' + likelyX + ',42" stroke="#4a3f35" stroke-width="1.5" fill="none"/>';
+  html += '<path d="M ' + bestX + ',' + BAR_Y_BOTTOM + ' L ' + bestX + ',138" stroke="#4a3f35" stroke-width="1.5" fill="none"/>';
+
+  html += '</svg>';
+
+  // HTML overlay labels
+  html += '<div class="nops-fc-labels">';
+
+  // Closed (above)
+  html += '<div class="nops-fc-label nops-fc-label-above" style="left:' + ((closedX / 720) * 100) + '%">';
+  html += '<div class="nops-fc-label-cat">CLOSED</div>';
+  html += '<div class="nops-fc-label-val">' + fmtMoneyShort(closed) + '</div>';
   html += '</div>';
 
-  // Middle row: the bar itself (SVG for crisp geometry)
-  html += '<div class="nops-fc-bar-row">';
-  html += '<div class="nops-fc-bar-track">';
-  html += '<div class="nops-fc-bar-seg nops-fc-closed" style="width:' + closedPct + '%"></div>';
-  html += '<div class="nops-fc-bar-seg nops-fc-commit" style="left:' + closedPct + '%;width:' + (commitPct - closedPct) + '%"></div>';
-  html += '<div class="nops-fc-bar-seg nops-fc-likely" style="left:' + commitPct + '%;width:' + (likelyPct - commitPct) + '%"></div>';
-  html += '<div class="nops-fc-bar-seg nops-fc-best" style="left:' + likelyPct + '%;width:' + (bestPct - likelyPct) + '%"></div>';
-  html += '<div class="nops-fc-quota-line" style="left:' + quotaPct + '%"></div>';
-  html += '</div>';
+  // Commit (below)
+  html += '<div class="nops-fc-label nops-fc-label-below" style="left:' + ((commitX / 720) * 100) + '%">';
+  html += '<div class="nops-fc-label-val">' + fmtMoneyShort(commit) + '</div>';
+  html += '<div class="nops-fc-label-cat">COMMIT</div>';
   html += '</div>';
 
-  // Dollar labels row — positioned under each segment's midpoint
-  html += '<div class="nops-fc-labels-row">';
-  html += segLabel(closedMid, closedW, closed);
-  html += segLabel(commitMid, commitW, commit);
-  html += segLabel(likelyMid, likelyW, likely);
-  html += segLabel(bestMid, bestW, best);
+  // Most Likely (above)
+  html += '<div class="nops-fc-label nops-fc-label-above" style="left:' + ((likelyX / 720) * 100) + '%">';
+  html += '<div class="nops-fc-label-cat">MOST LIKELY</div>';
+  html += '<div class="nops-fc-label-val">' + fmtMoneyShort(likely) + '</div>';
   html += '</div>';
 
-  // Segment name row
-  html += '<div class="nops-fc-names-row">';
-  html += segName(closedMid, closedW, 'CLOSED');
-  html += segName(commitMid, commitW, 'COMMIT');
-  html += segName(likelyMid, likelyW, 'MOST LIKELY');
-  html += segName(bestMid, bestW, 'BEST CASE');
+  // Best Case (below)
+  html += '<div class="nops-fc-label nops-fc-label-below" style="left:' + ((bestX / 720) * 100) + '%">';
+  html += '<div class="nops-fc-label-val">' + fmtMoneyShort(best) + '</div>';
+  html += '<div class="nops-fc-label-cat">BEST CASE</div>';
   html += '</div>';
 
-  html += '</div>';
+  html += '</div>'; // /nops-fc-labels
+  html += '</div>'; // /nops-fc-gauge
+
   return html;
 }
 
