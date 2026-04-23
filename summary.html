@@ -2427,28 +2427,54 @@ function renderKpiTiles_(data) {
   html += '<div class="nops-kpi-sub">TEAM AVERAGE</div>';
   html += '</div>';
 
-  // TILE 2 — PIPELINE COVERAGE (client-side derivation)
-  var closed = Number(data.metrics && data.metrics.closed) || 0;
-  var best = Number(data.metrics && data.metrics.bestCase) || 0;
-  var quota = Number(data.metrics && data.metrics.teamQuota) || 0;
-  var openPipe = Math.max(0, best - closed);
-  var coverage = quota > 0 ? (openPipe / quota) : 0;
-  var coverageDot = coverage >= 3 ? 'green' : coverage >= 2 ? 'yellow' : coverage > 0 ? 'red' : '';
-  var coverageDisplay = quota > 0 ? coverage.toFixed(1) : '—';
-  var coverageSub = openPipe > 0 ? fmtMoneyShort(openPipe) + ' OPEN PIPE' : 'NO OPEN PIPELINE';
+  // Compute fiscal quarter (shared by Tile 2 and Tile 4)
+  // Glean fiscal year: Feb 1 - Jan 31 (FY27 = Feb 1, 2026 - Jan 31, 2027)
+  var FISCAL_START_MONTH = 1;  // 0-indexed (February)
+  var FISCAL_START_DAY = 1;
+  var now = new Date();
+  var fq, fyNum, fiscalComputeFailed = false;
 
-  // TEMP: data reconciliation pending — see Step 23. Re-enable after Data.js feed is verified.
-  coverageDisplay = '—';
-  coverageDot = '';
-  coverageSub = 'PENDING DATA RECONCILIATION';
-  quota = 0;  // prevents unit '×' from rendering
+  try {
+    var fyStart = new Date(now.getFullYear(), FISCAL_START_MONTH, FISCAL_START_DAY);
+    if (now < fyStart) {
+      fyStart = new Date(now.getFullYear() - 1, FISCAL_START_MONTH, FISCAL_START_DAY);
+    }
+    fyNum = fyStart.getFullYear() + 1;
+    var monthsIn = (now.getFullYear() - fyStart.getFullYear()) * 12 + (now.getMonth() - fyStart.getMonth());
+    fq = Math.floor(monthsIn / 3) + 1;  // 1, 2, 3, or 4
+  } catch (e) {
+    fiscalComputeFailed = true;
+  }
+
+  // TILE 2 — NEXT-QUARTER PIPELINE COVERAGE
+  var nextQPipe = Number(data.metrics && data.metrics.nextQuarter) || 0;
+  var nextQQuota = Number(data.metrics && data.metrics.nextQuarterQuota) || 0;
+  var coverage = nextQQuota > 0 ? (nextQPipe / nextQQuota) : 0;
+  var coverageDot = coverage >= 3 ? 'green' : coverage >= 2 ? 'yellow' : coverage > 0 ? 'red' : '';
+  var coverageDisplay = nextQQuota > 0 ? coverage.toFixed(1) : '—';
+  var coverageUnit = nextQQuota > 0 ? '×' : '';
+  var coverageSub = nextQPipe > 0 ? fmtMoneyShort(nextQPipe) + ' PIPE' : 'NO PIPELINE YET';
+
+  // Derive next fiscal quarter label
+  var coverageLabel = 'NEXT QUARTER COVERAGE';
+  if (!fiscalComputeFailed && typeof fq !== 'undefined' && typeof fyNum !== 'undefined') {
+    var nextFq, nextFyNum;
+    if (fq === 4) {
+      nextFq = 1;
+      nextFyNum = fyNum + 1;
+    } else {
+      nextFq = fq + 1;
+      nextFyNum = fyNum;
+    }
+    coverageLabel = 'Q' + nextFq + ' FY' + (nextFyNum % 100) + ' COVERAGE';
+  }
 
   html += '<div class="nops-cell nops-cell-kpi">';
-  html += '<div class="nops-cell-label">PIPELINE COVERAGE</div>';
+  html += '<div class="nops-cell-label">' + escHtml(coverageLabel) + '</div>';
   html += '<div class="nops-kpi-value">';
   if (coverageDot) html += '<span class="nops-kpi-dot nops-kpi-dot-' + coverageDot + '"></span>';
   html += '<span class="nops-kpi-num">' + escHtml(coverageDisplay) + '</span>';
-  if (quota > 0) html += '<span class="nops-kpi-unit">×</span>';
+  if (coverageUnit) html += '<span class="nops-kpi-unit">' + escHtml(coverageUnit) + '</span>';
   html += '</div>';
   html += '<div class="nops-kpi-sub">' + escHtml(coverageSub) + '</div>';
   html += '</div>';
@@ -2465,45 +2491,30 @@ function renderKpiTiles_(data) {
   html += '<div class="nops-kpi-sub">THIS WEEK</div>';
   html += '</div>';
 
-  // TILE 4 — WEEKS LEFT (fiscal quarter)
-  // Glean fiscal year: Feb 1 - Jan 31 (FY27 = Feb 1, 2026 - Jan 31, 2027)
-  var FISCAL_START_MONTH = 1;  // 0-indexed (February)
-  var FISCAL_START_DAY = 1;
-  var now = new Date();
+  // TILE 4 — WEEKS LEFT (fiscal quarter, uses fq/fyNum computed above)
   var weeksLabel = 'WEEKS LEFT';
   var weeksValue = '—';
   var weeksSub = 'END OF QUARTER';
 
-  try {
-    // Determine which fiscal year we're in
-    var fyStart = new Date(now.getFullYear(), FISCAL_START_MONTH, FISCAL_START_DAY);
-    if (now < fyStart) {
-      fyStart = new Date(now.getFullYear() - 1, FISCAL_START_MONTH, FISCAL_START_DAY);
-    }
-    // Fiscal year label: FY is the calendar year AFTER the fiscal start
-    // (e.g., fiscal year starting Feb 1, 2026 = FY27)
-    var fyNum = fyStart.getFullYear() + 1;
-    // Months into fiscal year
-    var monthsIn = (now.getFullYear() - fyStart.getFullYear()) * 12 + (now.getMonth() - fyStart.getMonth());
-    var fq = Math.floor(monthsIn / 3) + 1;  // 1, 2, 3, or 4
-    // Fiscal quarter end: 3 months after the start of the current FQ, minus 1 day
-    var fqStartMonth = FISCAL_START_MONTH + (fq - 1) * 3;
-    var fqEnd = new Date(fyStart.getFullYear(), fqStartMonth + 3, 1);
-    fqEnd.setDate(fqEnd.getDate() - 1);  // last day of the fiscal quarter
-    // Weeks remaining
-    var msPerWeek = 7 * 24 * 60 * 60 * 1000;
-    var weeksLeft = Math.max(0, Math.ceil((fqEnd - now) / msPerWeek));
+  if (!fiscalComputeFailed && typeof fq !== 'undefined' && typeof fyNum !== 'undefined') {
+    try {
+      var fyStart = new Date(now.getFullYear(), FISCAL_START_MONTH, FISCAL_START_DAY);
+      if (now < fyStart) {
+        fyStart = new Date(now.getFullYear() - 1, FISCAL_START_MONTH, FISCAL_START_DAY);
+      }
+      var fqStartMonth = FISCAL_START_MONTH + (fq - 1) * 3;
+      var fqEnd = new Date(fyStart.getFullYear(), fqStartMonth + 3, 1);
+      fqEnd.setDate(fqEnd.getDate() - 1);  // last day of the fiscal quarter
+      var msPerWeek = 7 * 24 * 60 * 60 * 1000;
+      var weeksLeft = Math.max(0, Math.ceil((fqEnd - now) / msPerWeek));
 
-    weeksLabel = 'WEEKS LEFT Q' + fq + ' FY' + (fyNum % 100);
-    weeksValue = String(weeksLeft);
-    // Format end date: "UNTIL APR 30"
-    var monthShort = ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
-    weeksSub = 'UNTIL ' + monthShort[fqEnd.getMonth()] + ' ' + fqEnd.getDate();
-  } catch (e) {
-    // Fallback on error
-    weeksLabel = 'WEEKS LEFT';
-    weeksValue = '—';
-    weeksSub = 'END OF QUARTER';
+      weeksLabel = 'WEEKS LEFT Q' + fq + ' FY' + (fyNum % 100);
+      weeksValue = String(weeksLeft);
+      var monthShort = ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
+      weeksSub = 'UNTIL ' + monthShort[fqEnd.getMonth()] + ' ' + fqEnd.getDate();
+    } catch (e) {
+      // Fallback on error
+    }
   }
 
   html += '<div class="nops-cell nops-cell-kpi">';

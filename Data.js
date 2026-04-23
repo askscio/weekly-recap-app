@@ -794,8 +794,8 @@ function getTeamForecastTotalsFromDealsSheet_(quarterKey, nextQuarterKey, fallba
         totals.bestCase += amount;
       }
 
-      // Keep next-quarter commit date-based if those rows exist in the sheet.
-      if (rowQuarter === nextQuarterKey && (isCommit || isClosed)) {
+      // Next-quarter pipeline coverage: include all open categories plus closed.
+      if (rowQuarter === nextQuarterKey && (isClosed || isCommit || isMostLikely || isBestCase)) {
         totals.nextQuarter += amount;
       }
     }
