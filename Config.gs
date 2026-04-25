@@ -132,6 +132,7 @@ var GLEAN_API_BASE = 'https://scio-prod-be.glean.com/rest/api/v1';
 var GLEAN_AGENT_WAIT_ENDPOINT = GLEAN_API_BASE + '/agents/runs/wait';
 var RAINMAKER_AGENT_ID_REP_SCORECARD = 'ae1af2d7195e4bc08a43d6bdf0e4d674';
 var RAINMAKER_AGENT_ID_ENT_BENCHMARKS = 'e3d6d039ddf8487c80da8b94adfe3584';
+var WEEKLY_RECAP_SOQL_AGENT_ID = '3e0b35804e064690b6b3262772facd15';
 var RAINMAKER_SHEET_NAME = 'Rainmaker';
 var RAINMAKER_LOG_SHEET_NAME = 'Rainmaker_Log';
 

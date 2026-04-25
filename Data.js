@@ -341,7 +341,9 @@ function isGleanViewerEmail_(email) {
 
 function ensureGleanViewerCaller_() {
   var caller = getResolvedCallerEmail_();
-  if (!isGleanViewerEmail_(caller)) throw new Error("Glean access required.");
+  // Empty caller = headless trigger/editor context — same permissiveness as ensureAdminCaller_ (line 335).
+  // Web-app callers are authenticated upstream in doGet and will always have a caller value.
+  if (caller && !isGleanViewerEmail_(caller)) throw new Error("Glean access required.");
 }
 
 function normHeaderKey_(h) {
@@ -726,6 +728,95 @@ function ownerMatchesAnyRepName_(ownerName, repNames) {
   return false;
 }
 
+// -----------------------------------------------------------------------
+// SALESFORCE SOQL AGENT INTEGRATION
+// -----------------------------------------------------------------------
+var __MANAGER_EMAIL_FOR_TEAM = 'billy.schuett@glean.com';
+var __soqlAgentCache = {};
+
+function callSoqlAgentForManager_(managerEmail) {
+  var GLEAN_BASE = 'https://scio-prod-be.glean.com';
+  var token = PropertiesService.getScriptProperties().getProperty('GLEAN_API_TOKEN');
+
+  if (!token) {
+    Logger.log('callSoqlAgentForManager_: GLEAN_API_TOKEN not set in Script Properties.');
+    return [];
+  }
+
+  var url = GLEAN_BASE + '/rest/api/v1/agents/runs/wait';
+  var payload = {
+    agent_id: WEEKLY_RECAP_SOQL_AGENT_ID,
+    input: { 'Manager Email': managerEmail }
+  };
+
+  try {
+    var response = UrlFetchApp.fetch(url, {
+      method: 'post',
+      contentType: 'application/json',
+      headers: { 'Authorization': 'Bearer ' + token },
+      payload: JSON.stringify(payload),
+      muteHttpExceptions: true
+    });
+
+    var code = response.getResponseCode();
+    var body = response.getContentText();
+
+    if (code !== 200) {
+      Logger.log('callSoqlAgentForManager_: Glean agent run failed (' + code + '): ' + body.slice(0, 500));
+      return [];
+    }
+
+    var envelope;
+    try {
+      envelope = JSON.parse(body);
+    } catch (e) {
+      Logger.log('callSoqlAgentForManager_: Glean response was not JSON: ' + body.slice(0, 500));
+      return [];
+    }
+
+    var inner = null;
+    try {
+      var msgs = envelope.messages || [];
+      for (var m = msgs.length - 1; m >= 0; m--) {
+        if (msgs[m] && msgs[m].role === 'GLEAN_AI' && msgs[m].content && msgs[m].content[0] && msgs[m].content[0].text) {
+          inner = msgs[m].content[0].text;
+          break;
+        }
+      }
+      if (!inner) {
+        Logger.log('callSoqlAgentForManager_: No GLEAN_AI message found in response: ' + body.slice(0, 500));
+        return [];
+      }
+    } catch (e) {
+      Logger.log('callSoqlAgentForManager_: Error extracting GLEAN_AI message: ' + e.message);
+      return [];
+    }
+
+    // Strip possible markdown fences
+    var cleaned = inner.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/i, '').trim();
+
+    var parsed;
+    try {
+      parsed = JSON.parse(cleaned);
+    } catch (e) {
+      Logger.log('callSoqlAgentForManager_: Inner agent JSON failed to parse. First 500 chars: ' + cleaned.slice(0, 500));
+      return [];
+    }
+
+    return Array.isArray(parsed) ? parsed : [];
+
+  } catch (err) {
+    Logger.log('callSoqlAgentForManager_: Exception: ' + err.message);
+    return [];
+  }
+}
+
+function getSoqlAgentDealsForManager_(managerEmail) {
+  if (__soqlAgentCache[managerEmail]) return __soqlAgentCache[managerEmail];
+  __soqlAgentCache[managerEmail] = callSoqlAgentForManager_(managerEmail);
+  return __soqlAgentCache[managerEmail];
+}
+
 function getTeamForecastTotalsFromDealsSheet_(quarterKey, nextQuarterKey, fallbackTotals) {
   var out = {
     closed: Number((fallbackTotals && fallbackTotals.closed) || 0),
@@ -743,10 +834,11 @@ function getTeamForecastTotalsFromDealsSheet_(quarterKey, nextQuarterKey, fallba
   };
 
   try {
-    var ss = SpreadsheetApp.openById(TRACKER_SHEET_ID);
-    var dealsSheet = ss.getSheetByName(DEALS_SHEET_NAME);
-    if (!dealsSheet || dealsSheet.getLastRow() < 3) {
-      var warn = DEALS_SHEET_NAME + ' sheet missing or empty.';
+    // Call SOQL agent to get all opportunities for this team
+    var allDeals = getSoqlAgentDealsForManager_(__MANAGER_EMAIL_FOR_TEAM);
+    if (!allDeals || !allDeals.length) {
+      var warn = 'SOQL agent returned no deals for manager ' + __MANAGER_EMAIL_FOR_TEAM;
+      Logger.log('getTeamForecastTotalsFromDealsSheet_: ' + warn);
       out.sources.closed.warning = warn;
       out.sources.commit.warning = warn;
       out.sources.likely.warning = warn;
@@ -755,64 +847,63 @@ function getTeamForecastTotalsFromDealsSheet_(quarterKey, nextQuarterKey, fallba
       return out;
     }
 
-    var numRows = dealsSheet.getLastRow() - 2;
-    var numCols = Math.max(DEALS_COL_OWNER, DEALS_COL_FORECAST, DEALS_COL_AMOUNT, DEALS_COL_CLOSE, DEALS_COL_ACCOUNT);
-    var rows = dealsSheet.getRange(3, 1, numRows, numCols).getValues();
     var totals = { closed: 0, commit: 0, likely: 0, bestCase: 0, nextQuarter: 0 };
 
-    for (var i = 0; i < rows.length; i++) {
-      var row = rows[i];
-      var forecast = String(row[DEALS_COL_FORECAST - 1] || '').trim().toLowerCase();
-      var amountRaw = row[DEALS_COL_AMOUNT - 1];
-      var closeRaw = row[DEALS_COL_CLOSE - 1];
-      var closeDate = closeRaw instanceof Date ? closeRaw : new Date(closeRaw);
-      var amount = typeof amountRaw === 'number' ? amountRaw : parseFloat(String(amountRaw || '0').replace(/[^0-9.]/g, '')) || 0;
-      if (!amount) continue;
+    for (var i = 0; i < allDeals.length; i++) {
+      var opp = allDeals[i];
+      var amt = Number(opp.amount) || 0;
+      if (!amt) continue;
+
+      var closeDate = opp.closeDate;
+      if (typeof closeDate === 'string' && closeDate) {
+        closeDate = new Date(closeDate);
+      }
       if (!(closeDate instanceof Date) || isNaN(closeDate.getTime())) continue;
 
       var rowQuarter = quarterKeyFromDate_(closeDate);
-      var isCommit = forecast.indexOf('commit') !== -1;
-      var isMostLikely = forecast.indexOf('most likely') !== -1 || forecast.indexOf('most_likely') !== -1;
-      var isBestCase = forecast.indexOf('best case') !== -1 || forecast.indexOf('best_case') !== -1;
-      var isClosed = forecast.indexOf('closed') !== -1;
+      var category = String(opp.forecastCategory || '').trim().toLowerCase();
 
-      // The Total Pipe SF-data tab is already the scoped forecast universe.
-      // Roll the full stack cumulatively from all rows in that tab.
-      if (isClosed) {
-        totals.closed += amount;
-        totals.commit += amount;
-        totals.likely += amount;
-        totals.bestCase += amount;
-      } else if (isCommit) {
-        totals.commit += amount;
-        totals.likely += amount;
-        totals.bestCase += amount;
-      } else if (isMostLikely) {
-        totals.likely += amount;
-        totals.bestCase += amount;
-      } else if (isBestCase) {
-        totals.bestCase += amount;
+      var isCommit = category === 'commit';
+      var isMostLikely = category === 'most likely';
+      var isBestCase = category === 'best case';
+      var isPipeline = category === 'pipeline';
+
+      // Cumulative waterfall totals (closed is 0 since filtered at SOQL)
+      // Only count deals in the current quarter
+      if (rowQuarter === quarterKey) {
+        if (isCommit) {
+          totals.commit += amt;
+          totals.likely += amt;
+          totals.bestCase += amt;
+        } else if (isMostLikely) {
+          totals.likely += amt;
+          totals.bestCase += amt;
+        } else if (isBestCase) {
+          totals.bestCase += amt;
+        }
+        // Pipeline category is intentionally excluded — dead field, never counted.
       }
 
-      // Next-quarter pipeline coverage: include all open categories plus closed.
-      if (rowQuarter === nextQuarterKey && (isClosed || isCommit || isMostLikely || isBestCase)) {
-        totals.nextQuarter += amount;
+      // Next-quarter coverage: only Commit + Most Likely + Best Case
+      if (rowQuarter === nextQuarterKey && (isCommit || isMostLikely || isBestCase)) {
+        totals.nextQuarter += amt;
       }
     }
 
-    out.closed = totals.closed;
+    out.closed = totals.closed; // Stays 0, sourced separately via getClosedWonSourceForQuarter_
     out.commit = totals.commit;
     out.likely = totals.likely;
     out.bestCase = totals.bestCase;
     out.nextQuarter = totals.nextQuarter;
-    out.sources.closed = { source: 'salesforce_total_pipe_sheet', label: DEALS_SHEET_NAME, usedFallback: false, warning: '' };
-    out.sources.commit = { source: 'salesforce_total_pipe_sheet', label: DEALS_SHEET_NAME, usedFallback: false, warning: '' };
-    out.sources.likely = { source: 'salesforce_total_pipe_sheet', label: DEALS_SHEET_NAME, usedFallback: false, warning: '' };
-    out.sources.bestCase = { source: 'salesforce_total_pipe_sheet', label: DEALS_SHEET_NAME, usedFallback: false, warning: '' };
-    out.sources.nextQuarter = { source: 'salesforce_total_pipe_sheet', label: DEALS_SHEET_NAME, usedFallback: false, warning: '' };
+    out.sources.closed = { source: 'glean_soql_agent', label: 'Weekly Recap SOQL Agent', usedFallback: false, warning: '' };
+    out.sources.commit = { source: 'glean_soql_agent', label: 'Weekly Recap SOQL Agent', usedFallback: false, warning: '' };
+    out.sources.likely = { source: 'glean_soql_agent', label: 'Weekly Recap SOQL Agent', usedFallback: false, warning: '' };
+    out.sources.bestCase = { source: 'glean_soql_agent', label: 'Weekly Recap SOQL Agent', usedFallback: false, warning: '' };
+    out.sources.nextQuarter = { source: 'glean_soql_agent', label: 'Weekly Recap SOQL Agent', usedFallback: false, warning: '' };
     return out;
   } catch (err) {
-    var msg = DEALS_SHEET_NAME + ' source failed: ' + err.message;
+    var msg = 'SOQL agent failed: ' + err.message;
+    Logger.log('getTeamForecastTotalsFromDealsSheet_: ' + msg);
     out.sources.closed.warning = msg;
     out.sources.commit.warning = msg;
     out.sources.likely.warning = msg;
@@ -824,50 +915,32 @@ function getTeamForecastTotalsFromDealsSheet_(quarterKey, nextQuarterKey, fallba
 
 function getSFDataForUser(email) {
   var blank = { commit: 0, mostLikely: 0, bestCase: 0, deals: [], nbmBlocks: [], nbmWarnings: [] };
-  var nameCandidates = getUserNameCandidatesFromEmail(email);
-  if (!nameCandidates.length) return blank;
-  var ss = SpreadsheetApp.openById(TRACKER_SHEET_ID);
-  var dealsSheet = ss.getSheetByName(DEALS_SHEET_NAME);
-  if (!dealsSheet || dealsSheet.getLastRow() < 2) {
-    Logger.log("getSFDataForUser: sheet missing or empty: " + DEALS_SHEET_NAME);
+  var cleanedEmail = cleanEmail_(email);
+  if (!cleanedEmail) return blank;
+
+  // Call SOQL agent to get all opportunities for this team
+  var allDeals = getSoqlAgentDealsForManager_(__MANAGER_EMAIL_FOR_TEAM);
+  if (!allDeals || !allDeals.length) {
+    Logger.log("getSFDataForUser: SOQL agent returned no deals for manager " + __MANAGER_EMAIL_FOR_TEAM);
     return blank;
   }
 
-  var lastRow = dealsSheet.getLastRow();
-  var lastCol = dealsSheet.getLastColumn();
-  var scanRows = Math.min(lastRow, 5);
-  var scanValues = dealsSheet.getRange(1, 1, scanRows, lastCol).getValues();
-  var headerRowIdx = -1;
-  var colOwner = -1, colForecast = -1, colAmount = -1, colClose = -1, colAccount = -1;
-
-  for (var hr = 0; hr < scanValues.length; hr++) {
-    var header = scanValues[hr];
-    var ownerIdx = findHeaderIndex_(header, ["Opportunity Owner", "Owner"]);
-    var forecastIdx = findHeaderIndex_(header, ["Forecast Category", "Forecast"]);
-    var amountIdx = findHeaderIndex_(header, ["Amount"]);
-    var closeIdx = findHeaderIndex_(header, ["Close Date"]);
-    var accountIdx = findHeaderIndex_(header, ["Account Name", "Account"]);
-    if (ownerIdx !== -1 && forecastIdx !== -1 && amountIdx !== -1 && closeIdx !== -1 && accountIdx !== -1) {
-      headerRowIdx = hr;
-      colOwner = ownerIdx;
-      colForecast = forecastIdx;
-      colAmount = amountIdx;
-      colClose = closeIdx;
-      colAccount = accountIdx;
-      break;
+  // Filter to this rep's deals only
+  var repDeals = [];
+  for (var i = 0; i < allDeals.length; i++) {
+    var deal = allDeals[i];
+    if (cleanEmail_(deal.ownerEmail) === cleanedEmail) {
+      repDeals.push(deal);
     }
   }
 
-  if (headerRowIdx === -1) {
-    Logger.log("getSFDataForUser: could not find expected headers in " + DEALS_SHEET_NAME);
+  if (!repDeals.length) {
+    Logger.log("getSFDataForUser: No deals found for " + cleanedEmail);
     return blank;
   }
 
-  var startRow = headerRowIdx + 2;
-  var numRows = lastRow - (startRow - 1);
-  if (numRows <= 0) return blank;
-  var dealsValues = dealsSheet.getRange(startRow, 1, numRows, lastCol).getValues();
-
+  // Read NBM sheet for cross-check (unchanged from original)
+  var ss = SpreadsheetApp.openById(TRACKER_SHEET_ID);
   var nbmSheet = ss.getSheetByName(NBM_SHEET_NAME);
   var nbmKeysSet = {};
   if (nbmSheet && nbmSheet.getLastRow() > 2) {
@@ -878,41 +951,70 @@ function getSFDataForUser(email) {
       if (key && key.toString().trim() !== "") nbmKeysSet[key.toString().trim().toLowerCase()] = true;
     }
   }
+
+  // Build deals array and compute totals
   var commitTotal = 0, mlTotal = 0, bcTotal = 0;
   var deals = [], nbmBlocks = [], nbmWarnings = [];
-  var primaryName = String(nameCandidates[0] || "");
-  for (var r = 0; r < dealsValues.length; r++) {
-    var row = dealsValues[r];
-    var owner    = (row[colOwner] || "").toString().trim();
-    var account  = (row[colAccount] || "").toString().trim();
-    var forecast = (row[colForecast] || "").toString().trim();
-    var amount   = row[colAmount];
-    var closeDate = row[colClose];
-    if (!owner || !account || !forecast || !amount) continue;
-    if (!ownerMatchesAnyRepName_(owner, nameCandidates)) continue;
-    var amt = typeof amount === "number"
-      ? amount
-      : parseFloat((amount || "0").toString().replace(/[^0-9.]/g, "")) || 0;
+
+  for (var d = 0; d < repDeals.length; d++) {
+    var opp = repDeals[d];
+    var amt = Number(opp.amount) || 0;
     if (!amt) continue;
-    var forecastStr  = forecast.toLowerCase();
-    var isClosed     = forecastStr.indexOf("closed") !== -1;
-    var isCommit     = forecastStr.indexOf("commit") !== -1;
-    var isMostLikely = forecastStr.indexOf("most likely") !== -1 || forecastStr.indexOf("most_likely") !== -1;
-    var isBestCase   = forecastStr.indexOf("best case") !== -1 || forecastStr.indexOf("best_case") !== -1;
-    if (!isClosed && !isCommit && !isMostLikely && !isBestCase) continue;
+
+    var category = String(opp.forecastCategory || '').trim();
+    var categoryLower = category.toLowerCase();
+    var account = String(opp.accountName || '').trim();
+    var closeDate = opp.closeDate;
+
+    // Parse closeDate if it's a string
+    if (typeof closeDate === 'string' && closeDate) {
+      closeDate = new Date(closeDate);
+    }
+    if (!(closeDate instanceof Date) || isNaN(closeDate.getTime())) {
+      closeDate = null;
+    }
+
     var hasNBM = !!nbmKeysSet[account.toLowerCase()];
-    deals.push({ category: forecast, account: account, amount: amt, closeDate: closeDate, hasNBM: hasNBM, owner: owner });
-    if (isClosed)          { commitTotal += amt; mlTotal += amt; bcTotal += amt; }
-    else if (isCommit)     { commitTotal += amt; mlTotal += amt; bcTotal += amt; }
-    else if (isMostLikely) { mlTotal += amt; bcTotal += amt; }
-    else if (isBestCase)   { bcTotal += amt; }
+
+    deals.push({
+      category: category,
+      account: account,
+      amount: amt,
+      closeDate: closeDate,
+      hasNBM: hasNBM,
+      owner: String(opp.ownerName || '')
+    });
+
+    // Compute totals using waterfall semantics
+    var isCommit = categoryLower === 'commit';
+    var isMostLikely = categoryLower === 'most likely';
+    var isBestCase = categoryLower === 'best case';
+    var isPipeline = categoryLower === 'pipeline';
+
+    if (isCommit) {
+      commitTotal += amt;
+      mlTotal += amt;
+      bcTotal += amt;
+    } else if (isMostLikely) {
+      mlTotal += amt;
+      bcTotal += amt;
+    } else if (isBestCase) {
+      bcTotal += amt;
+    }
+    // Pipeline category is intentionally excluded — dead field, never counted.
+
+    // NBM validation (unchanged from original)
     if (amt >= NBM_MIN_AMOUNT && !hasNBM) {
       var tag = account + " \u2014 $" + Math.round(amt / 1000) + "k";
-      if (isCommit)          nbmBlocks.push(tag + " \u2014 Commit \u2014 No NBM logged");
-      else if (isMostLikely) nbmWarnings.push(tag + " \u2014 Most Likely \u2014 No NBM scheduled");
+      if (isCommit) {
+        nbmBlocks.push(tag + " \u2014 Commit \u2014 No NBM logged");
+      } else if (isMostLikely) {
+        nbmWarnings.push(tag + " \u2014 Most Likely \u2014 No NBM scheduled");
+      }
     }
   }
-  Logger.log("getSFDataForUser [" + normNameToken_(primaryName) + "]: deals=" + deals.length + " commit=$" + commitTotal);
+
+  Logger.log("getSFDataForUser [" + cleanedEmail + "]: deals=" + deals.length + " commit=$" + commitTotal);
   return { commit: commitTotal, mostLikely: mlTotal, bestCase: bcTotal, deals: deals, nbmBlocks: nbmBlocks, nbmWarnings: nbmWarnings };
 }
 
@@ -1539,15 +1641,34 @@ function toIsoDateOnly_(value) {
 function quarterKeyFromDate_(dateObj) {
   var d = dateObj instanceof Date ? dateObj : new Date(dateObj);
   if (!(d instanceof Date) || isNaN(d.getTime())) d = new Date();
+  var month = d.getMonth(); // 0-indexed: 0=Jan, 1=Feb, ..., 11=Dec
   var year = d.getFullYear();
-  var quarter = Math.floor(d.getMonth() / 3) + 1;
-  return year + "-Q" + quarter;
+  // Glean fiscal year starts Feb 1. FY label = calendar year + 1 if month >= Feb (1).
+  // Jan (month=0) belongs to previous FY's Q4.
+  var fyNum, fq;
+  if (month === 0) {
+    // January = Q4 of fiscal year that started previous Feb
+    fyNum = year;       // Jan 2026 belongs to FY26 Q4 (FY26 = Feb 2025 - Jan 2026)
+    fq = 4;
+  } else {
+    // Feb-Dec: FY label = calendar year + 1
+    fyNum = year + 1;
+    var monthsSinceFebStart = month - 1; // Feb=0, Mar=1, ..., Dec=10
+    fq = Math.floor(monthsSinceFebStart / 3) + 1;
+  }
+  return 'FY' + (fyNum % 100).toString().padStart(2, '0') + '-Q' + fq;
 }
 
 function quarterLabelFromKey_(quarterKey) {
-  var m = String(quarterKey || "").match(/^(\d{4})-Q([1-4])$/);
-  if (!m) return String(quarterKey || "");
-  return "Q" + m[2] + " " + m[1];
+  // Handle fiscal quarter format "FY27-Q1" (primary)
+  var fiscal = String(quarterKey || "").match(/^FY(\d{2})-Q([1-4])$/);
+  if (fiscal) return "Q" + fiscal[2] + " FY" + fiscal[1];
+
+  // Legacy fallback: calendar quarter format "2026-Q1" (for any old data)
+  var calendar = String(quarterKey || "").match(/^(\d{4})-Q([1-4])$/);
+  if (calendar) return "Q" + calendar[2] + " " + calendar[1];
+
+  return String(quarterKey || "");
 }
 
 function isMeaningfulSummaryAdminText_(value) {
@@ -1865,16 +1986,38 @@ function getOperatingStandardsForDashboard_() {
 
     // --- Calculate weeks elapsed in quarter ---
     var now = new Date();
-    var year = now.getFullYear();
-    var qNum = parseInt(quarterKey.split('Q')[1] || '1', 10);
-    var qStart = new Date(year, (qNum - 1) * 3, 1);
+    // Parse fiscal quarter key "FY27-Q1"
+    var fyMatch = quarterKey.match(/^FY(\d{2})-Q([1-4])$/);
+    if (!fyMatch) throw new Error('Invalid fiscal quarter key: ' + quarterKey);
+    var fyNum = parseInt('20' + fyMatch[1], 10); // FY27 → 2027
+    var fq = parseInt(fyMatch[2], 10);           // Q1 → 1
+
+    // Compute fiscal quarter start date
+    // FY27 Q1 starts Feb 1, 2026 (fyNum-1 because FY27 starts in calendar 2026)
+    // Q1: Feb (month=1), Q2: May (month=4), Q3: Aug (month=7), Q4: Nov (month=10)
+    var qStartMonth = (fq - 1) * 3 + 1; // Q1→1 (Feb), Q2→4 (May), Q3→7 (Aug), Q4→10 (Nov)
+    var qStartYear = fq === 4 ? fyNum - 1 : fyNum - 1; // All quarters of FY27 start in 2026, except Q4 wraps
+    // Actually: FY27 Q1-Q3 are in 2026, FY27 Q4 is in 2026 (Nov-Jan wraps to 2027)
+    // Simpler: FY starts in Feb of (fyNum - 1)
+    var fyStartYear = fyNum - 1;
+    if (fq === 4) {
+      // Q4: Nov (month=10) of fyStartYear
+      qStartMonth = 10;
+      qStartYear = fyStartYear;
+    } else {
+      qStartMonth = (fq - 1) * 3 + 1;
+      qStartYear = fyStartYear;
+    }
+    var qStart = new Date(qStartYear, qStartMonth, 1);
     var msElapsed = now.getTime() - qStart.getTime();
     var weeksElapsed = Math.max(1, Math.floor(msElapsed / (7 * 86400000)));
     var totalWeeksInQuarter = 13;
 
     // --- Stage 2+ Coverage ---
     // Use deals sheet totals. Open pipeline = bestCase - closed.
-    var nextQuarterKey = quarterKeyFromDate_(new Date(year, (qNum) * 3, 1));
+    // Compute next fiscal quarter by adding 3 months to current quarter start
+    var nextQStart = new Date(qStartYear, qStartMonth + 3, 1);
+    var nextQuarterKey = quarterKeyFromDate_(nextQStart);
     var forecastTotals = getTeamForecastTotalsFromDealsSheet_(quarterKey, nextQuarterKey, {
       closed: 0, commit: 0, likely: 0, bestCase: 0, nextQuarter: 0
     });
@@ -2185,11 +2328,12 @@ function getExecutiveSummaryDataBase_(forcedQuarterKey) {
     };
   }
 
+  var closedNum = Number(closedMeta.amount) || 0;
   var totals = {
-    closed: Number(forecastTotals.closed) || closedAmount,
-    commit: Number(forecastTotals.commit) || 0,
-    likely: Number(forecastTotals.likely) || 0,
-    bestCase: Number(forecastTotals.bestCase) || 0,
+    closed: closedNum,
+    commit: closedNum + (Number(forecastTotals.commit) || 0),
+    likely: closedNum + (Number(forecastTotals.likely) || 0),
+    bestCase: closedNum + (Number(forecastTotals.bestCase) || 0),
     nextQuarter: nextQuarterOverride > 0 ? nextQuarterOverride : (Number(forecastTotals.nextQuarter) || 0)
   };
 
@@ -2520,7 +2664,7 @@ function getExecutiveSummaryData() {
       base.teamRollup.risksAsksNotes = combinedRAN;
       base.teamRecap = {
         success: true,
-        note: "",
+        note: normalizedAi.leader_note || (fallbackRecap && fallbackRecap.note) || "",
         generatedAt: normalizedAi.generated_at || "",
         headlineVerdict: String(normalizedAi.headline_verdict || "").trim(),
         recapsUsed: base.teamRollup.repsSubmitted || 0,

@@ -45,7 +45,7 @@ function writeSummaryAISnapshot_(quarterKey, model, payload, source, status) {
     quarterKey || '',
     model || '',
     JSON.stringify(payload || {}),
-    source || 'openai_responses',
+    source || 'glean_agent',
     status || 'ok'
   ]);
 }
@@ -427,6 +427,53 @@ function validateSummaryAIPayload_(payload, context) {
   };
 }
 
+function callGleanAgentSummary_(contextJsonString) {
+  var GLEAN_BASE = 'https://scio-prod-be.glean.com';
+  var AGENT_ID = 'ae756d1d02e54829803d49d540631a90';
+  var token = PropertiesService.getScriptProperties().getProperty('GLEAN_API_TOKEN');
+  if (!token) throw new Error('GLEAN_API_TOKEN not set in Script Properties.');
+
+  var url = GLEAN_BASE + '/rest/api/v1/agents/runs/wait';
+  var payload = {
+    agent_id: AGENT_ID,
+    input: { text: contextJsonString }
+  };
+
+  var response = UrlFetchApp.fetch(url, {
+    method: 'post',
+    contentType: 'application/json',
+    headers: { 'Authorization': 'Bearer ' + token },
+    payload: JSON.stringify(payload),
+    muteHttpExceptions: true
+  });
+
+  var code = response.getResponseCode();
+  var body = response.getContentText();
+  if (code !== 200) {
+    throw new Error('Glean agent run failed (' + code + '): ' + body);
+  }
+
+  var envelope;
+  try { envelope = JSON.parse(body); }
+  catch (e) { throw new Error('Glean response was not JSON: ' + body.slice(0, 500)); }
+
+  var inner;
+  try {
+    inner = envelope.messages[0].content[0].text;
+  } catch (e) {
+    throw new Error('Glean response missing messages[0].content[0].text: ' + body.slice(0, 500));
+  }
+
+  // Strip possible markdown fences just in case.
+  var cleaned = inner.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/i, '').trim();
+
+  var parsed;
+  try { parsed = JSON.parse(cleaned); }
+  catch (e) { throw new Error('Inner agent JSON failed to parse. First 500 chars: ' + cleaned.slice(0, 500)); }
+
+  return parsed;
+}
+
 function callOpenAISummary_(context) {
   var apiKey = getOpenAIApiKey_();
   var inputJson = JSON.stringify(context);
@@ -479,7 +526,7 @@ function generateExecutiveSummaryAI() {
   var context = buildSummaryAiInputContext_(quarterKey);
 
   try {
-    var ai = callOpenAISummary_(context);
+    var ai = callGleanAgentSummary_(JSON.stringify(context));
 
     // Validate AI output before publishing
     if (!ai || !ai.generated_at || !ai.leader_note) {
@@ -487,7 +534,7 @@ function generateExecutiveSummaryAI() {
     }
 
     // Only write snapshot and cache if validation passed
-    writeSummaryAISnapshot_(quarterKey, SUMMARY_AI_MODEL, ai, 'openai_responses', 'ok');
+    writeSummaryAISnapshot_(quarterKey, SUMMARY_AI_MODEL, ai, 'glean_agent', 'ok');
     putJsonCache_('summary_ai_' + quarterKey, ai, 60);
 
     return {
@@ -495,13 +542,13 @@ function generateExecutiveSummaryAI() {
       quarterKey: quarterKey,
       generatedAt: ai.generated_at,
       model: SUMMARY_AI_MODEL,
-      source: 'openai_validated'
+      source: 'glean_agent_validated'
     };
   } catch (err) {
     // Log failure but don't overwrite good cache/snapshot with bad data
     var errorMsg = err.message || String(err);
     Logger.log('generateExecutiveSummaryAI failed: ' + errorMsg);
-    writeSummaryAISnapshot_(quarterKey, SUMMARY_AI_MODEL, { error: errorMsg, timestamp: new Date().toISOString() }, 'openai_responses', 'failed');
+    writeSummaryAISnapshot_(quarterKey, SUMMARY_AI_MODEL, { error: errorMsg, timestamp: new Date().toISOString() }, 'glean_agent', 'failed');
 
     // Check if we have a previous good snapshot to fall back to
     var existingSnapshot = getLatestSummaryAISnapshot_(quarterKey);
